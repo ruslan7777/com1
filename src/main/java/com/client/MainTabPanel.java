@@ -26,11 +26,11 @@ public class MainTabPanel extends TabLayoutPanel {
 //    getElement().getStyle().setMarginLeft(300.0, Style.Unit.PX);
     setHeight("500px");
     setWidth("500px");
+//    setHeight("100%");
+//    setWidth("100%");
     // Add a home tab
     String[] tabTitles = {"Сессии", "Настройки", "Отчеты"};
     ClientSessionGridPanel clientSessionGridPanel = new ClientSessionGridPanel();
-    Label label1 = new Label("This is contents of TAB 1");
-    label1.setSize("100", "100");
     add(clientSessionGridPanel, tabTitles[0]);
 
     // Add a tab with an image

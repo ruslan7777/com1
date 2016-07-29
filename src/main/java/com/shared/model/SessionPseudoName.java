@@ -1,11 +1,20 @@
 package com.shared.model;
 
+import java.io.Serializable;
+
 /**
  * Created by dmitry on 26.07.16.
  */
-public class SessionPseudoName {
+public class SessionPseudoName implements Serializable{
   private String name;
   private boolean isUsed;
+
+  public SessionPseudoName(String name) {
+    this.name = name;
+  }
+
+  public SessionPseudoName() {
+  }
 
   public String getName() {
     return name;
