@@ -25,7 +25,7 @@ public class MainTabPanel extends TabLayoutPanel {
 //    getElement().getStyle().setMarginBottom(10.0, Style.Unit.PX);
 //    getElement().getStyle().setMarginLeft(300.0, Style.Unit.PX);
     setHeight("500px");
-    setWidth("500px");
+    setWidth("100%");
 //    setHeight("100%");
 //    setWidth("100%");
     // Add a home tab

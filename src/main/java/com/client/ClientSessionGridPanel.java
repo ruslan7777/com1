@@ -75,7 +75,7 @@ public class ClientSessionGridPanel extends HorizontalPanel {
         return object.getSessionPseudoName().getName();
       }
     };
-    clientSessionDataGrid.setColumnWidth(categoryColumn, 100, Style.Unit.PX);
+    clientSessionDataGrid.setColumnWidth(categoryColumn, 200, Style.Unit.PX);
 //    clientSessionDataGrid.addColumn(categoryColumn, "Псевдоним");
     categoryColumn.setFieldUpdater(new FieldUpdater<ClientSession, String>() {
       @Override
@@ -94,8 +94,8 @@ public class ClientSessionGridPanel extends HorizontalPanel {
     clientSession.setId(0);
     clientSession.setSessionPseudoName(new SessionPseudoName("GREEN"));
     clientSessionDataGrid.setRowData(0, Arrays.asList(clientSession));
-    clientSessionDataGrid.setHeight("300px");
-    clientSessionDataGrid.setWidth("500px");
+    clientSessionDataGrid.setHeight("400px");
+    clientSessionDataGrid.setWidth("100%");
     verticalPanel.add(clientSessionDataGrid);
     Button addButton = new Button("Add Row");
     addButton.setHeight("30px");
