@@ -30,7 +30,7 @@
         <groupId>com.google.gwt</groupId>
         <artifactId>gwt</artifactId>
         <version>${gwtVersion}</version>
-        <scope>import</scope>
+        <!--<scope>import</scope>-->
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -46,7 +46,7 @@
       <groupId>com.google.gwt</groupId>
       <artifactId>gwt-user</artifactId>
       <version>${gwtVersion}</version>
-      <scope>provided</scope>
+      <!--<scope>compile</scope>-->
     </dependency>
     <dependency>
       <groupId>com.google.gwt</groupId>
@@ -71,42 +71,20 @@
   <build>
     
     <plugins>
-      
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>3.5.1</version>
+            <configuration>
+                <source>1.7</source>
+                <target>1.7</target>
+            </configuration>
+        </plugin>
       <!-- GWT Maven Plugin-->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>gwt-maven-plugin</artifactId>
         <version>${gwtVersion}</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>compile</goal>
-            </goals>
-          </execution>
-          <execution>
-            <!-- Run tests through gwt:test, this allows reusing the plugin configuration for GWTTestCases -->
-            <id>gwt-tests</id>
-            <phase>test</phase>
-            <goals>
-              <goal>test</goal>
-            </goals>
-          </execution>
-        </executions>
-        <!-- Plugin configuration. There are many available options, 
-             see gwt-maven-plugin documentation at codehaus.org --> 
-        <configuration>
-          <modules>
-            <module>com.anticafe</module>
-          </modules>
-          <!-- URL that should be opened by DevMode (gwt:run). -->
-          <runTarget>anticafe.html</runTarget>
-          <!-- Ask GWT to create the Story of Your Compile (SOYC) (gwt:compile) -->
-          <compileReport>true</compileReport>
-          <!-- Run tests using HtmlUnit -->
-          <mode>htmlunit</mode>
-          <!-- Tests patterns -->
-          <includes>**/Test*.java,**/*Test.java,**/*TestCase.java</includes>
-        </configuration>
       </plugin>
 
       <!-- Skip normal test execution, we use gwt:test instead -->

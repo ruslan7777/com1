@@ -31,4 +31,9 @@ public class SessionPseudoName implements Serializable{
   public void setIsUsed(boolean isUsed) {
     this.isUsed = isUsed;
   }
+
+    @Override
+    public boolean equals(Object obj) {
+        return this.getName().equals(obj);    //To change body of overridden methods use File | Settings | File Templates.
+    }
 }
