@@ -76,6 +76,17 @@
           <artifactId>gwt-visualization</artifactId>
           <version>1.0.2</version>
       </dependency>
+      <!--<dependency>-->
+          <!--<groupId>com.google.appengine</groupId>-->
+          <!--<artifactId>appengine-remote-api</artifactId>-->
+          <!--<version>1.9.42</version>-->
+      <!--</dependency>-->
+      <dependency>
+          <groupId>com.google.appengine</groupId>
+          <artifactId>appengine-api-1.0-sdk</artifactId>
+          <version>1.9.42</version>
+          <scope>provided</scope>
+      </dependency>
   </dependencies>
   
   <build>
@@ -95,6 +106,13 @@
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>gwt-maven-plugin</artifactId>
         <version>${gwtVersion}</version>
+          <executions>
+              <execution>
+                  <goals>
+                      <goal>compile</goal>
+                  </goals>
+              </execution>
+          </executions>
       </plugin>
 
       <!-- Skip normal test execution, we use gwt:test instead -->
@@ -119,11 +137,6 @@
           </systemProperties>
         </configuration>
         </plugin>
-        <!--<plugin>-->
-            <!--<groupId>com.google.appengine</groupId>-->
-            <!--<artifactId>appengine-maven-plugin</artifactId>-->
-            <!--<version>1.9.42</version>-->
-        <!--</plugin>-->
 
     </plugins>
   </build>

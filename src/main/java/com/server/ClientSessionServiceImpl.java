@@ -4,6 +4,7 @@ import com.client.service.ClientSessionService;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import com.server.dao.ClientSessionDao;
 import com.server.dao.ClientSessionMemoryDaoImpl;
+import com.shared.model.ClientSession;
 
 import java.util.List;
 
@@ -34,5 +35,10 @@ public class ClientSessionServiceImpl extends RemoteServiceServlet implements Cl
     @Override
     public void addNames(List<String> pseudoNamesList) {
         clientSessionDao.addNames(pseudoNamesList);
+    }
+
+    @Override
+    public void saveClientSession(ClientSession clientSession) {
+        clientSessionDao.saveClientSession(clientSession);//To change body of implemented methods use File | Settings | File Templates.
     }
 }

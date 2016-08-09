@@ -1,14 +1,19 @@
 package com.client;
 
 import com.client.events.AddSessionEvent;
+import com.client.service.ClientSessionService;
+import com.client.service.ClientSessionServiceAsync;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.shared.model.ClientSession;
 
 /**
  * Created with IntelliJ IDEA.
@@ -20,6 +25,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 public class NameSelectWindow extends DialogBox {
     private SimpleEventBus simpleEventBus;
     private VerticalPanel verticalPanel;
+    private final ClientSessionServiceAsync clientSessionService = GWT.create(ClientSessionService.class);
 
     public NameSelectWindow(final SimpleEventBus simpleEventBus) {
         this.simpleEventBus = simpleEventBus;
@@ -45,6 +51,27 @@ public class NameSelectWindow extends DialogBox {
             }
         });
         verticalPanel.add(button);
+        Button addEntityButton = new Button("Создать client");
+        button.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent clickEvent) {
+                 ClientSession clientSession = new ClientSession(System.currentTimeMillis(),
+                         0, false);
+                 clientSessionService.saveClientSession(clientSession, new AsyncCallback<Void>() {
+                     @Override
+                     public void onFailure(Throwable throwable) {
+                         //To change body of implemented methods use File | Settings | File Templates.
+                     }
+
+                     @Override
+                     public void onSuccess(Void aVoid) {
+                         //To change body of implemented methods use File | Settings | File Templates.
+                     }
+                 });
+
+            }
+        });
+        verticalPanel.add(addEntityButton);
     }
 
 }

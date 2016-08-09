@@ -1,14 +1,18 @@
 package com.shared.model;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
+import com.googlecode.objectify.annotation.Entity;
+import com.googlecode.objectify.annotation.Id;
 
 import java.io.Serializable;
 
 /**
  * Created by dmitry on 26.07.16.
  */
+@Entity
 public class ClientSession implements Serializable, IsSerializable {
-  private long id;
+    @Id
+    private long id;
   private long startTime;
   private long stopTime;
   private boolean isPayed;

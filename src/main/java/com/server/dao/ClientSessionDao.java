@@ -1,5 +1,7 @@
 package com.server.dao;
 
+import com.shared.model.ClientSession;
+
 import java.util.List;
 
 /**
@@ -18,4 +20,6 @@ public interface ClientSessionDao {
     void removeName(String name);
 
     void addNames(List<String> pseudoNamesList);
+
+    void saveClientSession(ClientSession clientSession);
 }

@@ -2,6 +2,7 @@ package com.client.service;
 
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
+import com.shared.model.ClientSession;
 
 import java.util.List;
 
@@ -19,4 +20,6 @@ public interface ClientSessionService extends RemoteService {
     public void removeName(String name);
 
     void addNames(List<String> pseudoNamesList);
+
+    void saveClientSession(ClientSession clientSession);
 }

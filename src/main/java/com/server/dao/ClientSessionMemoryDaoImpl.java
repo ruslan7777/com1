@@ -1,5 +1,8 @@
 package com.server.dao;
 
+import com.googlecode.objectify.ObjectifyService;
+import com.shared.model.ClientSession;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,5 +33,10 @@ public class ClientSessionMemoryDaoImpl implements ClientSessionDao{
     @Override
     public void addNames(List<String> pseudoNamesList) {
         this.pseudoNames.addAll(pseudoNamesList);
+    }
+
+    @Override
+    public void saveClientSession(ClientSession clientSession) {
+        ObjectifyService.ofy().save().entity(clientSession);//To change body of implemented methods use File | Settings | File Templates.
     }
 }
