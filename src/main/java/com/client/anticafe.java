@@ -4,6 +4,8 @@ import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.ui.RootPanel;
+import com.google.gwt.visualization.client.VisualizationUtils;
+import com.google.gwt.visualization.client.visualizations.PieChart;
 
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
@@ -26,7 +28,16 @@ public class anticafe implements EntryPoint {
    * This is the entry point method.
    */
   public void onModuleLoad() {
-      SimpleEventBus simpleEventBus = new SimpleEventBus();
-    RootPanel.get().add(new LoginPanel(simpleEventBus));
+      // Load the visualization api, passing the onLoadCallback to be called
+      // when loading is done.
+      Runnable runnable = new Runnable() {
+          @Override
+          public void run() {
+              SimpleEventBus simpleEventBus = new SimpleEventBus();
+              RootPanel.get().add(new LoginPanel(simpleEventBus));
+          }
+      };
+      VisualizationUtils.loadVisualizationApi(runnable, PieChart.PACKAGE);
+
   }
 }

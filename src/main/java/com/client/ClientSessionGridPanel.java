@@ -2,7 +2,10 @@ package com.client;
 
 import com.client.events.AddSessionEvent;
 import com.client.events.AddSessionEventHandler;
+import com.client.service.ClientSessionService;
+import com.client.service.ClientSessionServiceAsync;
 import com.google.gwt.cell.client.*;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -15,6 +18,7 @@ import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.TextHeader;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.AbstractDataProvider;
 import com.google.gwt.view.client.HasData;
@@ -35,16 +39,46 @@ import java.util.List;
  */
 public class ClientSessionGridPanel extends HorizontalPanel {
     private SimpleEventBus simpleEventBus;
+    private final ClientSessionServiceAsync clientSessionService = GWT.create(ClientSessionService.class);
     private List<String> pseudoNamesList = new ArrayList<>();
+    final DataGrid<ClientSession> clientSessionDataGrid = new DataGrid<ClientSession>(10, new ProvidesKey<ClientSession>() {
+        @Override
+        public Object getKey(ClientSession item) {
+            return ((ClientSession)item).getId();
+        }
+    });
   public ClientSessionGridPanel(final SimpleEventBus eventBus) {
       this.simpleEventBus = eventBus;
+      pseudoNamesList.addAll(Arrays.asList("BLACK", "RED", "YELLOW", "WHITE", "GREEN"));
+      clientSessionService.addNames(pseudoNamesList, new AsyncCallback<Void>() {
+          @Override
+          public void onFailure(Throwable throwable) {
+              //To change body of implemented methods use File | Settings | File Templates.
+          }
+
+          @Override
+          public void onSuccess(Void aVoid) {
+              //To change body of implemented methods use File | Settings | File Templates.
+          }
+      });
       simpleEventBus.addHandler(AddSessionEvent.TYPE, new AddSessionEventHandler() {
           @Override
           public void addClientSession(AddSessionEvent addSessionEvent) {
-              String s = "dfdf";//To change body of implemented methods use File | Settings | File Templates.
-          }
+              ClientSession clientSession = new ClientSession();
+              clientSession.setSessionPseudoName(new SessionPseudoName(addSessionEvent.getClientPseudoName()));
+              clientSessionDataGrid.setRowData(clientSessionDataGrid.getVisibleItems().size(), Arrays.asList(clientSession));
+//          if (!pseudoNamesList.isEmpty()) {
+//              SessionPseudoName sessionPseudoName = new SessionPseudoName(pseudoNamesList.get(0));
+//              clientSession.setSessionPseudoName(sessionPseudoName);
+//              pseudoNamesList.remove(sessionPseudoName);
+//              clientSession.setId(clientSessionDataGrid.getRowCount());
+//              clientSessionDataGrid.setRowData(clientSessionDataGrid.getVisibleItems().size(), Arrays.asList(clientSession));
+//          } else {
+//              event.stopPropagation();
+//              Window.alert("All names are used");
+//          }
+             }
       });
-      pseudoNamesList.addAll(Arrays.asList("BLACK", "RED", "YELLOW", "WHITE", "GREEN"));
     setHeight("100%");
     setWidth("100%");
     VerticalPanel verticalPanel = new VerticalPanel();
@@ -52,12 +86,6 @@ public class ClientSessionGridPanel extends HorizontalPanel {
     verticalPanel.setWidth("100%");
 
 //    add(clientSessionGrid);
-    final DataGrid<ClientSession> clientSessionDataGrid = new DataGrid<ClientSession>(10, new ProvidesKey<ClientSession>() {
-      @Override
-      public Object getKey(ClientSession item) {
-        return ((ClientSession)item).getId();
-      }
-    });
 
     final List<String> sessionPseudoNames = new ArrayList<>();
     sessionPseudoNames.addAll(pseudoNamesList);
@@ -257,6 +285,8 @@ public class ClientSessionGridPanel extends HorizontalPanel {
     private DialogBox createDialogBox() {
         // Create a dialog box and set the caption text
         final DialogBox dialogBox = new DialogBox();
+        dialogBox.setWidth("600");
+        dialogBox.setHeight("450");
         dialogBox.ensureDebugId("cwDialogBox");
         dialogBox.setText("dfd");
 
@@ -265,29 +295,22 @@ public class ClientSessionGridPanel extends HorizontalPanel {
         dialogContents.setSpacing(4);
         dialogBox.setWidget(dialogContents);
 
-        // Add some text to the top of the dialog
-        HTML details = new HTML("dfdf");
-        dialogContents.add(details);
-        dialogContents.setCellHorizontalAlignment(
-                details, HasHorizontalAlignment.ALIGN_CENTER);
-
-//        // Add an image to the dialog
-//        Image image = new Image(Showcase.images.jimmy());
-//        dialogContents.add(image);
-//        dialogContents.setCellHorizontalAlignment(
-//                image, HasHorizontalAlignment.ALIGN_CENTER);
-
-        // Add a close button at the bottom of the dialog
-        Button closeButton = new Button(
-                "dfdfd", new ClickHandler() {
-            public void onClick(ClickEvent event) {
-                AddSessionEvent addSessionEvent = new AddSessionEvent();
-                addSessionEvent.setClientPseudoName("dddddd");
-                simpleEventBus.fireEvent(event);
+        final ListBox namesListBox = new ListBox();
+        namesListBox.addItem("GREEN");
+        namesListBox.addItem("YELLOW");
+        namesListBox.addItem("BLACK");
+        dialogContents.add(namesListBox);
+        Button button = new Button("Создать");
+        button.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent clickEvent) {
+                AddSessionEvent event = new AddSessionEvent();
+                event.setClientPseudoName(namesListBox.getSelectedValue());
+                simpleEventBus.fireEvent(event);//To change body of implemented methods use File | Settings | File Templates.
                 dialogBox.hide();
             }
         });
-        dialogContents.add(closeButton);
+        dialogContents.add(button);
 //        if (LocaleInfo.getCurrentLocale().isRTL()) {
 //            dialogContents.setCellHorizontalAlignment(
 //                    closeButton, HasHorizontalAlignment.ALIGN_LEFT);

@@ -1,5 +1,7 @@
 package com.server.dao;
 
+import java.util.List;
+
 /**
  * Created with IntelliJ IDEA.
  * User: dmitry
@@ -9,4 +11,11 @@ package com.server.dao;
  */
 public interface ClientSessionDao {
 
+    List<String> getPseudoNames();
+
+    void addName(String name);
+
+    void removeName(String name);
+
+    void addNames(List<String> pseudoNamesList);
 }

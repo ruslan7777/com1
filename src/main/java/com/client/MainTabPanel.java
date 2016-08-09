@@ -1,5 +1,7 @@
 package com.client;
 
+import com.client.panels.ReportsPanel;
+import com.client.panels.SettingsPanel;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.ui.Button;
@@ -37,13 +39,13 @@ public class MainTabPanel extends TabLayoutPanel {
     add(clientSessionGridPanel, tabTitles[0]);
 
     // Add a tab with an image
-    SimplePanel imageContainer = new SimplePanel();
-    imageContainer.setWidget(new Button("dfdfdf"));
-    add(imageContainer, tabTitles[1]);
+//    SimplePanel imageContainer = new SimplePanel();
+//    imageContainer.setWidget(new Button("dfdfdf"));
+    add(new SettingsPanel(), tabTitles[1]);
 
     // Add a tab
-    HTML moreInfo = new HTML("some html");
-    add(moreInfo, tabTitles[2]);
+//    HTML moreInfo = new HTML("some html");
+    add(new ReportsPanel(), tabTitles[2]);
 
     // Return the content
     selectTab(0);

@@ -13,13 +13,12 @@ public class ClientSession implements Serializable, IsSerializable {
   private long stopTime;
   private boolean isPayed;
   private SessionPseudoName sessionPseudoName;
-  private SESSION_STATUS status;
+  private SESSION_STATUS status = SESSION_STATUS.CREATED;
 
   public ClientSession(long startTime, long stopTime, boolean isPayed) {
     this.startTime = startTime;
     this.stopTime = stopTime;
     this.isPayed = isPayed;
-    setStatus(SESSION_STATUS.CREATED);
   }
 
   public ClientSession() {
