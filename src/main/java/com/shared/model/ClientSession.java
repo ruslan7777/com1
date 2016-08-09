@@ -12,7 +12,7 @@ import java.io.Serializable;
 @Entity
 public class ClientSession implements Serializable, IsSerializable {
     @Id
-    private long id;
+    private Long id;
   private long startTime;
   private long stopTime;
   private boolean isPayed;

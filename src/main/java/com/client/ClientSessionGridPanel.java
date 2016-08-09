@@ -147,6 +147,7 @@ public class ClientSessionGridPanel extends HorizontalPanel {
       public void onClick(ClickEvent event) {
 
           DialogBox dialogBox = createDialogBox();
+          dialogBox.setSize("400px", "400px");
           dialogBox.show();
 //          NameSelectWindow nameSelectWindow = new NameSelectWindow(simpleEventBus);
 //          nameSelectWindow.show();
@@ -311,6 +312,27 @@ public class ClientSessionGridPanel extends HorizontalPanel {
             }
         });
         dialogContents.add(button);
+        Button addEntityButton = new Button("Создать client");
+        addEntityButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent clickEvent) {
+                ClientSession clientSession = new ClientSession(System.currentTimeMillis(),
+                        0, false);
+                clientSessionService.saveClientSession(clientSession, new AsyncCallback<Void>() {
+                    @Override
+                    public void onFailure(Throwable throwable) {
+                        //To change body of implemented methods use File | Settings | File Templates.
+                    }
+
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        //To change body of implemented methods use File | Settings | File Templates.
+                    }
+                });
+
+            }
+        });
+        dialogContents.add(addEntityButton);
 //        if (LocaleInfo.getCurrentLocale().isRTL()) {
 //            dialogContents.setCellHorizontalAlignment(
 //                    closeButton, HasHorizontalAlignment.ALIGN_LEFT);
