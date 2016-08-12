@@ -1,11 +1,17 @@
 package com.shared.model;
 
+import com.google.gwt.user.client.rpc.IsSerializable;
+import com.googlecode.objectify.annotation.Entity;
+import com.googlecode.objectify.annotation.Id;
+
 import java.io.Serializable;
 
 /**
  * Created by dmitry on 26.07.16.
  */
-public class SessionPseudoName implements Serializable{
+@Entity
+public class SessionPseudoName implements Serializable, IsSerializable {
+  @Id
   private String name;
   private boolean isUsed;
 
@@ -34,6 +40,10 @@ public class SessionPseudoName implements Serializable{
 
     @Override
     public boolean equals(Object obj) {
-        return this.getName().equals(obj);    //To change body of overridden methods use File | Settings | File Templates.
+      if (obj instanceof SessionPseudoName) {
+        return this.getName().equals(((SessionPseudoName) obj).getName());
+      } else {
+        return false;
+      }
     }
 }

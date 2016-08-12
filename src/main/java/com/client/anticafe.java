@@ -34,6 +34,7 @@ public class anticafe implements EntryPoint {
           @Override
           public void run() {
               SimpleEventBus simpleEventBus = new SimpleEventBus();
+              RootPanel.get().getElement().getStyle().setBackgroundColor("darkcyan");
               RootPanel.get().add(new LoginPanel(simpleEventBus));
           }
       };

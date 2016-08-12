@@ -29,7 +29,7 @@ public class MainTabPanel extends TabLayoutPanel {
     setAnimationDuration(301);
 //    getElement().getStyle().setMarginBottom(10.0, Style.Unit.PX);
 //    getElement().getStyle().setMarginLeft(300.0, Style.Unit.PX);
-    setHeight("400px");
+    setHeight("600px");
     setWidth("100%");
 //    setHeight("100%");
 //    setWidth("100%");

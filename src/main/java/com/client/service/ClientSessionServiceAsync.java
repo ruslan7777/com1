@@ -4,17 +4,18 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 import com.shared.model.ClientSession;
+import com.shared.model.SessionPseudoName;
 
 import java.util.List;
 
 public interface ClientSessionServiceAsync {
-    void getPseudoNames(AsyncCallback<List<String>> async);
+    void getFreePseudoNames(AsyncCallback<List<SessionPseudoName>> async);
 
-    void addName(String name, AsyncCallback<Void> async);
+    void markNameAsFree(SessionPseudoName name, AsyncCallback<Void> async);
 
-    void removeName(String name, AsyncCallback<Void> async);
+    void markNameAsUsed(SessionPseudoName name, AsyncCallback<Void> async);
 
-    void addNames(List<String> pseudoNamesList, AsyncCallback<Void> asyncCallback);
+    void addNames(List<SessionPseudoName> pseudoNamesList, AsyncCallback<Void> asyncCallback);
 
     void saveClientSession(ClientSession clientSession, AsyncCallback<Void> asyncCallback);
 }

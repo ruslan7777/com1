@@ -1,6 +1,7 @@
 package com.server.dao;
 
 import com.shared.model.ClientSession;
+import com.shared.model.SessionPseudoName;
 
 import java.util.List;
 
@@ -13,13 +14,13 @@ import java.util.List;
  */
 public interface ClientSessionDao {
 
-    List<String> getPseudoNames();
+    List<SessionPseudoName> getFreePseudoNames();
 
-    void addName(String name);
+    void markNameAsFree(SessionPseudoName name);
 
-    void removeName(String name);
+    void markNameAsUsed(SessionPseudoName name);
 
-    void addNames(List<String> pseudoNamesList);
+    void addNames(List<SessionPseudoName> pseudoNamesList);
 
     void saveClientSession(ClientSession clientSession);
 }

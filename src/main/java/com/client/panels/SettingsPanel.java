@@ -5,6 +5,7 @@ import com.client.service.ClientSessionServiceAsync;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
+import com.shared.model.SessionPseudoName;
 
 import java.util.List;
 
@@ -25,16 +26,16 @@ public class SettingsPanel extends VerticalPanel {
         add(new CheckBox("Some check"));
         add(new TextBox());
         final ListBox namesBox = new ListBox();
-        clientSessionService.getPseudoNames(new AsyncCallback<List<String>>() {
+        clientSessionService.getFreePseudoNames(new AsyncCallback<List<SessionPseudoName>>() {
             @Override
             public void onFailure(Throwable throwable) {
                 //To change body of implemented methods use File | Settings | File Templates.
             }
 
             @Override
-            public void onSuccess(List<String> strings) {
-                for (String string : strings) {
-                    namesBox.addItem(string);
+            public void onSuccess(List<SessionPseudoName> strings) {
+                for (SessionPseudoName name : strings) {
+                    namesBox.addItem(name.getName());
                 }//To change body of implemented methods use File | Settings | File Templates.
             }
         });

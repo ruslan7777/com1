@@ -5,6 +5,7 @@ import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import com.server.dao.ClientSessionDao;
 import com.server.dao.ClientSessionMemoryDaoImpl;
 import com.shared.model.ClientSession;
+import com.shared.model.SessionPseudoName;
 
 import java.util.List;
 
@@ -18,22 +19,22 @@ import java.util.List;
 public class ClientSessionServiceImpl extends RemoteServiceServlet implements ClientSessionService {
     private ClientSessionDao clientSessionDao = new ClientSessionMemoryDaoImpl();
     @Override
-    public List<String> getPseudoNames  () {
-        return clientSessionDao.getPseudoNames();  //To change body of implemented methods use File | Settings | File Templates.
+    public List<SessionPseudoName> getFreePseudoNames() {
+        return clientSessionDao.getFreePseudoNames();  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public void addName(String name) {
-        clientSessionDao.addName(name);
+    public void markNameAsFree(SessionPseudoName name) {
+        clientSessionDao.markNameAsFree(name);
     }
 
     @Override
-    public void removeName(String name) {
-        clientSessionDao.removeName(name);
+    public void markNameAsUsed(SessionPseudoName name) {
+        clientSessionDao.markNameAsUsed(name);
     }
 
     @Override
-    public void addNames(List<String> pseudoNamesList) {
+    public void addNames(List<SessionPseudoName> pseudoNamesList) {
         clientSessionDao.addNames(pseudoNamesList);
     }
 

@@ -8,6 +8,7 @@ import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.ui.DecoratorPanel;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -23,7 +24,9 @@ public class LoginPanel extends VerticalPanel {
 //        setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
 //        setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
         getElement().setAttribute("align", "center");
-        getElement().setAttribute("vertical-align", "middle");
+        getElement().setAttribute("top", "100px");
+        setSpacing(150);
+        getElement().getStyle().setBackgroundColor("dark-grey");
         add(getLoginPanel());
     }
 
