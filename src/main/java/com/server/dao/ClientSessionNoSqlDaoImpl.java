@@ -68,4 +68,9 @@ public class ClientSessionNoSqlDaoImpl implements ClientSessionDao{
     public long stopClientSession(ClientSession clientSession) {
         return 0;
     }
+
+    @Override
+    public long payClientSession(ClientSession clientSession) {
+        return 0;
+    }
 }
