@@ -5,6 +5,7 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 import com.shared.model.ClientSession;
 import com.shared.model.SessionPseudoName;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -22,5 +23,13 @@ public interface ClientSessionService extends RemoteService {
 
     void addNames(List<SessionPseudoName> pseudoNamesList);
 
-    void saveClientSession(ClientSession clientSession);
+    Long saveClientSession(ClientSession clientSession);
+
+    void removeClientSession(ClientSession clientSession);
+
+    List<ClientSession> getClientSessions();
+
+    long stopClientSession(ClientSession clientSession);
+
+    long payClientSession(ClientSession clientSession);
 }

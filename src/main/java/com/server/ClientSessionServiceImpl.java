@@ -7,6 +7,7 @@ import com.server.dao.ClientSessionMemoryDaoImpl;
 import com.shared.model.ClientSession;
 import com.shared.model.SessionPseudoName;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -39,7 +40,27 @@ public class ClientSessionServiceImpl extends RemoteServiceServlet implements Cl
     }
 
     @Override
-    public void saveClientSession(ClientSession clientSession) {
-        clientSessionDao.saveClientSession(clientSession);//To change body of implemented methods use File | Settings | File Templates.
+    public Long saveClientSession(ClientSession clientSession) {
+        return clientSessionDao.saveClientSession(clientSession);//To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public void removeClientSession(ClientSession clientSession) {
+        clientSessionDao.removeClientSession(clientSession);
+    }
+
+    @Override
+    public List<ClientSession> getClientSessions() {
+        return clientSessionDao.getClientSessionsList();
+    }
+
+    @Override
+    public long stopClientSession(ClientSession clientSession) {
+        return clientSessionDao.stopClientSession(clientSession);
+    }
+
+    @Override
+    public long payClientSession(ClientSession clientSession) {
+        return clientSessionDao.payClientSession(clientSession);
     }
 }

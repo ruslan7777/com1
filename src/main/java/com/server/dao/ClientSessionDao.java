@@ -3,6 +3,7 @@ package com.server.dao;
 import com.shared.model.ClientSession;
 import com.shared.model.SessionPseudoName;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -22,5 +23,13 @@ public interface ClientSessionDao {
 
     void addNames(List<SessionPseudoName> pseudoNamesList);
 
-    void saveClientSession(ClientSession clientSession);
+    Long saveClientSession(ClientSession clientSession);
+
+    void removeClientSession(ClientSession clientSession);
+
+    List<ClientSession> getClientSessionsList();
+
+    long stopClientSession(ClientSession clientSession);
+
+    long payClientSession(ClientSession clientSession);
 }

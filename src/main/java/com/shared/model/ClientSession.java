@@ -29,7 +29,7 @@ public class ClientSession implements Serializable, IsSerializable {
   }
 
   public enum SESSION_STATUS implements Serializable, IsSerializable {
-    CREATED, STARTED, PAUSED, STOPPED, PAYED;
+    CREATED, STARTED, PAUSED, STOPPED, PAYED, REMOVED;
   }
 
   public SESSION_STATUS getSessionStatus() {
@@ -40,7 +40,7 @@ public class ClientSession implements Serializable, IsSerializable {
     this.status = status;
   }
 
-  public long getId() {
+  public Long getId() {
     return id;
   }
 

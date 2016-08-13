@@ -1,7 +1,9 @@
 package com.server.dao;
 
 import com.google.appengine.api.datastore.Query;
+import com.googlecode.objectify.Key;
 import com.googlecode.objectify.ObjectifyService;
+import com.googlecode.objectify.Result;
 import com.shared.model.ClientSession;
 import com.shared.model.SessionPseudoName;
 
@@ -47,7 +49,23 @@ public class ClientSessionNoSqlDaoImpl implements ClientSessionDao{
     }
 
     @Override
-    public void saveClientSession(ClientSession clientSession) {
-        ObjectifyService.ofy().save().entity(clientSession);
+    public Long saveClientSession(ClientSession clientSession) {
+        Result<Key<ClientSession>> clientSessionResult = ObjectifyService.ofy().save().entity(clientSession);
+        return clientSessionResult.now().getId();
+    }
+
+    @Override
+    public void removeClientSession(ClientSession clientSession) {
+
+    }
+
+    @Override
+    public List<ClientSession> getClientSessionsList() {
+        return null;
+    }
+
+    @Override
+    public long stopClientSession(ClientSession clientSession) {
+        return 0;
     }
 }

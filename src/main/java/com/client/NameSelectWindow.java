@@ -55,17 +55,17 @@ public class NameSelectWindow extends DialogBox {
         button.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent clickEvent) {
-                 ClientSession clientSession = new ClientSession(System.currentTimeMillis(),
+                 final ClientSession clientSession = new ClientSession(System.currentTimeMillis(),
                          0, false);
-                 clientSessionService.saveClientSession(clientSession, new AsyncCallback<Void>() {
+                 clientSessionService.saveClientSession(clientSession, new AsyncCallback<Long>() {
                      @Override
                      public void onFailure(Throwable throwable) {
                          //To change body of implemented methods use File | Settings | File Templates.
                      }
 
                      @Override
-                     public void onSuccess(Void aVoid) {
-                         //To change body of implemented methods use File | Settings | File Templates.
+                     public void onSuccess(Long id) {
+                         clientSession.setId(id);//To change body of implemented methods use File | Settings | File Templates.
                      }
                  });
 
