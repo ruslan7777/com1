@@ -10,6 +10,7 @@ import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.SimpleEventBus;
+import com.google.gwt.media.client.Audio;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.text.shared.AbstractSafeHtmlRenderer;
@@ -143,15 +144,15 @@ public class ClientSessionGridPanel extends VerticalPanel {
 //            }
         }
     };
-    Column<ClientSession, String> categoryColumn = new Column<ClientSession, String>(pseudoNameCell) {
+    Column<ClientSession, String> pseudoNameColumn = new Column<ClientSession, String>(pseudoNameCell) {
       @Override
       public String getValue(ClientSession object) {
         return object.getSessionPseudoName().getName();
       }
     };
-    clientSessionDataGrid.setColumnWidth(categoryColumn, 200, Style.Unit.PX);
-//    clientSessionDataGrid.addColumn(categoryColumn, "Псевдоним");
-    categoryColumn.setFieldUpdater(new FieldUpdater<ClientSession, String>() {
+    clientSessionDataGrid.setColumnWidth(pseudoNameColumn, 200, Style.Unit.PX);
+//    clientSessionDataGrid.addColumn(pseudoNameColumn, "Псевдоним");
+    pseudoNameColumn.setFieldUpdater(new FieldUpdater<ClientSession, String>() {
       @Override
       public void update(int index, ClientSession object, String value) {
         String releasedName = object.getSessionPseudoName().getName();
@@ -166,8 +167,8 @@ public class ClientSessionGridPanel extends VerticalPanel {
 //        ContactDatabase.get().refreshDisplays();
       }
     });
-//    dataGrid.setColumnWidth(categoryColumn, 130, Unit.PX);
-    clientSessionDataGrid.addColumn(categoryColumn, new TextHeader("Псевдоним"));
+//    dataGrid.setColumnWidth(pseudoNameColumn, 130, Unit.PX);
+    clientSessionDataGrid.addColumn(pseudoNameColumn, new TextHeader("Псевдоним"));
 
     clientSessionDataGrid.setHeight("500px");
     clientSessionDataGrid.setWidth("100%");
@@ -195,7 +196,11 @@ public class ClientSessionGridPanel extends VerticalPanel {
               return new SafeHtml() {
                   @Override
                   public String asString() {
+                    if (value.equals("Удалена")) {
+                      return "<div style=color:red;>" + value + "</div>";
+                    } else {
                       return value;  //To change body of implemented methods use File | Settings | File Templates.
+                    }
                   }
               };  //To change body of implemented methods use File | Settings | File Templates.
           }
@@ -217,7 +222,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
       };
     startColumn.setFieldUpdater(new FieldUpdater<ClientSession, String>() {
       @Override
-      public void update(int i, ClientSession clientSession, String s) {
+      public void update(int i, final ClientSession clientSession, String s) {
         if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.CREATED) {
           clientSession.setStartTime(System.currentTimeMillis());
           clientSession.setStatus(ClientSession.SESSION_STATUS.STARTED);
@@ -249,6 +254,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
 
             @Override
             public void onSuccess(Long result) {
+              setNameFree(clientSession);
               DecoratedPopupPanel decoratedPopupPanel = new DecoratedPopupPanel();
               decoratedPopupPanel.center();
               decoratedPopupPanel.setAutoHideEnabled(true);
@@ -296,8 +302,12 @@ public class ClientSessionGridPanel extends VerticalPanel {
 
             @Override
             public void onSuccess(Void result) {
+              setNameFree(clientSession);
               clientSession.setStatus(ClientSession.SESSION_STATUS.REMOVED);
               clientSessionDataGrid.redrawRow(i);
+              Audio audio = Audio.createIfSupported();
+              audio.setSrc("sounds/7.wav");
+              audio.play();
             }
           });
         }
@@ -348,7 +358,21 @@ public class ClientSessionGridPanel extends VerticalPanel {
       t.scheduleRepeating(5000);
   }
 
-    private String getPrettyMoney(long minPayment) {
+  private void setNameFree(ClientSession clientSession) {
+    clientSessionService.markNameAsFree(clientSession.getSessionPseudoName(), new AsyncCallback<Void>() {
+      @Override
+      public void onFailure(Throwable caught) {
+
+      }
+
+      @Override
+      public void onSuccess(Void result) {
+
+      }
+    });
+  }
+
+  private String getPrettyMoney(long minPayment) {
         return new BigDecimal(minPayment).divide(new BigDecimal("100")).setScale(2, BigDecimal.ROUND_HALF_UP).toString();
     }
 

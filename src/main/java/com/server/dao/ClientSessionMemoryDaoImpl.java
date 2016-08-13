@@ -31,7 +31,7 @@ public class ClientSessionMemoryDaoImpl implements ClientSessionDao{
 
     @Override
     public void markNameAsFree(SessionPseudoName name) {
-        this.pseudoNamesMap.get(name).setIsUsed(false);
+        this.pseudoNamesMap.get(name.getName()).setIsUsed(false);
     }
 
     @Override
