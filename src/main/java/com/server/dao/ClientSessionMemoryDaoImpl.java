@@ -85,6 +85,25 @@ public class ClientSessionMemoryDaoImpl implements ClientSessionDao{
         return session.getId();
     }
 
+    @Override
+    public List<SessionPseudoName> getAllPseudoNames() {
+        List<SessionPseudoName> allNames = new ArrayList<>();
+        for (String key : pseudoNamesMap.keySet()) {
+            allNames.add(pseudoNamesMap.get(key));
+        }
+        return allNames;
+    }
+
+    @Override
+    public void addName(SessionPseudoName namesTextBoxValue) {
+        this.pseudoNamesMap.put(namesTextBoxValue.getName(), namesTextBoxValue);
+    }
+
+    @Override
+    public void removeName(SessionPseudoName sessionPseudoName) {
+        this.pseudoNamesMap.remove(sessionPseudoName.getName());
+    }
+
     private long getMaxId() {
         long maxId = 0;
         for (Long key : clientSessionMap.keySet()) {

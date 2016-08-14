@@ -7,7 +7,6 @@ import com.server.dao.ClientSessionMemoryDaoImpl;
 import com.shared.model.ClientSession;
 import com.shared.model.SessionPseudoName;
 
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -62,5 +61,20 @@ public class ClientSessionServiceImpl extends RemoteServiceServlet implements Cl
     @Override
     public long payClientSession(ClientSession clientSession) {
         return clientSessionDao.payClientSession(clientSession);
+    }
+
+    @Override
+    public List<SessionPseudoName> getAllPseudoNames() {
+        return clientSessionDao.getAllPseudoNames();
+    }
+
+    @Override
+    public void addName(SessionPseudoName namesTextBoxValue) {
+        clientSessionDao.addName(namesTextBoxValue);
+    }
+
+    @Override
+    public void removeName(SessionPseudoName sessionPseudoName) {
+        clientSessionDao.removeName(sessionPseudoName);
     }
 }

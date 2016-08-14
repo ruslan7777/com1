@@ -61,6 +61,7 @@ public class LoginPanel extends VerticalPanel {
 
         // Wrap the content in a DecoratorPanel
         DecoratorPanel decPanel = new DecoratorPanel();
+        decPanel.getElement().getStyle().setBorderColor("black");
         decPanel.setWidget(layout);
         return decPanel;
     }

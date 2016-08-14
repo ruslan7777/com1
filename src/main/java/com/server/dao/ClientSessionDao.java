@@ -32,4 +32,10 @@ public interface ClientSessionDao {
     long stopClientSession(ClientSession clientSession);
 
     long payClientSession(ClientSession clientSession);
+
+    List<SessionPseudoName> getAllPseudoNames();
+
+    void addName(SessionPseudoName namesTextBoxValue);
+
+    void removeName(SessionPseudoName sessionPseudoName);
 }

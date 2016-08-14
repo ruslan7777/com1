@@ -29,8 +29,8 @@ public class ClientSession implements Serializable, IsSerializable {
   }
 
   public enum SESSION_STATUS implements Serializable, IsSerializable {
-    CREATED("Создан", "Старт"), STARTED("В процессе", "Стоп"), PAUSED("Приостановлен", "Возобновить"),
-    STOPPED("Остановлен", "Оплатить"), PAYED("Оплачен", "Удалить"), REMOVED("Удален", "Удален");
+    CREATED("Создана", "Старт"), STARTED("В процессе", "Стоп"), PAUSED("Приостановлена", "Возобновить"),
+    STOPPED("Остановлена", "Оплатить"), PAYED("Оплачена", "Оплачена"), REMOVED("Удалена", "Удалена");
     private String value;
     private String buttonText;
 

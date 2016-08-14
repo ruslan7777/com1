@@ -73,4 +73,19 @@ public class ClientSessionNoSqlDaoImpl implements ClientSessionDao{
     public long payClientSession(ClientSession clientSession) {
         return 0;
     }
+
+    @Override
+    public List<SessionPseudoName> getAllPseudoNames() {
+        return null;
+    }
+
+    @Override
+    public void addName(SessionPseudoName namesTextBoxValue) {
+
+    }
+
+    @Override
+    public void removeName(SessionPseudoName sessionPseudoName) {
+
+    }
 }

@@ -27,4 +27,10 @@ public interface ClientSessionServiceAsync {
     void stopClientSession(ClientSession clientSession, AsyncCallback<Long> asyncCallback);
 
     void payClientSession(ClientSession clientSession, AsyncCallback<Long> asyncCallback);
+
+    void getAllPseudoNames(AsyncCallback<List<SessionPseudoName>> asyncCallback);
+
+    void addName(SessionPseudoName namesTextBoxValue, AsyncCallback<Void> asyncCallback);
+
+    void removeName(SessionPseudoName sessionPseudoName, AsyncCallback<Void> asyncCallback);
 }
