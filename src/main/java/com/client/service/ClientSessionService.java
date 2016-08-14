@@ -4,6 +4,7 @@ import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 import com.shared.model.ClientSession;
 import com.shared.model.SessionPseudoName;
+import com.shared.model.User;
 
 import java.util.List;
 
@@ -37,4 +38,8 @@ public interface ClientSessionService extends RemoteService {
     void addName(SessionPseudoName namesTextBoxValue);
 
     void removeName(SessionPseudoName sessionPseudoName);
+
+    User getCurrentUser(String userName, String userPassword);
+
+    User saveUser(User user);
 }

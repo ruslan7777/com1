@@ -41,7 +41,7 @@ public class MainTabPanel extends TabLayoutPanel {
     // Add a tab with an image
 //    SimplePanel imageContainer = new SimplePanel();
 //    imageContainer.setWidget(new Button("dfdfdf"));
-    add(new SettingsPanel(), tabTitles[1]);
+    add(new SettingsPanel(simpleEventBus), tabTitles[1]);
 
     // Add a tab
 //    HTML moreInfo = new HTML("some html");

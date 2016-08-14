@@ -3,6 +3,8 @@ package com.client;
 import com.client.bundles.Images;
 import com.client.events.AddSessionEvent;
 import com.client.events.AddSessionEventHandler;
+import com.client.events.UserLoggedInEvent;
+import com.client.events.UserLoggedInHandler;
 import com.client.service.ClientSessionService;
 import com.client.service.ClientSessionServiceAsync;
 import com.google.gwt.cell.client.*;
@@ -29,6 +31,8 @@ import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.Range;
 import com.shared.model.ClientSession;
 import com.shared.model.SessionPseudoName;
+import com.shared.model.User;
+import com.shared.utils.UserUtils;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -42,6 +46,8 @@ import java.util.List;
  */
 public class ClientSessionGridPanel extends VerticalPanel {
     private SimpleEventBus simpleEventBus;
+    long firstPartTimeLength = 60000;
+    long firstPartSumAmount = 3500;
     private final ClientSessionServiceAsync clientSessionService = GWT.create(ClientSessionService.class);
 //    private List<SessionPseudoName> pseudoNamesList = new ArrayList<>();
     final DataGrid<ClientSession> clientSessionDataGrid = new DataGrid<ClientSession>(10, new ProvidesKey<ClientSession>() {
@@ -52,6 +58,25 @@ public class ClientSessionGridPanel extends VerticalPanel {
     });
   public ClientSessionGridPanel(final SimpleEventBus eventBus) {
       this.simpleEventBus = eventBus;
+    simpleEventBus.addHandler(UserLoggedInEvent.TYPE, new UserLoggedInHandler() {
+      @Override
+      public void userIsLoggedIn(UserLoggedInEvent userLoggedInEvent) {
+        clientSessionService.getCurrentUser(userLoggedInEvent.getUserName(), userLoggedInEvent.getUserPassword(),
+                new AsyncCallback<User>() {
+                  @Override
+                  public void onFailure(Throwable caught) {
+
+                  }
+
+                  @Override
+                  public void onSuccess(User result) {
+                    UserUtils.INSTANCE.setCurrentUser(result);
+                    firstPartTimeLength = result.getSettings().getFirstPartLength();
+                    firstPartSumAmount = result.getSettings().getFirstPartSumAmount();
+                  }
+                });
+      }
+    });
 //      pseudoNamesList.addAll(Arrays.asList(new SessionPseudoName("BLACK"), new SessionPseudoName("RED"), new SessionPseudoName("YELLOW"),
 //              new SessionPseudoName("WHITE"), new SessionPseudoName("GREEN")));
       clientSessionService.addNames(Arrays.asList(new SessionPseudoName("BLACK"), new SessionPseudoName("RED"), new SessionPseudoName("YELLOW"),
@@ -159,6 +184,20 @@ public class ClientSessionGridPanel extends VerticalPanel {
         dialogBox.setModal(true);
         dialogBox.setText("Выбор псевдонима");
         dialogBox.setSize("200px", "150px");
+        clientSessionService.getCurrentUser(UserUtils.INSTANCE.getCurrentUser().getUserName(), UserUtils.INSTANCE.getCurrentUser().getPassword(),
+                new AsyncCallback<User>() {
+                  @Override
+                  public void onFailure(Throwable caught) {
+
+                  }
+
+                  @Override
+                  public void onSuccess(User result) {
+                    UserUtils.INSTANCE.setCurrentUser(result);
+                    firstPartTimeLength = result.getSettings().getFirstPartLength();
+                    firstPartSumAmount = result.getSettings().getFirstPartSumAmount();
+                  }
+                });
         dialogBox.show();
       }
     });
@@ -303,8 +342,6 @@ public class ClientSessionGridPanel extends VerticalPanel {
         @Override
         public String getValue(ClientSession clientSession) {
           long timeDifferenceLength = System.currentTimeMillis() - clientSession.getStartTime();
-          long firstPartTimeLength = 60000;
-          long firstPartSumAmount = 3500;
           long totalSumCurrentValue = 0;
           long timeDifferenceLengthInSeconds = getSeconds(timeDifferenceLength);
           if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.CREATED) {

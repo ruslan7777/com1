@@ -2,6 +2,8 @@ package com.server.dao;
 
 import com.shared.model.ClientSession;
 import com.shared.model.SessionPseudoName;
+import com.shared.model.SettingsHolder;
+import com.shared.model.User;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,6 +20,24 @@ import java.util.Map;
 public class ClientSessionMemoryDaoImpl implements ClientSessionDao{
     Map<String,SessionPseudoName> pseudoNamesMap = new HashMap<>();
     Map<Long, ClientSession> clientSessionMap = new HashMap<>();
+    Map<Long, User> usersMap = new HashMap<>();
+    Map<Long, SettingsHolder> settingsHolderMap = new HashMap<>();
+
+    public ClientSessionMemoryDaoImpl() {
+        User testUser = new User();
+        testUser.setUserId(0l);
+        testUser.setUserName("a");
+        testUser.setPassword("");
+        usersMap.put(testUser.getUserId(), testUser);
+
+        SettingsHolder testSettingsHolder = new SettingsHolder();
+        testSettingsHolder.setFirstPartLength(20000l);
+        testSettingsHolder.setFirstPartSumAmount(3500l);
+        testSettingsHolder.setSettingsId(0l);
+        testSettingsHolder.setUser(testUser);
+        settingsHolderMap.put(testSettingsHolder.getSettingsId(), testSettingsHolder);
+    }
+
     @Override
     public List<SessionPseudoName> getFreePseudoNames() {
         List<SessionPseudoName> freeNames = new ArrayList<>();
@@ -102,6 +122,33 @@ public class ClientSessionMemoryDaoImpl implements ClientSessionDao{
     @Override
     public void removeName(SessionPseudoName sessionPseudoName) {
         this.pseudoNamesMap.remove(sessionPseudoName.getName());
+    }
+
+    @Override
+    public User getCurrentUser(String userName, String userPassword) {
+        for (Long key : usersMap.keySet()) {
+            User userFromMap = usersMap.get(key);
+            if (userFromMap != null && userFromMap.getUserName().equals(userName) &&
+                    userFromMap.getPassword().equals(userPassword)) {
+                for (Long settingsKey : settingsHolderMap.keySet()) {
+                    SettingsHolder settingsHolder = settingsHolderMap.get(settingsKey);
+                    if (settingsHolder.getUser().equals(userFromMap)) {
+                        userFromMap.setSettings(settingsHolder);
+                        return userFromMap;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public User saveUser(User user) {
+        User savedUser = usersMap.get(user.getUserId());
+        SettingsHolder settingsHolder = savedUser.getSettings();
+        settingsHolder.setFirstPartLength(user.getSettings().getFirstPartLength());
+        settingsHolder.setFirstPartSumAmount(user.getSettings().getFirstPartSumAmount());
+        return savedUser;
     }
 
     private long getMaxId() {

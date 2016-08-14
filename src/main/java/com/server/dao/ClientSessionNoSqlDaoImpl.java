@@ -6,6 +6,7 @@ import com.googlecode.objectify.ObjectifyService;
 import com.googlecode.objectify.Result;
 import com.shared.model.ClientSession;
 import com.shared.model.SessionPseudoName;
+import com.shared.model.User;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -87,5 +88,15 @@ public class ClientSessionNoSqlDaoImpl implements ClientSessionDao{
     @Override
     public void removeName(SessionPseudoName sessionPseudoName) {
 
+    }
+
+    @Override
+    public User getCurrentUser(String userName, String userPassword) {
+        return null;
+    }
+
+    @Override
+    public User saveUser(User user) {
+        return null;
     }
 }

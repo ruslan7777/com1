@@ -1,16 +1,23 @@
 package com.client.panels;
 
+import com.client.events.UserLoggedInEvent;
+import com.client.events.UserLoggedInHandler;
 import com.client.service.ClientSessionService;
 import com.client.service.ClientSessionServiceAsync;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyPressEvent;
+import com.google.gwt.event.dom.client.KeyPressHandler;
+import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import com.shared.model.SessionPseudoName;
+import com.shared.model.SettingsHolder;
+import com.shared.model.User;
+import com.shared.utils.UserUtils;
 
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -21,10 +28,12 @@ import java.util.List;
  * To change this template use File | Settings | File Templates.
  */
 public class SettingsPanel extends VerticalPanel {
+    private SimpleEventBus simpleEventBus;
     private ClientSessionServiceAsync clientSessionService = GWT.create(ClientSessionService.class);
 //    private FormPanel formPanel = new FormPanel();
 //    VerticalPanel mainPanel = new VerticalPanel();
-    public SettingsPanel() {
+    public SettingsPanel(SimpleEventBus simpleEventBus) {
+        this.simpleEventBus = simpleEventBus;
         setWidth("100%");
         setHeight("300px");
 //        add(new CheckBox("Some check"));
@@ -126,7 +135,82 @@ public class SettingsPanel extends VerticalPanel {
         add(buttonsPanel);
 
         add(new Label("Время:"));
-        TextBox firstPartTimeValue = new TextBox();
-        add(firstPartTimeValue);
+        final TextBox firstPartLength = new TextBox();
+        firstPartLength.addKeyPressHandler(new KeyPressHandler() {
+            @Override
+            public void onKeyPress(KeyPressEvent event) {
+                String input = firstPartLength.getText();
+                if (!input.matches("[0-9]*")) {
+                    // show some error
+                    return;
+                }
+                // do your thang
+            }
+        });
+        add(firstPartLength);
+        UserUtils.init();
+
+        final TextBox firstPartSumAmount = new TextBox();
+        firstPartSumAmount.addKeyPressHandler(new KeyPressHandler() {
+            @Override
+            public void onKeyPress(KeyPressEvent event) {
+                String input = firstPartSumAmount.getText();
+                if (!input.matches("[0-9]*")) {
+                    // show some error
+                    return;
+                }
+                // do your thang
+            }
+        });
+//        clientSessionService.getCurrentUser();
+        add(firstPartSumAmount);
+
+        Button saveButton = new Button("Сохранить");
+        saveButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                UserUtils.INSTANCE.getCurrentUser().getSettings().setFirstPartLength(Long.valueOf(firstPartLength.getValue()));
+                UserUtils.INSTANCE.getCurrentUser().getSettings().setFirstPartSumAmount(Long.valueOf(firstPartSumAmount.getValue()));
+                clientSessionService.saveUser(UserUtils.INSTANCE.getCurrentUser(), new AsyncCallback<User>() {
+                    @Override
+                    public void onFailure(Throwable caught) {
+
+                    }
+
+                    @Override
+                    public void onSuccess(User result) {
+                        UserUtils.INSTANCE.setCurrentUser(result);
+                        DecoratedPopupPanel decoratedPopupPanel = new DecoratedPopupPanel();
+                        decoratedPopupPanel.center();
+                        decoratedPopupPanel.setAutoHideEnabled(true);
+                        decoratedPopupPanel.setWidget(new HTML(result.getUserName() + " обновлен"));
+                        decoratedPopupPanel.show();
+                    }
+                });
+            }
+        });
+
+        add(saveButton);
+
+        simpleEventBus.addHandler(UserLoggedInEvent.TYPE, new UserLoggedInHandler() {
+            @Override
+            public void userIsLoggedIn(UserLoggedInEvent userLoggedInEvent) {
+                clientSessionService.getCurrentUser(userLoggedInEvent.getUserName(), userLoggedInEvent.getUserPassword(),
+                        new AsyncCallback<User>() {
+                            @Override
+                            public void onFailure(Throwable caught) {
+
+                            }
+
+                            @Override
+                            public void onSuccess(User result) {
+                                UserUtils.INSTANCE.setCurrentUser(result);
+                                firstPartLength.setValue(String.valueOf(result.getSettings().getFirstPartLength()));
+                                firstPartSumAmount.setValue(String.valueOf(result.getSettings().getFirstPartSumAmount()));
+                            }
+                        });
+            }
+        });
+
     }
 }

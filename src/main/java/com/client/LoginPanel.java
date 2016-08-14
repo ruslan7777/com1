@@ -1,10 +1,15 @@
 package com.client;
 
+import com.client.events.UserLoggedInEvent;
+import com.client.service.ClientSessionService;
+import com.client.service.ClientSessionServiceAsync;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.event.shared.SimpleEventBus;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.DecoratorPanel;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
@@ -13,12 +18,15 @@ import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.shared.model.User;
+import com.shared.utils.UserUtils;
 
 /**
  * Created by Dimon on 19.07.2016.
  */
 public class LoginPanel extends VerticalPanel {
     private SimpleEventBus simpleEventBus;
+    private ClientSessionServiceAsync clientSessionService = GWT.create(ClientSessionService.class);
     public LoginPanel(final SimpleEventBus eventBus) {
         this.simpleEventBus = eventBus;
 //        setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
@@ -44,20 +52,38 @@ public class LoginPanel extends VerticalPanel {
 
         // Add some standard form options
         layout.setHTML(1, 0, "Имя");
-        TextBox nameTextBox = new TextBox();
+        final TextBox nameTextBox = new TextBox();
+        layout.setWidget(1, 1, nameTextBox);
+        layout.setHTML(2, 0, "Пароль");
+        final TextBox passwordTextBox = new TextBox();
+        layout.setWidget(2, 1, passwordTextBox);
         nameTextBox.addKeyUpHandler(new KeyUpHandler() {
             @Override
             public void onKeyUp(KeyUpEvent event) {
                 if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
+                    User currentUser = null;
+                            clientSessionService.getCurrentUser(nameTextBox.getValue(), passwordTextBox.getValue(),
+                            new AsyncCallback<User>() {
+                                @Override
+                                public void onFailure(Throwable caught) {
+
+                                }
+
+                                @Override
+                                public void onSuccess(User result) {
+                                    UserLoggedInEvent userLoggedInEvent = new UserLoggedInEvent();
+                                    userLoggedInEvent.setUserName(result.getUserName());
+                                    userLoggedInEvent.setUserPassword(result.getPassword());
+                                    simpleEventBus.fireEvent(userLoggedInEvent);
+                                    UserUtils.INSTANCE.setCurrentUser(result);
+                                }
+                            });
                     RootPanel.get().clear();
                     RootPanel.get().add(new MainTabPanel(2.5, Style.Unit.EM, simpleEventBus));
 //                    handlerManager.fireEvent();
                 }
             }
         });
-        layout.setWidget(1, 1, nameTextBox);
-        layout.setHTML(2, 0, "Пароль");
-        layout.setWidget(2, 1, new TextBox());
 
         // Wrap the content in a DecoratorPanel
         DecoratorPanel decPanel = new DecoratorPanel();

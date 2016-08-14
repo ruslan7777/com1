@@ -2,6 +2,8 @@ package com.server.dao;
 
 import com.shared.model.ClientSession;
 import com.shared.model.SessionPseudoName;
+import com.shared.model.SettingsHolder;
+import com.shared.model.User;
 
 import java.util.Collection;
 import java.util.List;
@@ -38,4 +40,8 @@ public interface ClientSessionDao {
     void addName(SessionPseudoName namesTextBoxValue);
 
     void removeName(SessionPseudoName sessionPseudoName);
+
+    User getCurrentUser(String userName, String userPassword);
+
+    User saveUser(User user);
 }

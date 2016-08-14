@@ -5,6 +5,8 @@ import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 import com.shared.model.ClientSession;
 import com.shared.model.SessionPseudoName;
+import com.shared.model.SettingsHolder;
+import com.shared.model.User;
 
 import java.util.Collection;
 import java.util.List;
@@ -33,4 +35,8 @@ public interface ClientSessionServiceAsync {
     void addName(SessionPseudoName namesTextBoxValue, AsyncCallback<Void> asyncCallback);
 
     void removeName(SessionPseudoName sessionPseudoName, AsyncCallback<Void> asyncCallback);
+
+    void getCurrentUser(String userName, String userPassword, AsyncCallback<User> asyncCallback);
+
+    void saveUser(User user, AsyncCallback<User> asyncCallback);
 }
