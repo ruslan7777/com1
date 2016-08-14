@@ -29,16 +29,22 @@ public class ClientSession implements Serializable, IsSerializable {
   }
 
   public enum SESSION_STATUS implements Serializable, IsSerializable {
-    CREATED("Создан"), STARTED("В процессе"), PAUSED("Приостановлен"), STOPPED("Остановлен"),
-    PAYED("Оплачен"), REMOVED("Удален");
+    CREATED("Создан", "Старт"), STARTED("В процессе", "Стоп"), PAUSED("Приостановлен", "Возобновить"),
+    STOPPED("Остановлен", "Оплатить"), PAYED("Оплачен", "Удалить"), REMOVED("Удален", "Удален");
     private String value;
+    private String buttonText;
 
-    SESSION_STATUS(String value) {
+    SESSION_STATUS(String value, String buttonText) {
       this.value = value;
+      this.buttonText = buttonText;
     }
 
     public String getValue() {
       return value;
+    }
+
+    public String getButtonText() {
+      return buttonText;
     }
   }
 

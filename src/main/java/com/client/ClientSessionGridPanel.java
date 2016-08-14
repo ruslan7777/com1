@@ -12,9 +12,11 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.media.client.Audio;
+import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.text.shared.AbstractSafeHtmlRenderer;
+import com.google.gwt.user.cellview.client.AbstractHeaderOrFooterBuilder;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.TextHeader;
@@ -191,34 +193,26 @@ public class ClientSessionGridPanel extends VerticalPanel {
       }
     });
 
-      Column<ClientSession, String> startColumn = new Column<ClientSession, String>(new ButtonCellBase<String>(new ButtonCellBase.DefaultAppearance<String>(new AbstractSafeHtmlRenderer<String>() {
+    ButtonCellBase<String> stringButtonCellBase = new ButtonCellBase<>(new ButtonCellBase.DefaultAppearance<String>(new AbstractSafeHtmlRenderer<String>() {
+      @Override
+      public SafeHtml render(final String value) {
+        return new SafeHtml() {
           @Override
-          public SafeHtml render(final String value) {
-              return new SafeHtml() {
-                  @Override
-                  public String asString() {
-                    if (value.equals("Удалена")) {
-                      return "<div style=color:red;>" + value + "</div>";
-                    } else {
-                      return value;  //To change body of implemented methods use File | Settings | File Templates.
-                    }
-                  }
-              };  //To change body of implemented methods use File | Settings | File Templates.
+          public String asString() {
+            ClientSession.SESSION_STATUS session_status = ClientSession.SESSION_STATUS.valueOf(value);
+            if (session_status == ClientSession.SESSION_STATUS.REMOVED) {
+              return "<div style='pointer-events: none; opacity: 0.4; color:red;'>" + session_status.getButtonText() + "</div>";
+            } else {
+              return session_status.getButtonText();  //To change body of implemented methods use File | Settings | File Templates.
+            }
           }
-      }))) {
+        };  //To change body of implemented methods use File | Settings | File Templates.
+      }
+    }));
+    Column<ClientSession, String> startColumn = new Column<ClientSession, String>(stringButtonCellBase) {
           @Override
           public String getValue(ClientSession clientSession) {
-              if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.CREATED) {
-                  return "Старт";
-              } else if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.STARTED){
-                  return "Стоп";
-              } else if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.STOPPED){
-                  return "Оплатить";
-              } else if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.REMOVED){
-                return "Удалена";
-              } else {
-                  return "В архиве";
-              }
+              return clientSession.getSessionStatus().name();
           }
       };
     startColumn.setFieldUpdater(new FieldUpdater<ClientSession, String>() {
@@ -264,7 +258,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
             }
           });
         } else if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.REMOVED) {
-          Window.alert("Сессия удалена");
+          return;
         }
 
 //              clientSessionDataGrid.getVisibleItem(i).setStatus(ClientSession.SESSION_STATUS.STARTED);
@@ -274,45 +268,6 @@ public class ClientSessionGridPanel extends VerticalPanel {
     });
       clientSessionDataGrid.addColumn(startColumn, new TextHeader("Управление"));
 
-    Column<ClientSession, String> removeColumn = new Column<ClientSession, String>(new ButtonCellBase<String>(new ButtonCellBase.DefaultAppearance<String>(new AbstractSafeHtmlRenderer<String>() {
-      @Override
-      public SafeHtml render(final String value) {
-        return new SafeHtml() {
-          @Override
-          public String asString() {
-            return value;  //To change body of implemented methods use File | Settings | File Templates.
-          }
-        };  //To change body of implemented methods use File | Settings | File Templates.
-      }
-    }))) {
-      @Override
-      public String getValue(ClientSession clientSession) {
-        return "Удалить";
-      }
-    };
-    clientSessionDataGrid.addColumn(removeColumn);
-
-      removeColumn.setFieldUpdater(new FieldUpdater<ClientSession, String>() {
-        @Override
-        public void update(final int i, final ClientSession clientSession, String s) {
-          clientSessionService.removeClientSession(clientSession, new AsyncCallback<Void>() {
-            @Override
-            public void onFailure(Throwable caught) {
-
-            }
-
-            @Override
-            public void onSuccess(Void result) {
-              setNameFree(clientSession);
-              clientSession.setStatus(ClientSession.SESSION_STATUS.REMOVED);
-              clientSessionDataGrid.redrawRow(i);
-              Audio audio = Audio.createIfSupported();
-              audio.setSrc(GWT.getHostPageBaseURL() + "sounds/7.wav");
-              audio.play();
-            }
-          });
-        }
-      });
 
       clientSessionDataGrid.addColumn(new Column<ClientSession, String>(new TextCell()) {
         @Override
@@ -339,28 +294,125 @@ public class ClientSessionGridPanel extends VerticalPanel {
       }, new TextHeader("Сумма"));
 
     clientSessionDataGrid.addColumn(new Column<ClientSession, String>(new TextCell(new AbstractSafeHtmlRenderer<String>() {
-      Images images = GWT.create(Images.class);
       @Override
       public SafeHtml render(final String value) {
         return new SafeHtml() {
           @Override
           public String asString() {
-            if (ClientSession.SESSION_STATUS.REMOVED == ClientSession.SESSION_STATUS.valueOf(value)) {
-              return "<div style=color:red;>" + ClientSession.SESSION_STATUS.valueOf(value).getValue() + images.progress() + "</div>";
-            } else if(ClientSession.SESSION_STATUS.PAYED == ClientSession.SESSION_STATUS.valueOf(value)) {
-              return "<div style=color:green;>" + ClientSession.SESSION_STATUS.valueOf(value).getValue() + "</div>";  //To change body of implemented methods use File | Settings | File Templates.
+            ClientSession.SESSION_STATUS sessionStatus = ClientSession.SESSION_STATUS.valueOf(value);
+            if (ClientSession.SESSION_STATUS.REMOVED == sessionStatus) {
+              return "<div style=color:red;>" + sessionStatus.getValue() + "</div>";
+            } else if (ClientSession.SESSION_STATUS.PAYED == sessionStatus) {
+              return "<div style=color:green;>" + sessionStatus.getValue() + "</div>";  //To change body of implemented methods use File | Settings | File Templates.
             } else {
-              return value;
+              return sessionStatus.getValue();
             }
           }
         };
       }
-    }) ) {
+    })) {
       @Override
       public String getValue(ClientSession clientSession) {
         return clientSession.getSessionStatus().name();
       }
     }, new TextHeader("Статус"));
+
+    clientSessionDataGrid.addColumn(new Column<ClientSession, ImageResource>(new ImageResourceCell()) {
+      @Override
+      public ImageResource getValue(ClientSession clientSession) {
+        if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.STARTED) {
+          return Images.INSTANCE.progress();
+        } else {
+          return Images.INSTANCE.stopped();
+        }
+      }
+    });
+
+    ButtonCellBase<String> buttonCellBase = new ButtonCellBase<>(new ButtonCellBase.DefaultAppearance<String>(new AbstractSafeHtmlRenderer<String>() {
+      @Override
+      public SafeHtml render(final String value) {
+        return new SafeHtml() {
+          @Override
+          public String asString() {
+            return value;  //To change body of implemented methods use File | Settings | File Templates.
+          }
+        };  //To change body of implemented methods use File | Settings | File Templates.
+      }
+    }));
+    buttonCellBase.setIcon(Images.INSTANCE.remove());
+    Column<ClientSession, String> removeColumn = new Column<ClientSession, String>(buttonCellBase) {
+      @Override
+      public void render(Cell.Context context, ClientSession object, SafeHtmlBuilder sb) {
+        if (object.getSessionStatus() == ClientSession.SESSION_STATUS.REMOVED) {
+          sb.appendHtmlConstant("<div style='pointer-events: none; opacity: 0.4;'>");
+          super.render(context, object, sb);
+          sb.appendHtmlConstant("</div>");
+        } else {
+          super.render(context, object, sb);
+        }
+      }
+
+      @Override
+      public String getValue(ClientSession clientSession) {
+        return "";
+      }
+    };
+    removeColumn.setFieldUpdater(new FieldUpdater<ClientSession, String>() {
+      @Override
+      public void update(final int index, final ClientSession clientSession, String value) {
+        clientSessionService.removeClientSession(clientSession, new AsyncCallback<Void>() {
+            @Override
+            public void onFailure(Throwable caught) {
+
+            }
+
+            @Override
+            public void onSuccess(Void result) {
+              setNameFree(clientSession);
+              clientSession.setStatus(ClientSession.SESSION_STATUS.REMOVED);
+              clientSessionDataGrid.redrawRow(index);
+              Audio audio = Audio.createIfSupported();
+              audio.setSrc(GWT.getHostPageBaseURL() + "sounds/7.wav");
+              audio.play();
+            }
+          });
+      }
+    });
+    clientSessionDataGrid.addColumn(removeColumn);
+
+    DataGrid<ClientSession> clientSessionDataGridFooter = new DataGrid<>();
+    clientSessionDataGridFooter.addColumn(new Column<ClientSession, String>(new AbstractSafeHtmlCell<String>(new AbstractSafeHtmlRenderer<String>() {
+      @Override
+      public SafeHtml render(final String object) {
+        return new SafeHtml() {
+          @Override
+          public String asString() {
+            return object;
+          }
+        };
+      }
+    }) {
+      @Override
+      public void render(Context context, String data, SafeHtmlBuilder sb) {
+        super.render(context, data, sb);
+      }
+
+      @Override
+      protected void render(Context context, SafeHtml data, SafeHtmlBuilder sb) {
+
+      }
+    }) {
+      @Override
+      public String getValue(ClientSession object) {
+        return "dfdfd";
+      }
+    });
+    this.clientSessionDataGrid.setFooterBuilder(new AbstractHeaderOrFooterBuilder<ClientSession>(clientSessionDataGridFooter, true) {
+      @Override
+      protected boolean buildHeaderOrFooterImpl() {
+        return true;
+      }
+    });
 
     add(addButton);
 //    add(verticalPanel);
@@ -370,9 +422,9 @@ public class ClientSessionGridPanel extends VerticalPanel {
 
       Timer t = new Timer() {
           public void run() {
-              for (int i = 0; i < clientSessionDataGrid.getVisibleItemCount(); i++) {
-                     if (clientSessionDataGrid.getVisibleItem(i).getSessionStatus() == ClientSession.SESSION_STATUS.STARTED) {
-                         clientSessionDataGrid.redrawRow(i);
+              for (int i = 0; i < ClientSessionGridPanel.this.clientSessionDataGrid.getVisibleItemCount(); i++) {
+                     if (ClientSessionGridPanel.this.clientSessionDataGrid.getVisibleItem(i).getSessionStatus() == ClientSession.SESSION_STATUS.STARTED) {
+                         ClientSessionGridPanel.this.clientSessionDataGrid.redrawRow(i);
                      }
               }
           }
