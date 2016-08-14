@@ -29,7 +29,17 @@ public class ClientSession implements Serializable, IsSerializable {
   }
 
   public enum SESSION_STATUS implements Serializable, IsSerializable {
-    CREATED, STARTED, PAUSED, STOPPED, PAYED, REMOVED;
+    CREATED("Создан"), STARTED("В процессе"), PAUSED("Приостановлен"), STOPPED("Остановлен"),
+    PAYED("Оплачен"), REMOVED("Удален");
+    private String value;
+
+    SESSION_STATUS(String value) {
+      this.value = value;
+    }
+
+    public String getValue() {
+      return value;
+    }
   }
 
   public SESSION_STATUS getSessionStatus() {

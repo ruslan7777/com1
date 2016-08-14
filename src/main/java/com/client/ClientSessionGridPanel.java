@@ -1,5 +1,6 @@
 package com.client;
 
+import com.client.bundles.Images;
 import com.client.events.AddSessionEvent;
 import com.client.events.AddSessionEventHandler;
 import com.client.service.ClientSessionService;
@@ -23,6 +24,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
+import com.google.gwt.view.client.Range;
 import com.shared.model.ClientSession;
 import com.shared.model.SessionPseudoName;
 
@@ -169,7 +171,6 @@ public class ClientSessionGridPanel extends VerticalPanel {
     });
 //    dataGrid.setColumnWidth(pseudoNameColumn, 130, Unit.PX);
     clientSessionDataGrid.addColumn(pseudoNameColumn, new TextHeader("Псевдоним"));
-
     clientSessionDataGrid.setHeight("500px");
     clientSessionDataGrid.setWidth("100%");
     add(clientSessionDataGrid);
@@ -306,7 +307,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
               clientSession.setStatus(ClientSession.SESSION_STATUS.REMOVED);
               clientSessionDataGrid.redrawRow(i);
               Audio audio = Audio.createIfSupported();
-              audio.setSrc("sounds/7.wav");
+              audio.setSrc(GWT.getHostPageBaseURL() + "sounds/7.wav");
               audio.play();
             }
           });
@@ -314,16 +315,16 @@ public class ClientSessionGridPanel extends VerticalPanel {
       });
 
       clientSessionDataGrid.addColumn(new Column<ClientSession, String>(new TextCell()) {
-          @Override
-          public String getValue(ClientSession clientSession) {
-              if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.CREATED) {
-                  return "00:00:00";
-              } else if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.REMOVED ){
-                return getMinutesString(clientSession.getStopTime() - clientSession.getStartTime());
-              } else {
-                return getMinutesString(System.currentTimeMillis() - clientSession.getStartTime());
-              }
+        @Override
+        public String getValue(ClientSession clientSession) {
+          if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.CREATED) {
+            return "00:00:00";
+          } else if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.REMOVED) {
+            return getMinutesString(clientSession.getStopTime() - clientSession.getStartTime());
+          } else {
+            return getMinutesString(System.currentTimeMillis() - clientSession.getStartTime());
           }
+        }
       }, new TextHeader("Время"));
 
       clientSessionDataGrid.addColumn(new Column<ClientSession, String>(new TextCell()) {
@@ -337,6 +338,29 @@ public class ClientSessionGridPanel extends VerticalPanel {
         }
       }, new TextHeader("Сумма"));
 
+    clientSessionDataGrid.addColumn(new Column<ClientSession, String>(new TextCell(new AbstractSafeHtmlRenderer<String>() {
+      Images images = GWT.create(Images.class);
+      @Override
+      public SafeHtml render(final String value) {
+        return new SafeHtml() {
+          @Override
+          public String asString() {
+            if (ClientSession.SESSION_STATUS.REMOVED == ClientSession.SESSION_STATUS.valueOf(value)) {
+              return "<div style=color:red;>" + ClientSession.SESSION_STATUS.valueOf(value).getValue() + images.progress() + "</div>";
+            } else if(ClientSession.SESSION_STATUS.PAYED == ClientSession.SESSION_STATUS.valueOf(value)) {
+              return "<div style=color:green;>" + ClientSession.SESSION_STATUS.valueOf(value).getValue() + "</div>";  //To change body of implemented methods use File | Settings | File Templates.
+            } else {
+              return value;
+            }
+          }
+        };
+      }
+    }) ) {
+      @Override
+      public String getValue(ClientSession clientSession) {
+        return clientSession.getSessionStatus().name();
+      }
+    }, new TextHeader("Статус"));
 
     add(addButton);
 //    add(verticalPanel);
