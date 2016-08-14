@@ -340,6 +340,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
       }
     }));
     buttonCellBase.setIcon(Images.INSTANCE.remove());
+    buttonCellBase.setDecoration(ButtonCellBase.Decoration.NEGATIVE);
     Column<ClientSession, String> removeColumn = new Column<ClientSession, String>(buttonCellBase) {
       @Override
       public void render(Cell.Context context, ClientSession object, SafeHtmlBuilder sb) {
