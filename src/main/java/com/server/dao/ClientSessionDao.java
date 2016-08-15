@@ -44,4 +44,6 @@ public interface ClientSessionDao {
     User getCurrentUser(String userName, String userPassword);
 
     User saveUser(User user);
+
+    User login(String userName, String userPassword);
 }

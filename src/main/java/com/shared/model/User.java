@@ -48,5 +48,13 @@ public class User implements Serializable, IsSerializable {
   public void setSettings(SettingsHolder settings) {
     this.settings = settings;
   }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj instanceof User) {
+      return this.getUserName().equals(((User)obj).getUserName());
+    }
+    return false;
+  }
 }
 

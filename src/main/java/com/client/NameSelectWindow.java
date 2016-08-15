@@ -16,6 +16,8 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.shared.model.ClientSession;
 import com.shared.utils.UserUtils;
 
+import java.util.List;
+
 /**
  * Created with IntelliJ IDEA.
  * User: dmitry

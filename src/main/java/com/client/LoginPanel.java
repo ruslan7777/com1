@@ -62,7 +62,7 @@ public class LoginPanel extends VerticalPanel {
             public void onKeyUp(KeyUpEvent event) {
                 if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
                     User currentUser = null;
-                            clientSessionService.getCurrentUser(nameTextBox.getValue(), passwordTextBox.getValue(),
+                    clientSessionService.login(nameTextBox.getValue(), passwordTextBox.getValue(),
                             new AsyncCallback<User>() {
                                 @Override
                                 public void onFailure(Throwable caught) {
@@ -78,10 +78,31 @@ public class LoginPanel extends VerticalPanel {
                                     UserUtils.init();
                                     UserUtils.INSTANCE.setCurrentUser(result);
                                     UserUtils.INSTANCE.getCurrentUser().setSettings(result.getSettings());
+                                    RootPanel.get().clear();
+                                    RootPanel.get().add(new MainTabPanel(2.5, Style.Unit.EM, simpleEventBus));
                                 }
                             });
-                    RootPanel.get().clear();
-                    RootPanel.get().add(new MainTabPanel(2.5, Style.Unit.EM, simpleEventBus));
+//                            clientSessionService.getCurrentUser(nameTextBox.getValue(), passwordTextBox.getValue(),
+//                                    new AsyncCallback<User>() {
+//                                        @Override
+//                                        public void onFailure(Throwable caught) {
+//
+//                                        }
+//
+//                                        @Override
+//                                        public void onSuccess(User result) {
+//                                            UserLoggedInEvent userLoggedInEvent = new UserLoggedInEvent();
+//                                            userLoggedInEvent.setUserName(result.getUserName());
+//                                            userLoggedInEvent.setUserPassword(result.getPassword());
+//                                            simpleEventBus.fireEvent(userLoggedInEvent);
+//                                            UserUtils.init();
+//                                            UserUtils.INSTANCE.setCurrentUser(result);
+//                                            UserUtils.INSTANCE.getCurrentUser().setSettings(result.getSettings());
+//                                            RootPanel.get().clear();
+//                                            RootPanel.get().add(new MainTabPanel(2.5, Style.Unit.EM, simpleEventBus));
+//                                        }
+//                                    });
+                    ;
 //                    handlerManager.fireEvent();
                 }
             }

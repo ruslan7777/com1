@@ -148,7 +148,7 @@ public class SettingsPanel extends VerticalPanel {
             }
         });
         add(firstPartLengthTextBox);
-        UserUtils.init();
+//        UserUtils.init();
 
         final TextBox firstPartSumAmountTextBox = new TextBox();
         firstPartSumAmountTextBox.addKeyPressHandler(new KeyPressHandler() {
@@ -229,5 +229,8 @@ public class SettingsPanel extends VerticalPanel {
             }
         });
 
+        firstPartLengthTextBox.setValue(String.valueOf(UserUtils.INSTANCE.getCurrentUser().getSettings().getFirstPartLength()));
+        firstPartSumAmountTextBox.setValue(String.valueOf(UserUtils.INSTANCE.getCurrentUser().getSettings().getFirstPartSumAmount()));
+        maxSessionLengthTextBox.setValue(String.valueOf(UserUtils.INSTANCE.getCurrentUser().getSettings().getMaxSessionLength()));
     }
 }

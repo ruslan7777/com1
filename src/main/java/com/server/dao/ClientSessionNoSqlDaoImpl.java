@@ -7,6 +7,7 @@ import com.googlecode.objectify.Result;
 import com.shared.model.ClientSession;
 import com.shared.model.SessionPseudoName;
 import com.shared.model.User;
+import com.shared.utils.UserUtils;
 
 import java.util.List;
 
@@ -94,6 +95,11 @@ public class ClientSessionNoSqlDaoImpl implements ClientSessionDao{
 
     @Override
     public User saveUser(User user) {
+        return null;
+    }
+
+    @Override
+    public User login(String userName, String userPassword) {
         return null;
     }
 }

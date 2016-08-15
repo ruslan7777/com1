@@ -39,4 +39,6 @@ public interface ClientSessionServiceAsync {
     void getCurrentUser(String userName, String userPassword, AsyncCallback<User> asyncCallback);
 
     void saveUser(User user, AsyncCallback<User> asyncCallback);
+
+    void login(String userName, String passwordTextBoxValue, AsyncCallback<User> asyncCallback);
 }

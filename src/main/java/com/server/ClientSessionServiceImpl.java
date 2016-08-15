@@ -88,4 +88,9 @@ public class ClientSessionServiceImpl extends RemoteServiceServlet implements Cl
     public User saveUser(User user) {
         return clientSessionDao.saveUser(user);
     }
+
+    @Override
+    public User login(String userName, String userPassword) {
+        return clientSessionDao.login(userName, userPassword);
+    }
 }

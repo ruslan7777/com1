@@ -45,19 +45,21 @@ import java.util.List;
  * Created by dmitry on 26.07.16.
  */
 public class ClientSessionGridPanel extends VerticalPanel {
-    private SimpleEventBus simpleEventBus;
-    long firstPartTimeLength = 60000;
-    long firstPartSumAmount = 3500;
-    private final ClientSessionServiceAsync clientSessionService = GWT.create(ClientSessionService.class);
-//    private List<SessionPseudoName> pseudoNamesList = new ArrayList<>();
-    final DataGrid<ClientSession> clientSessionDataGrid = new DataGrid<ClientSession>(10, new ProvidesKey<ClientSession>() {
-        @Override
-        public Object getKey(ClientSession item) {
-            return ((ClientSession)item).getStartTime();
-        }
-    });
+  private SimpleEventBus simpleEventBus;
+  long firstPartTimeLength = 60000;
+  long firstPartSumAmount = 3500;
+  ListDataProvider<ClientSession> listDataProvider;
+  private final ClientSessionServiceAsync clientSessionService = GWT.create(ClientSessionService.class);
+  //    private List<SessionPseudoName> pseudoNamesList = new ArrayList<>();
+  final DataGrid<ClientSession> clientSessionDataGrid = new DataGrid<ClientSession>(10, new ProvidesKey<ClientSession>() {
+    @Override
+    public Object getKey(ClientSession item) {
+      return ((ClientSession) item).getStartTime();
+    }
+  });
+
   public ClientSessionGridPanel(final SimpleEventBus eventBus) {
-      this.simpleEventBus = eventBus;
+    this.simpleEventBus = eventBus;
     simpleEventBus.addHandler(UserLoggedInEvent.TYPE, new UserLoggedInHandler() {
       @Override
       public void userIsLoggedIn(UserLoggedInEvent userLoggedInEvent) {
@@ -79,93 +81,58 @@ public class ClientSessionGridPanel extends VerticalPanel {
     });
 //      pseudoNamesList.addAll(Arrays.asList(new SessionPseudoName("BLACK"), new SessionPseudoName("RED"), new SessionPseudoName("YELLOW"),
 //              new SessionPseudoName("WHITE"), new SessionPseudoName("GREEN")));
-      clientSessionService.addNames(Arrays.asList(new SessionPseudoName("BLACK"), new SessionPseudoName("RED"), new SessionPseudoName("YELLOW"),
-              new SessionPseudoName("WHITE"), new SessionPseudoName("GREEN")), new AsyncCallback<Void>() {
-        @Override
-        public void onFailure(Throwable throwable) {
-          //To change body of implemented methods use File | Settings | File Templates.
-        }
+    clientSessionService.addNames(Arrays.asList(new SessionPseudoName("BLACK"), new SessionPseudoName("RED"), new SessionPseudoName("YELLOW"),
+            new SessionPseudoName("WHITE"), new SessionPseudoName("GREEN")), new AsyncCallback<Void>() {
+      @Override
+      public void onFailure(Throwable throwable) {
+        //To change body of implemented methods use File | Settings | File Templates.
+      }
 
-        @Override
-        public void onSuccess(Void aVoid) {
-//          final ClientSession clientSession = new ClientSession(new Date().getTime(), new Date().getTime(), false);
-//          clientSessionService.getFreePseudoNames(new AsyncCallback<List<SessionPseudoName>>() {
-//            @Override
-//            public void onFailure(Throwable caught) {
-//
-//            }
-//
-//            @Override
-//            public void onSuccess(List<SessionPseudoName> result) {
-//              if (!result.isEmpty()) {
-//                SessionPseudoName sessionPseudoName = result.get(0);
-//                clientSession.setSessionPseudoName(sessionPseudoName);
-//                clientSessionService.markNameAsUsed(sessionPseudoName, new AsyncCallback<Void>() {
-//                  @Override
-//                  public void onFailure(Throwable caught) {
-//
-//                  }
-//
-//                  @Override
-//                  public void onSuccess(Void result) {
-//
-//                  }
-//                });
-//              }
-//            }
-//          });
-//
-//          clientSession.setId(0);
-////    clientSession.setSessionPseudoName(new SessionPseudoName("GREEN"));
-//          clientSessionDataGrid.setRowData(0, Arrays.asList(clientSession));//To change body of implemented methods use File | Settings | File Templates.
-        }
-      });
-      simpleEventBus.addHandler(AddSessionEvent.TYPE, new AddSessionEventHandler() {
+      @Override
+      public void onSuccess(Void aVoid) {
+      }
+    });
+    simpleEventBus.addHandler(AddSessionEvent.TYPE, new AddSessionEventHandler() {
+      @Override
+      public void addClientSession(AddSessionEvent addSessionEvent) {
+        final ClientSession clientSession = new ClientSession();
+        final SessionPseudoName sessionPseudoName = new SessionPseudoName(addSessionEvent.getClientPseudoName());
+        clientSession.setSessionPseudoName(sessionPseudoName);
+        clientSessionService.saveClientSession(clientSession, new AsyncCallback<Long>() {
           @Override
-          public void addClientSession(AddSessionEvent addSessionEvent) {
-              final ClientSession clientSession = new ClientSession();
-            final SessionPseudoName sessionPseudoName = new SessionPseudoName(addSessionEvent.getClientPseudoName());
-            clientSession.setSessionPseudoName(sessionPseudoName);
-            clientSessionService.saveClientSession(clientSession, new AsyncCallback<Long>() {
-              @Override
-              public void onFailure(Throwable caught) {
+          public void onFailure(Throwable caught) {
 
-              }
+          }
 
-              @Override
-              public void onSuccess(Long result) {
-                clientSession.setId(result);
-                clientSessionService.markNameAsUsed(sessionPseudoName, new AsyncCallback<Void>() {
-                  @Override
-                  public void onFailure(Throwable caught) {
+          @Override
+          public void onSuccess(Long result) {
+            clientSession.setId(result);
+            listDataProvider.getList().add(clientSession);
+            listDataProvider.refresh();
+            clientSessionDataGrid.setVisibleRange(0, listDataProvider.getList().size());
+//            for (int i = 0; i < clientSessionDataGrid.getVisibleItemCount(); i ++) {
+//              clientSessionDataGrid.redrawRow(i);
+//            }
+//            clientSessionDataGrid.redraw();
+//            listDataProvider.get
+//            clientSessionDataGrid.setRowCount(clientSessionDataGrid.getVisibleItems().size() + 1, true);
+//            clientSessionDataGrid.setRowData(clientSessionDataGrid.getVisibleItems().size() + 1, Arrays.asList(clientSession));
+          }
+        });
+      }
+    });
 
-                  }
-
-                  @Override
-                  public void onSuccess(Void result) {
-                    clientSessionDataGrid.setRowData(clientSessionDataGrid.getVisibleItems().size(), Arrays.asList(clientSession));
-                  }
-                });
-              }
-            });
-             }
-      });
     setHeight("100%");
     setWidth("100%");
-//    VerticalPanel verticalPanel = new VerticalPanel();
-//    verticalPanel.setHeight("700px");
-//    verticalPanel.setWidth("100%");
 
-//    add(clientSessionGrid);
-
-        Column<ClientSession, String> pseudoNameColumn = new Column<ClientSession, String>(new TextCell()) {
-          @Override
-          public String getValue(ClientSession object) {
-            return object.getSessionPseudoName().getName();
-          }
-        };
-        clientSessionDataGrid.setColumnWidth(pseudoNameColumn, 200, Style.Unit.PX);
-        clientSessionDataGrid.addColumn(pseudoNameColumn, new TextHeader("Псевдоним"));
+    Column<ClientSession, String> pseudoNameColumn = new Column<ClientSession, String>(new TextCell()) {
+      @Override
+      public String getValue(ClientSession object) {
+        return object.getSessionPseudoName().getName();
+      }
+    };
+    clientSessionDataGrid.setColumnWidth(pseudoNameColumn, 200, Style.Unit.PX);
+    clientSessionDataGrid.addColumn(pseudoNameColumn, new TextHeader("Псевдоним"));
 
 
     clientSessionDataGrid.setHeight("500px");
@@ -184,20 +151,8 @@ public class ClientSessionGridPanel extends VerticalPanel {
         dialogBox.setModal(true);
         dialogBox.setText("Выбор псевдонима");
         dialogBox.setSize("200px", "150px");
-        clientSessionService.getCurrentUser(UserUtils.INSTANCE.getCurrentUser().getUserName(), UserUtils.INSTANCE.getCurrentUser().getPassword(),
-                new AsyncCallback<User>() {
-                  @Override
-                  public void onFailure(Throwable caught) {
-
-                  }
-
-                  @Override
-                  public void onSuccess(User result) {
-                    UserUtils.INSTANCE.setCurrentUser(result);
-                    firstPartTimeLength = result.getSettings().getFirstPartLength();
-                    firstPartSumAmount = result.getSettings().getFirstPartSumAmount();
-                  }
-                });
+        firstPartTimeLength = UserUtils.INSTANCE.getCurrentUser().getSettings().getFirstPartLength();
+        firstPartSumAmount = UserUtils.INSTANCE.getCurrentUser().getSettings().getFirstPartSumAmount();
         dialogBox.show();
       }
     });
@@ -219,11 +174,11 @@ public class ClientSessionGridPanel extends VerticalPanel {
       }
     }));
     Column<ClientSession, String> startColumn = new Column<ClientSession, String>(stringButtonCellBase) {
-          @Override
-          public String getValue(ClientSession clientSession) {
-              return clientSession.getSessionStatus().name();
-          }
-      };
+      @Override
+      public String getValue(ClientSession clientSession) {
+        return clientSession.getSessionStatus().name();
+      }
+    };
     startColumn.setFieldUpdater(new FieldUpdater<ClientSession, String>() {
       @Override
       public void update(final int i, final ClientSession clientSession, String s) {
@@ -272,11 +227,9 @@ public class ClientSessionGridPanel extends VerticalPanel {
         } else if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.REMOVED) {
         }
 
-//              clientSessionDataGrid.getVisibleItem(i).setStatus(ClientSession.SESSION_STATUS.STARTED);
-//              Window.alert("dfdf");//To change body of implemented methods use File | Settings | File Templates.
       }
     });
-      clientSessionDataGrid.addColumn(startColumn, new TextHeader("Управление"));
+    clientSessionDataGrid.addColumn(startColumn, new TextHeader("Управление"));
 
 
     Column<ClientSession, String> timeColumn = new Column<ClientSession, String>(new TextCell()) {
@@ -284,106 +237,32 @@ public class ClientSessionGridPanel extends VerticalPanel {
       public String getValue(ClientSession clientSession) {
         if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.CREATED || clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.REMOVED) {
           return "00:00:00";
-        } else if (clientSession.getStopTime() != 0){
+        } else if (clientSession.getStopTime() != 0) {
           return getMinutesString(clientSession.getStopTime() - clientSession.getStartTime());
         } else {
           return getMinutesString(System.currentTimeMillis() - clientSession.getStartTime());
         }
       }
     };
-//    Column<ClientSession, ClientSession> timeColumn = new Column<ClientSession, ClientSession>(new TextCell(new AbstractSafeHtmlRenderer<ClientSession>() {
-//      @Override
-//      public SafeHtml render(ClientSession object) {
-//        return new SafeHtml() {
-//          @Override
-//          public String asString() {
-//            return null;
-//          }
-//        };
-//      }
-//
-////      @Override
-////      public SafeHtml render(final String object) {
-////        return new SafeHtml() {
-////          @Override
-////          public String asString() {
-////            return "<div style=font-size:20px;>" + object + "</div>";
-////          }
-////        };
-////      }
-//    })) ;
-//    {
-//      @Override
-//      public ClientSession getValue(ClientSession clientSession) {
-//        if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.CREATED) {
-//        return "00:00:00";
-//      } else if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.REMOVED) {
-//        return getMinutesString(clientSession.getStopTime() - clientSession.getStartTime());
-//      } else {
-//        return getMinutesString(System.currentTimeMillis() - clientSession.getStartTime());
-//      }
-//      }
-//    };
     clientSessionDataGrid.addColumn(timeColumn, new TextHeader("Время"));
-
-//    {
-//      @Override
-//      public String getValue(ClientSession clientSession) {
-//      if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.CREATED) {
-//        return "00:00:00";
-//      } else if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.REMOVED) {
-//        return getMinutesString(clientSession.getStopTime() - clientSession.getStartTime());
-//      } else {
-//        return getMinutesString(System.currentTimeMillis() - clientSession.getStartTime());
-//      }
-//    }
-//    }
-      clientSessionDataGrid.addColumn(new Column<ClientSession, String>(new TextCell()) {
-        @Override
-        public String getValue(ClientSession clientSession) {
-          long timeDifferenceLength = System.currentTimeMillis() - clientSession.getStartTime();
-          long totalSumCurrentValue = 0;
-          long timeDifferenceLengthInSeconds = getSeconds(timeDifferenceLength);
-          if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.CREATED) {
-            return "0.00";
+    clientSessionDataGrid.addColumn(new Column<ClientSession, String>(new TextCell()) {
+      @Override
+      public String getValue(ClientSession clientSession) {
+        long timeDifferenceLength = System.currentTimeMillis() - clientSession.getStartTime();
+        long totalSumCurrentValue = 0;
+        long timeDifferenceLengthInSeconds = getSeconds(timeDifferenceLength);
+        if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.CREATED) {
+          return "0.00";
+        } else {
+          if (timeDifferenceLengthInSeconds <= getSeconds(firstPartTimeLength)) {
+            return getPrettyMoney(firstPartSumAmount);
           } else {
-            if (timeDifferenceLengthInSeconds <= getSeconds(firstPartTimeLength)) {
-              return getPrettyMoney(firstPartSumAmount);
-            } else {
-              long totalSum = firstPartSumAmount + 50 * (timeDifferenceLength - firstPartTimeLength) / 1000 / 60;
-              return getPrettyMoney(totalSum);
-            }
+            long totalSum = firstPartSumAmount + 50 * (timeDifferenceLength - firstPartTimeLength) / 1000 / 60;
+            return getPrettyMoney(totalSum);
           }
         }
-      }, new TextHeader("Сумма"));
-
-//
-//    public void updateTotalSum() {
-//      currentTimeValue = System.currentTimeMillis() - this.startTime;
-//      totalTimeValue.setText(getMinutesString(currentTimeValue));
-//      long currentIntervalSeconds = getSeconds(currentTimeValue);
-//      //TODO
-////    if (currentIntervalSeconds > maxLength/1000) {
-////      stopSession();
-////      stopSessionOnServer();
-////      return;
-////    }
-//      if (currentIntervalSeconds <= getSeconds(minTime)) {
-////          totalSumCurrentValue = minPayment;
-//        totalSumValue.setText(getPrettyMoney(minPayment));
-//        totalSumCurrentValue = minPayment;
-//      } else if ((currentIntervalSeconds - minTime / 1000) % 60 == 0) {
-//
-////            BigDecimal totalSum = BigDecimal.valueOf(totalSumCurrentValue + 50);
-////            totalSumCurrentValue = totalSum.longValue();
-//        long totalSum = minPayment + 50 * (currentIntervalSeconds - minTime / 1000) / 60;
-//        totalSumCurrentValue = totalSum;
-//        totalSumValue.setText(getPrettyMoney(totalSum));
-//      }
-////    else if ()
-//    }
-
-
+      }
+    }, new TextHeader("Сумма"));
 
     clientSessionDataGrid.addColumn(new Column<ClientSession, String>(new TextCell(new AbstractSafeHtmlRenderer<String>() {
       @Override
@@ -454,22 +333,22 @@ public class ClientSessionGridPanel extends VerticalPanel {
       @Override
       public void update(final int index, final ClientSession clientSession, String value) {
         clientSessionService.removeClientSession(clientSession, new AsyncCallback<Void>() {
-            @Override
-            public void onFailure(Throwable caught) {
+          @Override
+          public void onFailure(Throwable caught) {
 
-            }
+          }
 
-            @Override
-            public void onSuccess(Void result) {
-              setNameFree(clientSession);
-              clientSession.setStatus(ClientSession.SESSION_STATUS.REMOVED);
+          @Override
+          public void onSuccess(Void result) {
+            setNameFree(clientSession);
+            clientSession.setStatus(ClientSession.SESSION_STATUS.REMOVED);
 //              clientSession.setStopTime(System.currentTimeMillis());
-              clientSessionDataGrid.redrawRow(index);
-              Audio audio = Audio.createIfSupported();
-              audio.setSrc(GWT.getHostPageBaseURL() + "sounds/7.wav");
-              audio.play();
-            }
-          });
+            clientSessionDataGrid.redrawRow(index);
+            Audio audio = Audio.createIfSupported();
+            audio.setSrc(GWT.getHostPageBaseURL() + "sounds/7.wav");
+            audio.play();
+          }
+        });
       }
     });
     clientSessionDataGrid.addColumn(removeColumn);
@@ -501,12 +380,12 @@ public class ClientSessionGridPanel extends VerticalPanel {
         return "dfdfd";
       }
     });
-    this.clientSessionDataGrid.setFooterBuilder(new AbstractHeaderOrFooterBuilder<ClientSession>(clientSessionDataGridFooter, true) {
-      @Override
-      protected boolean buildHeaderOrFooterImpl() {
-        return true;
-      }
-    });
+//          this.clientSessionDataGrid.setFooterBuilder(new AbstractHeaderOrFooterBuilder<ClientSession>(clientSessionDataGridFooter, true) {
+//            @Override
+//            protected boolean buildHeaderOrFooterImpl() {
+//              return true;
+//            }
+//          });
 
     add(addButton);
 //    add(verticalPanel);
@@ -514,32 +393,36 @@ public class ClientSessionGridPanel extends VerticalPanel {
 //            System.currentTimeMillis(), false)));
 
 
-      Timer t = new Timer() {
-          public void run() {
-              for (int i = 0; i < ClientSessionGridPanel.this.clientSessionDataGrid.getVisibleItemCount(); i++) {
-                     if (ClientSessionGridPanel.this.clientSessionDataGrid.getVisibleItem(i).getSessionStatus() == ClientSession.SESSION_STATUS.STARTED) {
-                         ClientSessionGridPanel.this.clientSessionDataGrid.redrawRow(i);
-                     }
-              }
+    Timer t = new Timer() {
+      public void run() {
+        for (int i = 0; i < ClientSessionGridPanel.this.clientSessionDataGrid.getVisibleItemCount(); i++) {
+          if (ClientSessionGridPanel.this.clientSessionDataGrid.getVisibleItem(i).getSessionStatus() == ClientSession.SESSION_STATUS.STARTED) {
+            ClientSessionGridPanel.this.clientSessionDataGrid.redrawRow(i);
           }
-      };
+        }
+      }
+    };
 
-      // Schedule the timer to run once every second, 1000 ms.
-      t.scheduleRepeating(5000);
+    // Schedule the timer to run once every second, 1000 ms.
+    t.scheduleRepeating(5000);
+    clientSessionService.getClientSessions(UserUtils.INSTANCE.getCurrentUser(), new AsyncCallback<List<ClientSession>>() {
+      @Override
+      public void onFailure(Throwable throwable) {
+        //To change body of implemented methods use File | Settings | File Templates.
+      }
 
-      clientSessionService.getClientSessions(UserUtils.INSTANCE.getCurrentUser(), new AsyncCallback<List<ClientSession>>() {
-          @Override
-          public void onFailure(Throwable throwable) {
-              //To change body of implemented methods use File | Settings | File Templates.
-          }
-
-          @Override
-          public void onSuccess(List<ClientSession> clientSessions) {
-              clientSessionDataGrid.setRowData(clientSessions);
-          }
-      });
+      @Override
+      public void onSuccess(List<ClientSession> clientSessions) {
+        listDataProvider = new ListDataProvider<ClientSession>(clientSessions);
+        listDataProvider.addDataDisplay(clientSessionDataGrid);
+//        clientSessionDataGrid.setRowCount(100);
+        clientSessionDataGrid.setRowData(clientSessions);
+//              clientSessionDataGrid.setVisibleRange(0, 1000);
+      }
+    });
 
   }
+
 
   private void setNameFree(ClientSession clientSession) {
     clientSessionService.markNameAsFree(clientSession.getSessionPseudoName(), new AsyncCallback<Void>() {
@@ -556,120 +439,120 @@ public class ClientSessionGridPanel extends VerticalPanel {
   }
 
   private String getPrettyMoney(long minPayment) {
-        return new BigDecimal(minPayment).divide(new BigDecimal("100")).setScale(2, BigDecimal.ROUND_HALF_UP).toString();
-    }
+    return new BigDecimal(minPayment).divide(new BigDecimal("100")).setScale(2, BigDecimal.ROUND_HALF_UP).toString();
+  }
 
-    private long getMinutes(long timeLeft) {
-        return (timeLeft/(1000*60))%60;
-    }
+  private long getMinutes(long timeLeft) {
+    return (timeLeft / (1000 * 60)) % 60;
+  }
 
-    private long getSeconds(long timeLeft) {
-        return (timeLeft/(1000));
-    }
+  private long getSeconds(long timeLeft) {
+    return (timeLeft / (1000));
+  }
 
-    private String getMinutesString(long timeLeft) {
-        long minutes = (timeLeft / (1000 * 60)) % 60;
-        String minutesString = padTimeValue(minutes);
-        long hours = (timeLeft / (1000 * 60 * 60)) % 60;
-        String hoursString = padTimeValue(hours);
-        long seconds = (timeLeft / 1000) % 60;
-        String secondsString = padTimeValue(seconds);
-        return hoursString + ":"+ minutesString + ":" + secondsString;
-    }
+  private String getMinutesString(long timeLeft) {
+    long minutes = (timeLeft / (1000 * 60)) % 60;
+    String minutesString = padTimeValue(minutes);
+    long hours = (timeLeft / (1000 * 60 * 60)) % 60;
+    String hoursString = padTimeValue(hours);
+    long seconds = (timeLeft / 1000) % 60;
+    String secondsString = padTimeValue(seconds);
+    return hoursString + ":" + minutesString + ":" + secondsString;
+  }
 
-    private String padTimeValue(long timeUnit) {
-        return timeUnit<10? "0"+timeUnit: String.valueOf(timeUnit);
-    }
+  private String padTimeValue(long timeUnit) {
+    return timeUnit < 10 ? "0" + timeUnit : String.valueOf(timeUnit);
+  }
 
 
-    private DialogBox createDialogBox() {
-        // Create a dialog box and set the caption text
-        final DialogBox dialogBox = new DialogBox();
+  private DialogBox createDialogBox() {
+    // Create a dialog box and set the caption text
+    final DialogBox dialogBox = new DialogBox();
 
 //        dialogBox.setWidth("400px");
 //        dialogBox.setHeight("400px");
-        dialogBox.ensureDebugId("cwDialogBox");
+    dialogBox.ensureDebugId("cwDialogBox");
 //        dialogBox.setText("dfd");
 
-        // Create a table to layout the content
-        VerticalPanel dialogContents = new VerticalPanel();
-        dialogContents.setSpacing(5);
-      dialogContents.setSize("300px", "300px");
-      dialogContents.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
-      dialogContents.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-        dialogBox.setWidget(dialogContents);
+    // Create a table to layout the content
+    VerticalPanel dialogContents = new VerticalPanel();
+    dialogContents.setSpacing(5);
+    dialogContents.setSize("300px", "300px");
+    dialogContents.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
+    dialogContents.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+    dialogBox.setWidget(dialogContents);
 
-        final ListBox namesListBox = new ListBox();
-      namesListBox.setWidth("200px");
-      clientSessionService.getFreePseudoNames(new AsyncCallback<List<SessionPseudoName>>() {
-        @Override
-        public void onFailure(Throwable caught) {
+    final ListBox namesListBox = new ListBox();
+    namesListBox.setWidth("200px");
+    clientSessionService.getFreePseudoNames(new AsyncCallback<List<SessionPseudoName>>() {
+      @Override
+      public void onFailure(Throwable caught) {
 
+      }
+
+      @Override
+      public void onSuccess(List<SessionPseudoName> result) {
+        for (SessionPseudoName item : result) {
+          namesListBox.addItem(item.getName());
         }
-
-        @Override
-        public void onSuccess(List<SessionPseudoName> result) {
-          for (SessionPseudoName item : result) {
-            namesListBox.addItem(item.getName());
-          }
-        }
-      });
+      }
+    });
 //        namesListBox.addItem("GREEN");
 //        namesListBox.addItem("YELLOW");
 //        namesListBox.addItem("BLACK");
-        dialogContents.add(namesListBox);
-        Button createButton = new Button("Создать");
-        createButton.addClickHandler(new ClickHandler() {
+    dialogContents.add(namesListBox);
+    Button createButton = new Button("Создать");
+    createButton.addClickHandler(new ClickHandler() {
+      @Override
+      public void onClick(ClickEvent clickEvent) {
+        final AddSessionEvent event = new AddSessionEvent();
+        event.setClientPseudoName(namesListBox.getSelectedValue());
+        clientSessionService.markNameAsUsed(new SessionPseudoName(namesListBox.getSelectedValue()), new AsyncCallback<Void>() {
           @Override
-          public void onClick(ClickEvent clickEvent) {
-            final AddSessionEvent event = new AddSessionEvent();
-            event.setClientPseudoName(namesListBox.getSelectedValue());
-            clientSessionService.markNameAsUsed(new SessionPseudoName(namesListBox.getSelectedValue()), new AsyncCallback<Void>() {
-              @Override
-              public void onFailure(Throwable caught) {
-
-              }
-
-              @Override
-              public void onSuccess(Void result) {
-                simpleEventBus.fireEvent(event);
-              }
-            });
-            //To change body of implemented methods use File | Settings | File Templates.
-            dialogBox.hide();
-          }
-        });
-        Button cancelButton = new Button("Отмена");
-      cancelButton.addClickHandler(new ClickHandler() {
-        @Override
-        public void onClick(ClickEvent event) {
-          dialogBox.hide();
-        }
-      });
-      HorizontalPanel buttonContainer = new HorizontalPanel();
-      buttonContainer.add(createButton);
-      buttonContainer.add(cancelButton);
-        dialogContents.add(buttonContainer);
-        Button addEntityButton = new Button("Создать client");
-        addEntityButton.addClickHandler(new ClickHandler() {
-          @Override
-          public void onClick(ClickEvent clickEvent) {
-            final ClientSession clientSession = new ClientSession(System.currentTimeMillis(),
-                    0, false, UserUtils.INSTANCE.getCurrentUser());
-            clientSessionService.saveClientSession(clientSession, new AsyncCallback<Long>() {
-              @Override
-              public void onFailure(Throwable throwable) {
-                //To change body of implemented methods use File | Settings | File Templates.
-              }
-
-              @Override
-              public void onSuccess(Long id) {
-                clientSession.setId(id);//To change body of implemented methods use File | Settings | File Templates.
-              }
-            });
+          public void onFailure(Throwable caught) {
 
           }
+
+          @Override
+          public void onSuccess(Void result) {
+            simpleEventBus.fireEvent(event);
+          }
         });
+        //To change body of implemented methods use File | Settings | File Templates.
+        dialogBox.hide();
+      }
+    });
+    Button cancelButton = new Button("Отмена");
+    cancelButton.addClickHandler(new ClickHandler() {
+      @Override
+      public void onClick(ClickEvent event) {
+        dialogBox.hide();
+      }
+    });
+    HorizontalPanel buttonContainer = new HorizontalPanel();
+    buttonContainer.add(createButton);
+    buttonContainer.add(cancelButton);
+    dialogContents.add(buttonContainer);
+//          Button addEntityButton = new Button("Создать client");
+//          addEntityButton.addClickHandler(new ClickHandler() {
+//            @Override
+//            public void onClick(ClickEvent clickEvent) {
+//              final ClientSession clientSession = new ClientSession(System.currentTimeMillis(),
+//                      0, false, UserUtils.INSTANCE.getCurrentUser());
+//              clientSessionService.saveClientSession(clientSession, new AsyncCallback<Long>() {
+//                @Override
+//                public void onFailure(Throwable throwable) {
+//                  //To change body of implemented methods use File | Settings | File Templates.
+//                }
+//
+//                @Override
+//                public void onSuccess(Long id) {
+//                  clientSession.setId(id);//To change body of implemented methods use File | Settings | File Templates.
+//                }
+//              });
+//
+//            }
+//          });
 //        dialogContents.add(addEntityButton);
 //        if (LocaleInfo.getCurrentLocale().isRTL()) {
 //            dialogContents.setCellHorizontalAlignment(
@@ -680,8 +563,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
 //                    closeButton, HasHorizontalAlignment.ALIGN_RIGHT);
 //        }
 
-        // Return the dialog box
-        return dialogBox;
-    }
-
+    // Return the dialog box
+    return dialogBox;
+  }
 }
