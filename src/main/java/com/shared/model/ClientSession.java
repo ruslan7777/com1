@@ -18,11 +18,13 @@ public class ClientSession implements Serializable, IsSerializable {
   private boolean isPayed;
   private SessionPseudoName sessionPseudoName;
   private SESSION_STATUS status = SESSION_STATUS.CREATED;
+    private User user;
 
-  public ClientSession(long startTime, long stopTime, boolean isPayed) {
+  public ClientSession(long startTime, long stopTime, boolean isPayed, User user) {
     this.startTime = startTime;
     this.stopTime = stopTime;
     this.isPayed = isPayed;
+      this.user = user;
   }
 
   public ClientSession() {
@@ -95,4 +97,12 @@ public class ClientSession implements Serializable, IsSerializable {
   public void setSessionPseudoName(SessionPseudoName sessionPseudoName) {
     this.sessionPseudoName = sessionPseudoName;
   }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
 }

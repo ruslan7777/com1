@@ -14,6 +14,7 @@ import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.shared.model.ClientSession;
+import com.shared.utils.UserUtils;
 
 /**
  * Created with IntelliJ IDEA.
@@ -56,7 +57,7 @@ public class NameSelectWindow extends DialogBox {
             @Override
             public void onClick(ClickEvent clickEvent) {
                  final ClientSession clientSession = new ClientSession(System.currentTimeMillis(),
-                         0, false);
+                         0, false, UserUtils.INSTANCE.getCurrentUser());
                  clientSessionService.saveClientSession(clientSession, new AsyncCallback<Long>() {
                      @Override
                      public void onFailure(Throwable throwable) {

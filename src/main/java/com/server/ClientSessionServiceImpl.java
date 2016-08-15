@@ -50,8 +50,8 @@ public class ClientSessionServiceImpl extends RemoteServiceServlet implements Cl
     }
 
     @Override
-    public List<ClientSession> getClientSessions() {
-        return clientSessionDao.getClientSessionsList();
+    public List<ClientSession> getClientSessions(User currentUser) {
+        return clientSessionDao.getClientSessionsList(currentUser);
     }
 
     @Override

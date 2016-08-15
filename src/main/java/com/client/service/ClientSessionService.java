@@ -27,7 +27,7 @@ public interface ClientSessionService extends RemoteService {
 
     void removeClientSession(ClientSession clientSession);
 
-    List<ClientSession> getClientSessions();
+    List<ClientSession> getClientSessions(User currentUser);
 
     long stopClientSession(ClientSession clientSession);
 

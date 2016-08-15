@@ -1,6 +1,7 @@
 package com.shared.model;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
+import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 
 import java.io.Serializable;
@@ -8,6 +9,7 @@ import java.io.Serializable;
 /**
  * Created by dmitry on 14.08.16.
  */
+@Entity
 public class User implements Serializable, IsSerializable {
   @Id
   private Long userId;

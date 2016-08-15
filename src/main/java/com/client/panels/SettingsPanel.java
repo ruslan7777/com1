@@ -135,11 +135,11 @@ public class SettingsPanel extends VerticalPanel {
         add(buttonsPanel);
 
         add(new Label("Время:"));
-        final TextBox firstPartLength = new TextBox();
-        firstPartLength.addKeyPressHandler(new KeyPressHandler() {
+        final TextBox firstPartLengthTextBox = new TextBox();
+        firstPartLengthTextBox.addKeyPressHandler(new KeyPressHandler() {
             @Override
             public void onKeyPress(KeyPressEvent event) {
-                String input = firstPartLength.getText();
+                String input = firstPartLengthTextBox.getText();
                 if (!input.matches("[0-9]*")) {
                     // show some error
                     return;
@@ -147,14 +147,14 @@ public class SettingsPanel extends VerticalPanel {
                 // do your thang
             }
         });
-        add(firstPartLength);
+        add(firstPartLengthTextBox);
         UserUtils.init();
 
-        final TextBox firstPartSumAmount = new TextBox();
-        firstPartSumAmount.addKeyPressHandler(new KeyPressHandler() {
+        final TextBox firstPartSumAmountTextBox = new TextBox();
+        firstPartSumAmountTextBox.addKeyPressHandler(new KeyPressHandler() {
             @Override
             public void onKeyPress(KeyPressEvent event) {
-                String input = firstPartSumAmount.getText();
+                String input = firstPartSumAmountTextBox.getText();
                 if (!input.matches("[0-9]*")) {
                     // show some error
                     return;
@@ -163,14 +163,30 @@ public class SettingsPanel extends VerticalPanel {
             }
         });
 //        clientSessionService.getCurrentUser();
-        add(firstPartSumAmount);
+        add(firstPartSumAmountTextBox);
+
+        final TextBox maxSessionLengthTextBox = new TextBox();
+        firstPartSumAmountTextBox.addKeyPressHandler(new KeyPressHandler() {
+            @Override
+            public void onKeyPress(KeyPressEvent event) {
+                String input = maxSessionLengthTextBox.getText();
+                if (!input.matches("[0-9]*")) {
+                    // show some error
+                    return;
+                }
+                // do your thang
+            }
+        });
+//        clientSessionService.getCurrentUser();
+        add(firstPartSumAmountTextBox);
 
         Button saveButton = new Button("Сохранить");
         saveButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                UserUtils.INSTANCE.getCurrentUser().getSettings().setFirstPartLength(Long.valueOf(firstPartLength.getValue()));
-                UserUtils.INSTANCE.getCurrentUser().getSettings().setFirstPartSumAmount(Long.valueOf(firstPartSumAmount.getValue()));
+                UserUtils.INSTANCE.getCurrentUser().getSettings().setFirstPartLength(Long.valueOf(firstPartLengthTextBox.getValue()));
+                UserUtils.INSTANCE.getCurrentUser().getSettings().setFirstPartSumAmount(Long.valueOf(firstPartSumAmountTextBox.getValue()));
+                UserUtils.INSTANCE.getCurrentUser().getSettings().setMaxSessionLength(Long.valueOf(maxSessionLengthTextBox.getValue()));
                 clientSessionService.saveUser(UserUtils.INSTANCE.getCurrentUser(), new AsyncCallback<User>() {
                     @Override
                     public void onFailure(Throwable caught) {
@@ -205,8 +221,9 @@ public class SettingsPanel extends VerticalPanel {
                             @Override
                             public void onSuccess(User result) {
                                 UserUtils.INSTANCE.setCurrentUser(result);
-                                firstPartLength.setValue(String.valueOf(result.getSettings().getFirstPartLength()));
-                                firstPartSumAmount.setValue(String.valueOf(result.getSettings().getFirstPartSumAmount()));
+                                firstPartLengthTextBox.setValue(String.valueOf(result.getSettings().getFirstPartLength()));
+                                firstPartSumAmountTextBox.setValue(String.valueOf(result.getSettings().getFirstPartSumAmount()));
+                                maxSessionLengthTextBox.setValue(String.valueOf(result.getSettings().getMaxSessionLength()));
                             }
                         });
             }

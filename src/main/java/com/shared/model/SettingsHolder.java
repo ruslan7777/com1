@@ -2,6 +2,7 @@ package com.shared.model;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 import com.googlecode.objectify.annotation.Entity;
+import com.googlecode.objectify.annotation.Id;
 
 import java.io.Serializable;
 
@@ -10,9 +11,11 @@ import java.io.Serializable;
  */
 @Entity
 public class SettingsHolder implements Serializable, IsSerializable {
-  private Long settingsId;
+    @Id
+    private Long settingsId;
   private Long firstPartSumAmount;
   private Long firstPartLength;
+  private Long maxSessionLength;
   private User user;
 
   public Long getSettingsId() {
@@ -39,7 +42,15 @@ public class SettingsHolder implements Serializable, IsSerializable {
     this.firstPartLength = firstPartLength;
   }
 
-  public User getUser() {
+    public Long getMaxSessionLength() {
+        return maxSessionLength;
+    }
+
+    public void setMaxSessionLength(Long maxSessionLength) {
+        this.maxSessionLength = maxSessionLength;
+    }
+
+    public User getUser() {
     return user;
   }
 

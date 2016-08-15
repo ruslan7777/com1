@@ -36,6 +36,22 @@ public class ClientSessionMemoryDaoImpl implements ClientSessionDao{
         testSettingsHolder.setSettingsId(0l);
         testSettingsHolder.setUser(testUser);
         settingsHolderMap.put(testSettingsHolder.getSettingsId(), testSettingsHolder);
+
+        ClientSession testClientSession = new ClientSession(0l, 0l, false, testUser);
+        testClientSession.setId(0l);
+        clientSessionMap.put(testClientSession.getId(), testClientSession);
+        ClientSession testClientSession1 = new ClientSession(System.currentTimeMillis(), 0l, false, testUser);
+        testClientSession1.setId(1l);
+        testClientSession1.setStatus(ClientSession.SESSION_STATUS.STARTED);
+        clientSessionMap.put(testClientSession1.getId(), testClientSession1);
+        ClientSession testClientSession2 = new ClientSession(System.currentTimeMillis() - 50000, System.currentTimeMillis(), false, testUser);
+        testClientSession2.setId(2l);
+        testClientSession2.setStatus(ClientSession.SESSION_STATUS.STOPPED);
+        clientSessionMap.put(testClientSession2.getId(), testClientSession2);
+        ClientSession testClientSession3 = new ClientSession(System.currentTimeMillis() - 50000, System.currentTimeMillis(), false, testUser);
+        testClientSession3.setId(3l);
+        testClientSession3.setStatus(ClientSession.SESSION_STATUS.PAYED);
+        clientSessionMap.put(testClientSession3.getId(), testClientSession3);
     }
 
     @Override
@@ -82,10 +98,12 @@ public class ClientSessionMemoryDaoImpl implements ClientSessionDao{
     }
 
     @Override
-    public List<ClientSession> getClientSessionsList() {
+    public List<ClientSession> getClientSessionsList(User currentUser) {
         List<ClientSession> clientSessions = new ArrayList<>();
         for (ClientSession clientSession : clientSessionMap.values()) {
-            clientSessions.add(clientSession);
+            if (clientSession.getUser().equals(currentUser)) {
+                clientSessions.add(clientSession);
+            }
         }
         return clientSessions;
     }

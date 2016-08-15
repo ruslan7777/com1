@@ -24,7 +24,7 @@ public interface ClientSessionServiceAsync {
 
     void removeClientSession(ClientSession clientSession, AsyncCallback<Void> asyncCallback);
 
-    void getClientSessions(AsyncCallback<List<ClientSession>> asyncCallback);
+    void getClientSessions(User currentUser, AsyncCallback<List<ClientSession>> asyncCallback);
 
     void stopClientSession(ClientSession clientSession, AsyncCallback<Long> asyncCallback);
 

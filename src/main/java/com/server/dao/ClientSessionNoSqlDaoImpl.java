@@ -8,10 +8,7 @@ import com.shared.model.ClientSession;
 import com.shared.model.SessionPseudoName;
 import com.shared.model.User;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created with IntelliJ IDEA.
@@ -61,7 +58,7 @@ public class ClientSessionNoSqlDaoImpl implements ClientSessionDao{
     }
 
     @Override
-    public List<ClientSession> getClientSessionsList() {
+    public List<ClientSession> getClientSessionsList(User currentUser) {
         return null;
     }
 

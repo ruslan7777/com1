@@ -526,6 +526,19 @@ public class ClientSessionGridPanel extends VerticalPanel {
 
       // Schedule the timer to run once every second, 1000 ms.
       t.scheduleRepeating(5000);
+
+      clientSessionService.getClientSessions(UserUtils.INSTANCE.getCurrentUser(), new AsyncCallback<List<ClientSession>>() {
+          @Override
+          public void onFailure(Throwable throwable) {
+              //To change body of implemented methods use File | Settings | File Templates.
+          }
+
+          @Override
+          public void onSuccess(List<ClientSession> clientSessions) {
+              clientSessionDataGrid.setRowData(clientSessions);
+          }
+      });
+
   }
 
   private void setNameFree(ClientSession clientSession) {
@@ -642,7 +655,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
           @Override
           public void onClick(ClickEvent clickEvent) {
             final ClientSession clientSession = new ClientSession(System.currentTimeMillis(),
-                    0, false);
+                    0, false, UserUtils.INSTANCE.getCurrentUser());
             clientSessionService.saveClientSession(clientSession, new AsyncCallback<Long>() {
               @Override
               public void onFailure(Throwable throwable) {

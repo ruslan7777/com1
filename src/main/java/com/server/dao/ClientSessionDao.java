@@ -29,7 +29,7 @@ public interface ClientSessionDao {
 
     void removeClientSession(ClientSession clientSession);
 
-    List<ClientSession> getClientSessionsList();
+    List<ClientSession> getClientSessionsList(User currentUser);
 
     long stopClientSession(ClientSession clientSession);
 
