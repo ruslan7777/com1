@@ -3,6 +3,10 @@ package com.client;
 import com.client.bundles.Images;
 import com.client.events.AddSessionEvent;
 import com.client.events.AddSessionEventHandler;
+import com.client.events.ToggleShowPayedEvent;
+import com.client.events.ToggleShowPayedEventHandler;
+import com.client.events.ToggleShowRemovedEvent;
+import com.client.events.ToggleShowRemovedEventHandler;
 import com.client.events.UserLoggedInEvent;
 import com.client.events.UserLoggedInHandler;
 import com.client.service.ClientSessionService;
@@ -22,6 +26,7 @@ import com.google.gwt.user.cellview.client.AbstractCellTable;
 import com.google.gwt.user.cellview.client.AbstractHeaderOrFooterBuilder;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
+import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.HeaderBuilder;
 import com.google.gwt.user.cellview.client.SimplePager;
@@ -43,6 +48,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -53,6 +59,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
   private SimpleEventBus simpleEventBus;
   long firstPartTimeLength = 60000;
   long firstPartSumAmount = 3500;
+  private Column<ClientSession, String> startColumn;
   ListDataProvider<ClientSession> listDataProvider;
   private final ClientSessionServiceAsync clientSessionService = GWT.create(ClientSessionService.class);
   //    private List<SessionPseudoName> pseudoNamesList = new ArrayList<>();
@@ -84,6 +91,47 @@ public class ClientSessionGridPanel extends VerticalPanel {
                 });
       }
     });
+    simpleEventBus.addHandler(ToggleShowRemovedEvent.TYPE, new ToggleShowRemovedEventHandler() {
+      @Override
+      public void toggleShowRemoved(ToggleShowRemovedEvent toggleShowRemovedEvent) {
+        clientSessionService.getClientSessions(UserUtils.INSTANCE.getCurrentUser(), toggleShowRemovedEvent.isShowRemovedOn(),
+                toggleShowRemovedEvent.isShowPayedCurrentState(), new AsyncCallback<List<ClientSession>>() {
+                  @Override
+                  public void onFailure(Throwable caught) {
+
+                  }
+
+                  @Override
+                  public void onSuccess(List<ClientSession> result) {
+                    listDataProvider.getList().clear();
+                    listDataProvider.getList().addAll(result);
+                    listDataProvider.refresh();
+                    clientSessionDataGrid.setVisibleRange(0, listDataProvider.getList().size());
+                  }
+                });
+      }
+    });
+    simpleEventBus.addHandler(ToggleShowPayedEvent.TYPE, new ToggleShowPayedEventHandler() {
+      @Override
+      public void toggleShowPayed(ToggleShowPayedEvent toggleShowPayedEvent) {
+        clientSessionService.getClientSessions(UserUtils.INSTANCE.getCurrentUser(), toggleShowPayedEvent.isShowRemovedCurrentState(),
+                toggleShowPayedEvent.isShowPayedOn(),
+                new AsyncCallback<List<ClientSession>>() {
+                  @Override
+                  public void onFailure(Throwable caught) {
+
+                  }
+
+                  @Override
+                  public void onSuccess(List<ClientSession> result) {
+                    listDataProvider.getList().clear();
+                    listDataProvider.getList().addAll(result);
+                    listDataProvider.refresh();
+                    clientSessionDataGrid.setVisibleRange(0, listDataProvider.getList().size());
+                  }
+                });
+      }
+    });
 //      pseudoNamesList.addAll(Arrays.asList(new SessionPseudoName("BLACK"), new SessionPseudoName("RED"), new SessionPseudoName("YELLOW"),
 //              new SessionPseudoName("WHITE"), new SessionPseudoName("GREEN")));
     clientSessionService.addNames(Arrays.asList(new SessionPseudoName("BLACK"), new SessionPseudoName("RED"), new SessionPseudoName("YELLOW"),
@@ -103,16 +151,19 @@ public class ClientSessionGridPanel extends VerticalPanel {
         final ClientSession clientSession = new ClientSession();
         final SessionPseudoName sessionPseudoName = new SessionPseudoName(addSessionEvent.getClientPseudoName());
         clientSession.setSessionPseudoName(sessionPseudoName);
-        clientSessionService.saveClientSession(clientSession, new AsyncCallback<Long>() {
+        clientSession.setCreationTime(System.currentTimeMillis());
+        clientSessionService.saveClientSession(clientSession, UserUtils.INSTANCE.getCurrentUser().getSettings().isToShowRemoved(),
+                UserUtils.INSTANCE.getCurrentUser().getSettings().isToShowRemoved(), new AsyncCallback<List<ClientSession>>() {
           @Override
           public void onFailure(Throwable caught) {
 
           }
 
           @Override
-          public void onSuccess(Long result) {
-            clientSession.setId(result);
-            listDataProvider.getList().add(clientSession);
+          public void onSuccess(List<ClientSession> result) {
+//            clientSession.setId(result);
+            listDataProvider.getList().clear();
+            listDataProvider.getList().addAll(result);
             listDataProvider.refresh();
             clientSessionDataGrid.setVisibleRange(0, listDataProvider.getList().size());
 //            for (int i = 0; i < clientSessionDataGrid.getVisibleItemCount(); i ++) {
@@ -162,23 +213,6 @@ public class ClientSessionGridPanel extends VerticalPanel {
     pager.setDisplay(clientSessionDataGrid);
     add(clientSessionDataGrid);
     setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-    Button addButton = new Button("Добавить");
-    addButton.setHeight("30px");
-    addButton.setWidth("200px");
-    addButton.addClickHandler(new ClickHandler() {
-      @Override
-      public void onClick(ClickEvent event) {
-
-        DialogBox dialogBox = createDialogBox();
-        dialogBox.center();
-        dialogBox.setModal(true);
-        dialogBox.setText("Выбор псевдонима");
-        dialogBox.setSize("200px", "150px");
-        firstPartTimeLength = UserUtils.INSTANCE.getCurrentUser().getSettings().getFirstPartLength();
-        firstPartSumAmount = UserUtils.INSTANCE.getCurrentUser().getSettings().getFirstPartSumAmount();
-        dialogBox.show();
-      }
-    });
 
     ButtonCellBase<String> stringButtonCellBase = new ButtonCellBase<>(new ButtonCellBase.DefaultAppearance<String>(new AbstractSafeHtmlRenderer<String>() {
       @Override
@@ -196,7 +230,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
         };  //To change body of implemented methods use File | Settings | File Templates.
       }
     }));
-    Column<ClientSession, String> startColumn = new Column<ClientSession, String>(stringButtonCellBase) {
+    startColumn = new Column<ClientSession, String>(stringButtonCellBase) {
       @Override
       public String getValue(ClientSession clientSession) {
         return clientSession.getSessionStatus().name();
@@ -208,7 +242,17 @@ public class ClientSessionGridPanel extends VerticalPanel {
         if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.CREATED) {
           clientSession.setStartTime(System.currentTimeMillis());
           clientSession.setStatus(ClientSession.SESSION_STATUS.STARTED);
-          clientSessionDataGrid.redrawRow(i);
+          clientSessionService.startClientSession(clientSession, new AsyncCallback<Long>() {
+            @Override
+            public void onFailure(Throwable caught) {
+
+            }
+
+            @Override
+            public void onSuccess(Long result) {
+              clientSessionDataGrid.redrawRow(i);
+            }
+          });
         } else if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.STARTED) {
           clientSession.setStopTime(System.currentTimeMillis());
           clientSession.setStatus(ClientSession.SESSION_STATUS.STOPPED);
@@ -355,18 +399,22 @@ public class ClientSessionGridPanel extends VerticalPanel {
     removeColumn.setFieldUpdater(new FieldUpdater<ClientSession, String>() {
       @Override
       public void update(final int index, final ClientSession clientSession, String value) {
-        clientSessionService.removeClientSession(clientSession, new AsyncCallback<Void>() {
+//        clientSession.setStatus(ClientSession.SESSION_STATUS.REMOVED);
+        clientSessionService.removeClientSession(clientSession, UserUtils.INSTANCE.getCurrentUser().getSettings().isToShowRemoved(),
+                UserUtils.INSTANCE.getCurrentUser().getSettings().isToShowPayed(), new AsyncCallback<List<ClientSession>>() {
           @Override
           public void onFailure(Throwable caught) {
 
           }
 
           @Override
-          public void onSuccess(Void result) {
+          public void onSuccess(List<ClientSession> result) {
             setNameFree(clientSession);
-            clientSession.setStatus(ClientSession.SESSION_STATUS.REMOVED);
-//              clientSession.setStopTime(System.currentTimeMillis());
-            clientSessionDataGrid.redrawRow(index);
+            listDataProvider.getList().clear();
+            listDataProvider.getList().addAll(result);
+            listDataProvider.refresh();
+            clientSessionDataGrid.setVisibleRange(0, listDataProvider.getList().size());
+//            clientSessionDataGrid.redrawRow(index);
             Audio audio = Audio.createIfSupported();
             audio.setSrc(GWT.getHostPageBaseURL() + "sounds/7.wav");
             audio.play();
@@ -410,13 +458,13 @@ public class ClientSessionGridPanel extends VerticalPanel {
 //            }
 //          });
 
-    HorizontalPanel buttonsPanel = new HorizontalPanel();
-    buttonsPanel.add(addButton);
-    ToggleButton toggleButton = new ToggleButton();
-    toggleButton.setText("Показывать удаленные");
+//    HorizontalPanel buttonsPanel = new HorizontalPanel();
+//    buttonsPanel.add(addButton);
+//    ToggleButton toggleButton = new ToggleButton();
+//    toggleButton.setText("Показывать удаленные");
 //    toggleButton.setDown("Показывать удаленные");
 //    buttonsPanel.add(toggleButton);
-    add(buttonsPanel);
+//    add(buttonsPanel);
 //    add(verticalPanel);
 //    clientSessionGrid.setRowData(0, Collections.singletonList(new ClientSession(System.currentTimeMillis(),
 //            System.currentTimeMillis(), false)));
@@ -434,7 +482,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
 
     // Schedule the timer to run once every second, 1000 ms.
     t.scheduleRepeating(5000);
-    clientSessionService.getClientSessions(UserUtils.INSTANCE.getCurrentUser(), new AsyncCallback<List<ClientSession>>() {
+    clientSessionService.getClientSessions(UserUtils.INSTANCE.getCurrentUser(), true, true, new AsyncCallback<List<ClientSession>>() {
       @Override
       public void onFailure(Throwable throwable) {
         //To change body of implemented methods use File | Settings | File Templates.
@@ -444,6 +492,13 @@ public class ClientSessionGridPanel extends VerticalPanel {
       public void onSuccess(List<ClientSession> clientSessions) {
         listDataProvider = new ListDataProvider<ClientSession>(clientSessions);
         listDataProvider.addDataDisplay(clientSessionDataGrid);
+//        ColumnSortEvent.ListHandler<ClientSession> sortHandler = new ColumnSortEvent.ListHandler<ClientSession>(clientSessions);
+//        sortHandler.setComparator(startColumn,
+//                new Comparator<ClientSession>() {
+//                  public int compare(ClientSession t1, ClientSession t2) {
+//                    return t2.compareTo(t1);
+//                  }
+//                });
 //        clientSessionDataGrid.setRowCount(100);
         clientSessionDataGrid.setRowData(clientSessions);
 //              clientSessionDataGrid.setVisibleRange(0, 1000);

@@ -1,5 +1,7 @@
 package com.server.dao;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
 import com.shared.model.ClientSession;
 import com.shared.model.SessionPseudoName;
 import com.shared.model.SettingsHolder;
@@ -7,6 +9,8 @@ import com.shared.model.User;
 import com.shared.utils.UserUtils;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,6 +65,7 @@ public class ClientSessionMemoryDaoImpl implements ClientSessionDao{
     private void addTestClientSession(User testUser, long startTime, long stopTime, ClientSession.SESSION_STATUS sessionStatus) {
         ClientSession testClientSession = new ClientSession(startTime, stopTime, testUser);
         testClientSession.setId(getMaxId() + 1);
+        testClientSession.setCreationTime(startTime - 70000);
         SessionPseudoName removedTestSessionPseudoName12 = new SessionPseudoName("testName" + testClientSession.getId());
         addName(removedTestSessionPseudoName12);
         removedTestSessionPseudoName12.setIsUsed(true);
@@ -98,31 +103,51 @@ public class ClientSessionMemoryDaoImpl implements ClientSessionDao{
     }
 
     @Override
-    public Long saveClientSession(ClientSession clientSession) {
+    public List<ClientSession> saveClientSession(ClientSession clientSession, boolean isShowRemoved,
+                                                 boolean isShowPayed) {
         clientSession.setId(getMaxId() + 1);
         clientSession.setUser(UserUtils.INSTANCE.getCurrentUser());
         markNameAsUsed(clientSession.getSessionPseudoName());
         this.clientSessionMap.put(clientSession.getId(), clientSession);
-        return clientSession.getId();
+        return getClientSessionsList(UserUtils.INSTANCE.getCurrentUser(), isShowRemoved, isShowPayed);
     }
 
     @Override
-    public void removeClientSession(ClientSession clientSession) {
+    public List<ClientSession> removeClientSession(ClientSession clientSession, boolean isShowRemoved, boolean showPayedOn) {
         ClientSession sessionToRemove = this.clientSessionMap.get(clientSession.getId());
         if (sessionToRemove != null) {
             sessionToRemove.setStatus(ClientSession.SESSION_STATUS.REMOVED);
         }
+        return getClientSessionsList(UserUtils.INSTANCE.getCurrentUser(), isShowRemoved, showPayedOn);
     }
 
     @Override
-    public List<ClientSession> getClientSessionsList(User currentUser) {
+    public List<ClientSession> getClientSessionsList(User currentUser, final boolean isShowRemoved, final boolean showPayedOn) {
         List<ClientSession> clientSessions = new ArrayList<>();
         for (ClientSession clientSession : clientSessionMap.values()) {
             if (clientSession.getUser() != null && clientSession.getUser().equals(currentUser)) {
-                clientSessions.add(clientSession);
+//                if (isShowRemoved || (clientSession.getSessionStatus() != ClientSession.SESSION_STATUS.REMOVED)) {
+                    clientSessions.add(clientSession);
+//                }
             }
         }
-        return clientSessions;
+        Predicate<ClientSession> removedPredicate = new Predicate<ClientSession>() {
+            @Override
+            public boolean apply(ClientSession clientSession) {
+                return isShowRemoved || ClientSession.SESSION_STATUS.REMOVED != clientSession.getSessionStatus();
+            }
+        };
+        Predicate<ClientSession> payedPredicate = new Predicate<ClientSession>() {
+            @Override
+            public boolean apply(ClientSession clientSession) {
+                return showPayedOn || ClientSession.SESSION_STATUS.PAYED != clientSession.getSessionStatus();
+            }
+        };
+        Collection<ClientSession> filteredByRemoveList = Collections2.filter(clientSessions, removedPredicate);
+        Collection<ClientSession> clientSessionCollections = Collections2.filter(filteredByRemoveList, payedPredicate);
+        ArrayList<ClientSession> filteredAndSortedSessions = new ArrayList<>(clientSessionCollections);
+        Collections.sort(filteredAndSortedSessions);
+        return filteredAndSortedSessions;
     }
 
     @Override
@@ -204,6 +229,14 @@ public class ClientSessionMemoryDaoImpl implements ClientSessionDao{
             }
         }
         return null;
+    }
+
+    @Override
+    public long startClientSession(ClientSession clientSession) {
+        ClientSession session = this.clientSessionMap.get(clientSession.getId());
+        session.setStatus(ClientSession.SESSION_STATUS.STARTED);
+        session.setStartTime(clientSession.getStartTime());
+        return session.getId();
     }
 
     private long getMaxId() {

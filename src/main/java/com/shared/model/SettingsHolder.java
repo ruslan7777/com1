@@ -16,6 +16,8 @@ public class SettingsHolder implements Serializable, IsSerializable {
   private Long firstPartSumAmount;
   private Long firstPartLength;
   private Long maxSessionLength;
+  private boolean isToShowRemoved = true;
+  private boolean isToShowPayed = true;
   private User user;
 
   public Long getSettingsId() {
@@ -50,7 +52,23 @@ public class SettingsHolder implements Serializable, IsSerializable {
         this.maxSessionLength = maxSessionLength;
     }
 
-    public User getUser() {
+  public boolean isToShowRemoved() {
+    return isToShowRemoved;
+  }
+
+  public void setIsToShowRemoved(boolean isToShowRemoved) {
+    this.isToShowRemoved = isToShowRemoved;
+  }
+
+  public boolean isToShowPayed() {
+    return isToShowPayed;
+  }
+
+  public void setIsToShowPayed(boolean isToShowPayed) {
+    this.isToShowPayed = isToShowPayed;
+  }
+
+  public User getUser() {
     return user;
   }
 

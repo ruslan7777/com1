@@ -40,18 +40,18 @@ public class ClientSessionServiceImpl extends RemoteServiceServlet implements Cl
     }
 
     @Override
-    public Long saveClientSession(ClientSession clientSession) {
-        return clientSessionDao.saveClientSession(clientSession);//To change body of implemented methods use File | Settings | File Templates.
+    public List<ClientSession> saveClientSession(ClientSession clientSession, boolean isShowRemoved, boolean showPayedOn) {
+        return clientSessionDao.saveClientSession(clientSession, isShowRemoved, showPayedOn);//To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public void removeClientSession(ClientSession clientSession) {
-        clientSessionDao.removeClientSession(clientSession);
+    public List<ClientSession> removeClientSession(ClientSession clientSession, boolean isShowRemoved, boolean showPayedOn) {
+        return clientSessionDao.removeClientSession(clientSession, isShowRemoved, showPayedOn);
     }
 
     @Override
-    public List<ClientSession> getClientSessions(User currentUser) {
-        return clientSessionDao.getClientSessionsList(currentUser);
+    public List<ClientSession> getClientSessions(User currentUser, boolean isShowRemoved, boolean showPayedOn) {
+        return clientSessionDao.getClientSessionsList(currentUser, isShowRemoved, showPayedOn);
     }
 
     @Override
@@ -92,5 +92,10 @@ public class ClientSessionServiceImpl extends RemoteServiceServlet implements Cl
     @Override
     public User login(String userName, String userPassword) {
         return clientSessionDao.login(userName, userPassword);
+    }
+
+    @Override
+    public long startClientSession(ClientSession clientSession) {
+        return clientSessionDao.startClientSession(clientSession);
     }
 }

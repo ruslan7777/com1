@@ -60,15 +60,16 @@ public class NameSelectWindow extends DialogBox {
             public void onClick(ClickEvent clickEvent) {
                  final ClientSession clientSession = new ClientSession(System.currentTimeMillis(),
                          0, UserUtils.INSTANCE.getCurrentUser());
-                 clientSessionService.saveClientSession(clientSession, new AsyncCallback<Long>() {
+                 clientSessionService.saveClientSession(clientSession, UserUtils.INSTANCE.getCurrentUser().getSettings().isToShowRemoved(),
+                         UserUtils.INSTANCE.getCurrentUser().getSettings().isToShowRemoved(), new AsyncCallback<List<ClientSession>>() {
                      @Override
                      public void onFailure(Throwable throwable) {
                          //To change body of implemented methods use File | Settings | File Templates.
                      }
 
                      @Override
-                     public void onSuccess(Long id) {
-                         clientSession.setId(id);//To change body of implemented methods use File | Settings | File Templates.
+                     public void onSuccess(List<ClientSession> result) {
+//                         clientSession.setId(id);//To change body of implemented methods use File | Settings | File Templates.
                      }
                  });
 

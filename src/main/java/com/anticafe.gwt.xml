@@ -16,7 +16,8 @@
    <inherits name='com.google.gwt.user.theme.standard.Standard'/>
    <inherits name="com.google.gwt.visualization.Visualization"/>
    <inherits name="com.google.gwt.resources.Resources" />
-    <!-- <inherits name='com.google.gwt.user.theme.chrome.Chrome'/> -->
+  <inherits name="com.google.gwt.event.EventBase"/>
+  <!-- <inherits name='com.google.gwt.user.theme.chrome.Chrome'/> -->
   <!-- <inherits name='com.google.gwt.user.theme.dark.Dark'/>     -->
 
   <!-- Other module inherits                                      -->

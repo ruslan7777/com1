@@ -23,11 +23,11 @@ public interface ClientSessionService extends RemoteService {
 
     void addNames(List<SessionPseudoName> pseudoNamesList);
 
-    Long saveClientSession(ClientSession clientSession);
+    List<ClientSession> saveClientSession(ClientSession clientSession, boolean isShowRemoved, boolean showPayedOn);
 
-    void removeClientSession(ClientSession clientSession);
+    List<ClientSession> removeClientSession(ClientSession clientSession, boolean isShowRemoved, boolean showPayedOn);
 
-    List<ClientSession> getClientSessions(User currentUser);
+    List<ClientSession> getClientSessions(User currentUser, boolean isShowRemoved, boolean showPayedOn);
 
     long stopClientSession(ClientSession clientSession);
 
@@ -44,4 +44,6 @@ public interface ClientSessionService extends RemoteService {
     User saveUser(User user);
 
     User login(String userName, String passwordTextBoxValue);
+
+    long startClientSession(ClientSession clientSession);
 }

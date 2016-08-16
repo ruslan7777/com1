@@ -48,18 +48,18 @@ public class ClientSessionNoSqlDaoImpl implements ClientSessionDao{
     }
 
     @Override
-    public Long saveClientSession(ClientSession clientSession) {
+    public List<ClientSession> saveClientSession(ClientSession clientSession, boolean isShowRemoved, boolean isShowPayed) {
         Result<Key<ClientSession>> clientSessionResult = ObjectifyService.ofy().save().entity(clientSession);
-        return clientSessionResult.now().getId();
+        return getClientSessionsList(UserUtils.INSTANCE.getCurrentUser(), isShowRemoved, isShowPayed);
     }
 
     @Override
-    public void removeClientSession(ClientSession clientSession) {
-
+    public List<ClientSession> removeClientSession(ClientSession clientSession, boolean isShowRemoved, boolean showPayedOn) {
+        return  getClientSessionsList(UserUtils.INSTANCE.getCurrentUser(), isShowRemoved, showPayedOn);
     }
 
     @Override
-    public List<ClientSession> getClientSessionsList(User currentUser) {
+    public List<ClientSession> getClientSessionsList(User currentUser, boolean isShowRemoved, boolean showPayedOn) {
         return null;
     }
 
@@ -101,5 +101,10 @@ public class ClientSessionNoSqlDaoImpl implements ClientSessionDao{
     @Override
     public User login(String userName, String userPassword) {
         return null;
+    }
+
+    @Override
+    public long startClientSession(ClientSession clientSession) {
+        return 0;
     }
 }

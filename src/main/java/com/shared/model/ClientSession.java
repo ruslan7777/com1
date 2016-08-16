@@ -4,15 +4,17 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 /**
  * Created by dmitry on 26.07.16.
  */
 @Entity
-public class ClientSession implements Serializable, IsSerializable {
+public class ClientSession implements Serializable, IsSerializable, Comparable<ClientSession> {
     @Id
     private Long id;
+  private long creationTime;
   private long startTime;
   private long stopTime;
   private SessionPseudoName sessionPseudoName;
@@ -26,6 +28,11 @@ public class ClientSession implements Serializable, IsSerializable {
   }
 
   public ClientSession() {
+  }
+
+  @Override
+  public int compareTo(ClientSession o) {
+    return o.getCreationTime() >= this.getCreationTime() ? 1 : -1;
   }
 
   public enum SESSION_STATUS implements Serializable, IsSerializable {
@@ -62,6 +69,14 @@ public class ClientSession implements Serializable, IsSerializable {
 
   public void setId(long id) {
     this.id = id;
+  }
+
+  public long getCreationTime() {
+    return creationTime;
+  }
+
+  public void setCreationTime(long creationTime) {
+    this.creationTime = creationTime;
   }
 
   public long getStartTime() {
