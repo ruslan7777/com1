@@ -8,7 +8,9 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.SplitLayoutPanel;
 import com.google.gwt.user.client.ui.TabLayoutPanel;
+import com.google.gwt.user.client.ui.ToggleButton;
 
 /**
  * Created by Dimon on 19.07.2016.
@@ -35,8 +37,12 @@ public class MainTabPanel extends TabLayoutPanel {
 //    setWidth("100%");
     // Add a home tab
     String[] tabTitles = {"Сессии", "Настройки", "Отчеты"};
-    ClientSessionGridPanel clientSessionGridPanel = new ClientSessionGridPanel(simpleEventBus);
-    add(clientSessionGridPanel, tabTitles[0]);
+//    ClientSessionGridPanel clientSessionGridPanel = new ClientSessionGridPanel(simpleEventBus);
+    SplitLayoutPanel splitLayoutPanel = new SplitLayoutPanel();
+    splitLayoutPanel.setSize("100%", "100%");
+    splitLayoutPanel.addEast(new ToggleButton("Показывать удаленные"), 150);
+    splitLayoutPanel.add(new ClientSessionGridPanel(simpleEventBus));
+    add(splitLayoutPanel, tabTitles[0]);
 
     // Add a tab with an image
 //    SimplePanel imageContainer = new SimplePanel();

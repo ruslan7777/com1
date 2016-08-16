@@ -5,6 +5,10 @@ import com.client.events.UserLoggedInHandler;
 import com.client.service.ClientSessionService;
 import com.client.service.ClientSessionServiceAsync;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Node;
+import com.google.gwt.dom.client.NodeList;
+import com.google.gwt.dom.client.OptionElement;
+import com.google.gwt.dom.client.SelectElement;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyPressEvent;
@@ -178,7 +182,7 @@ public class SettingsPanel extends VerticalPanel {
             }
         });
 //        clientSessionService.getCurrentUser();
-        add(firstPartSumAmountTextBox);
+        add(maxSessionLengthTextBox);
 
         Button saveButton = new Button("Сохранить");
         saveButton.addClickHandler(new ClickHandler() {

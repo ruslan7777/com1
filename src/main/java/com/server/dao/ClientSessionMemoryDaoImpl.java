@@ -38,45 +38,35 @@ public class ClientSessionMemoryDaoImpl implements ClientSessionDao{
         testSettingsHolder.setUser(testUser);
         settingsHolderMap.put(testSettingsHolder.getSettingsId(), testSettingsHolder);
 
-        ClientSession createdTestClientSession = new ClientSession(0l, 0l, false, testUser);
-        createdTestClientSession.setId(0l);
-        SessionPseudoName testSessionPseudoName = new SessionPseudoName("testName0");
-        addName(testSessionPseudoName);
-        testSessionPseudoName.setIsUsed(true);
-        createdTestClientSession.setSessionPseudoName(testSessionPseudoName);
-        clientSessionMap.put(createdTestClientSession.getId(), createdTestClientSession);
-        ClientSession testClientSession1 = new ClientSession(System.currentTimeMillis(), 0l, false, testUser);
-        testClientSession1.setId(1l);
-        SessionPseudoName startedTestSessionPseudoName1 = new SessionPseudoName("testName1");
-        addName(startedTestSessionPseudoName1);
-        testSessionPseudoName.setIsUsed(true);
-        testClientSession1.setSessionPseudoName(startedTestSessionPseudoName1);
-        testClientSession1.setStatus(ClientSession.SESSION_STATUS.STARTED);
-        clientSessionMap.put(testClientSession1.getId(), testClientSession1);
-        ClientSession testClientSession2 = new ClientSession(System.currentTimeMillis() - 50000, System.currentTimeMillis(), false, testUser);
-        testClientSession2.setId(2l);
-        SessionPseudoName stoppedTeststSessionPseudoName2 = new SessionPseudoName("testName2");
-        addName(stoppedTeststSessionPseudoName2);
-        stoppedTeststSessionPseudoName2.setIsUsed(true);
-        testClientSession2.setSessionPseudoName(stoppedTeststSessionPseudoName2);
-        testClientSession2.setStatus(ClientSession.SESSION_STATUS.STOPPED);
-        clientSessionMap.put(testClientSession2.getId(), testClientSession2);
-        ClientSession testClientSession3 = new ClientSession(System.currentTimeMillis() - 50000, System.currentTimeMillis(), false, testUser);
-        testClientSession3.setId(3l);
-        SessionPseudoName payedTestSessionPseudoName3 = new SessionPseudoName("testName3");
-        addName(payedTestSessionPseudoName3);
-        payedTestSessionPseudoName3.setIsUsed(true);
-        testClientSession3.setSessionPseudoName(payedTestSessionPseudoName3);
-        testClientSession3.setStatus(ClientSession.SESSION_STATUS.PAYED);
-        clientSessionMap.put(testClientSession3.getId(), testClientSession3);
-        ClientSession removedTestClientSession4 = new ClientSession(System.currentTimeMillis() - 150000, System.currentTimeMillis(), false, testUser);
-        removedTestClientSession4.setId(4l);
-        SessionPseudoName removedTestSessionPseudoName4 = new SessionPseudoName("testName4");
-        addName(removedTestSessionPseudoName4);
-        removedTestSessionPseudoName4.setIsUsed(true);
-        removedTestClientSession4.setSessionPseudoName(removedTestSessionPseudoName4);
-        removedTestClientSession4.setStatus(ClientSession.SESSION_STATUS.REMOVED);
-        clientSessionMap.put(removedTestClientSession4.getId(), removedTestClientSession4);
+        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED);
+        addTestClientSession(testUser, System.currentTimeMillis() - 50000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.CREATED);
+        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED);
+        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED);
+        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED);
+        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.PAYED);
+        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED);
+        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED);
+        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED);
+        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED);
+        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED);
+        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED);
+        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED);
+        addTestClientSession(testUser, System.currentTimeMillis(), System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED);
+        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED);
+        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED);
+        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED);
+        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED);
+    }
+
+    private void addTestClientSession(User testUser, long startTime, long stopTime, ClientSession.SESSION_STATUS sessionStatus) {
+        ClientSession testClientSession = new ClientSession(startTime, stopTime, testUser);
+        testClientSession.setId(getMaxId() + 1);
+        SessionPseudoName removedTestSessionPseudoName12 = new SessionPseudoName("testName" + testClientSession.getId());
+        addName(removedTestSessionPseudoName12);
+        removedTestSessionPseudoName12.setIsUsed(true);
+        testClientSession.setSessionPseudoName(removedTestSessionPseudoName12);
+        testClientSession.setStatus(sessionStatus);
+        clientSessionMap.put(testClientSession.getId(), testClientSession);
     }
 
     @Override

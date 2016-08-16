@@ -18,9 +18,14 @@ import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.text.shared.AbstractSafeHtmlRenderer;
+import com.google.gwt.user.cellview.client.AbstractCellTable;
 import com.google.gwt.user.cellview.client.AbstractHeaderOrFooterBuilder;
+import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.DataGrid;
+import com.google.gwt.user.cellview.client.HeaderBuilder;
+import com.google.gwt.user.cellview.client.SimplePager;
+import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.cellview.client.TextHeader;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
@@ -137,6 +142,24 @@ public class ClientSessionGridPanel extends VerticalPanel {
 
     clientSessionDataGrid.setHeight("500px");
     clientSessionDataGrid.setWidth("100%");
+
+    CellTable<ClientSession> clientSessionCellTable = new CellTable<>();
+    clientSessionCellTable.insertColumn(0, new TextColumn<ClientSession>() {
+      @Override
+      public String getValue(ClientSession object) {
+        return object.getSessionStatus().name();
+      }
+    });
+    clientSessionDataGrid.setHeaderBuilder(new AbstractHeaderOrFooterBuilder<ClientSession>(clientSessionCellTable, false) {
+      @Override
+      protected boolean buildHeaderOrFooterImpl() {
+        return false;
+      }
+    });
+
+    SimplePager pager = new SimplePager(SimplePager.TextLocation.CENTER, true, true);
+    pager.setPageSize(10);
+    pager.setDisplay(clientSessionDataGrid);
     add(clientSessionDataGrid);
     setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
     Button addButton = new Button("Добавить");
@@ -387,7 +410,13 @@ public class ClientSessionGridPanel extends VerticalPanel {
 //            }
 //          });
 
-    add(addButton);
+    HorizontalPanel buttonsPanel = new HorizontalPanel();
+    buttonsPanel.add(addButton);
+    ToggleButton toggleButton = new ToggleButton();
+    toggleButton.setText("Показывать удаленные");
+//    toggleButton.setDown("Показывать удаленные");
+//    buttonsPanel.add(toggleButton);
+    add(buttonsPanel);
 //    add(verticalPanel);
 //    clientSessionGrid.setRowData(0, Collections.singletonList(new ClientSession(System.currentTimeMillis(),
 //            System.currentTimeMillis(), false)));

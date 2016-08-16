@@ -59,7 +59,7 @@ public class NameSelectWindow extends DialogBox {
             @Override
             public void onClick(ClickEvent clickEvent) {
                  final ClientSession clientSession = new ClientSession(System.currentTimeMillis(),
-                         0, false, UserUtils.INSTANCE.getCurrentUser());
+                         0, UserUtils.INSTANCE.getCurrentUser());
                  clientSessionService.saveClientSession(clientSession, new AsyncCallback<Long>() {
                      @Override
                      public void onFailure(Throwable throwable) {
