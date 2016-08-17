@@ -3,6 +3,8 @@ package com.client;
 import com.client.events.AddSessionEvent;
 import com.client.events.ToggleShowPayedEvent;
 import com.client.events.ToggleShowRemovedEvent;
+import com.client.events.UpdateSumEvent;
+import com.client.events.UpdateSumEventHandler;
 import com.client.panels.ReportsPanel;
 import com.client.panels.SettingsPanel;
 import com.client.service.ClientSessionService;
@@ -32,6 +34,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.shared.model.SessionPseudoName;
 import com.shared.utils.UserUtils;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -41,6 +44,7 @@ public class MainTabPanel extends TabLayoutPanel {
     private SimpleEventBus simpleEventBus;
   ToggleButton showRemovedButton;
   ToggleButton showPayedButton;
+  Label sumLabel;
   private final ClientSessionServiceAsync clientSessionService = GWT.create(ClientSessionService.class);
   /**
    * Creates an empty tab panel.
@@ -60,6 +64,12 @@ public class MainTabPanel extends TabLayoutPanel {
 //    getElement().getStyle().setMarginLeft(300.0, Style.Unit.PX);
     setHeight("600px");
     setWidth("100%");
+    eventBus.addHandler(UpdateSumEvent.TYPE, new UpdateSumEventHandler() {
+      @Override
+      public void updateSum(UpdateSumEvent updateSumEvent) {
+       sumLabel.setText(getPrettyMoney(updateSumEvent.getSum()));
+      }
+    });
 //    setHeight("100%");
 //    setWidth("100%");
     // Add a home tab
@@ -82,29 +92,7 @@ public class MainTabPanel extends TabLayoutPanel {
     showRemovedButton.setHeight("40px");
     showRemovedButton.setDown(true);
     VerticalPanel eastButtonsPanel = new VerticalPanel();
-    eastButtonsPanel.getElement().getStyle().setMargin(10, Style.Unit.PX);
-    eastButtonsPanel.add(showRemovedButton);
-    showPayedButton.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
-      @Override
-      public void onValueChange(ValueChangeEvent<Boolean> event) {
-        UserUtils.INSTANCE.getCurrentUser().getSettings().setIsToShowPayed(event.getValue());
-        ToggleShowPayedEvent toggleShowPayedEvent = new ToggleShowPayedEvent();
-        toggleShowPayedEvent.setIsShowPayedOn(event.getValue());
-        toggleShowPayedEvent.setIsShowRemovedCurrentState(showRemovedButton.getValue());
-        eventBus.fireEvent(toggleShowPayedEvent);
-      }
-    });
-    showPayedButton.setWidth("150px");
-    showPayedButton.setHeight("40px");
-    showPayedButton.setDown(true);
-    eastButtonsPanel.add(showPayedButton);
-    splitLayoutPanel.addEast(eastButtonsPanel, 250);
-    splitLayoutPanel.getElement().getStyle().setMargin(5, Style.Unit.PX);
-    add(splitLayoutPanel, tabTitles[0]);
-    HorizontalPanel southPanel = new HorizontalPanel();
-    southPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-    southPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
-//    southPanel.getElement().getStyle().setMargin(10, Style.Unit.PX);
+
     Button addButton = new Button("Добавить");
     addButton.setHeight("30px");
     addButton.setWidth("200px");
@@ -123,8 +111,38 @@ public class MainTabPanel extends TabLayoutPanel {
       }
     });
 
-    southPanel.add(addButton);
-    splitLayoutPanel.addSouth(southPanel, 60);
+    eastButtonsPanel.add(addButton);
+
+    eastButtonsPanel.getElement().getStyle().setMargin(10, Style.Unit.PX);
+    eastButtonsPanel.add(showRemovedButton);
+    showPayedButton.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+      @Override
+      public void onValueChange(ValueChangeEvent<Boolean> event) {
+        UserUtils.INSTANCE.getCurrentUser().getSettings().setIsToShowPayed(event.getValue());
+        ToggleShowPayedEvent toggleShowPayedEvent = new ToggleShowPayedEvent();
+        toggleShowPayedEvent.setIsShowPayedOn(event.getValue());
+        toggleShowPayedEvent.setIsShowRemovedCurrentState(showRemovedButton.getValue());
+        eventBus.fireEvent(toggleShowPayedEvent);
+      }
+    });
+    showPayedButton.setWidth("150px");
+    showPayedButton.setHeight("40px");
+    showPayedButton.setDown(true);
+    eastButtonsPanel.add(showPayedButton);
+
+    eastButtonsPanel.add(new Label("Сумма:"));
+    sumLabel = new Label();
+    eastButtonsPanel.add(sumLabel);
+
+    splitLayoutPanel.addEast(eastButtonsPanel, 250);
+    splitLayoutPanel.getElement().getStyle().setMargin(5, Style.Unit.PX);
+    splitLayoutPanel.getElement().getStyle().setPadding(5, Style.Unit.PX);
+    add(splitLayoutPanel, tabTitles[0]);
+    HorizontalPanel southPanel = new HorizontalPanel();
+    southPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+    southPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
+//    southPanel.getElement().getStyle().setMargin(10, Style.Unit.PX);
+//    splitLayoutPanel.addSouth(southPanel, 60);
     splitLayoutPanel.add(new ClientSessionGridPanel(simpleEventBus));
 
     // Add a tab with an image
@@ -242,6 +260,18 @@ public class MainTabPanel extends TabLayoutPanel {
 
     // Return the dialog box
     return dialogBox;
+  }
+
+  public Label getSumLabel() {
+    return sumLabel;
+  }
+
+  public void setSumLabel(Label sumLabel) {
+    this.sumLabel = sumLabel;
+  }
+
+  private String getPrettyMoney(long minPayment) {
+    return new BigDecimal(minPayment).divide(new BigDecimal("100")).setScale(2, BigDecimal.ROUND_HALF_UP).toString();
   }
 
 }

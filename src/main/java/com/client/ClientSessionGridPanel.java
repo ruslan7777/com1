@@ -7,6 +7,7 @@ import com.client.events.ToggleShowPayedEvent;
 import com.client.events.ToggleShowPayedEventHandler;
 import com.client.events.ToggleShowRemovedEvent;
 import com.client.events.ToggleShowRemovedEventHandler;
+import com.client.events.UpdateSumEvent;
 import com.client.events.UserLoggedInEvent;
 import com.client.events.UserLoggedInHandler;
 import com.client.service.ClientSessionService;
@@ -17,40 +18,37 @@ import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.SimpleEventBus;
+import com.google.gwt.i18n.client.TimeZoneInfo;
+import com.google.gwt.i18n.client.constants.TimeZoneConstants;
+import com.google.gwt.i18n.shared.DateTimeFormat;
 import com.google.gwt.media.client.Audio;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.text.shared.AbstractSafeHtmlRenderer;
-import com.google.gwt.user.cellview.client.AbstractCellTable;
 import com.google.gwt.user.cellview.client.AbstractHeaderOrFooterBuilder;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
-import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.DataGrid;
-import com.google.gwt.user.cellview.client.HeaderBuilder;
 import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.cellview.client.TextHeader;
 import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
-import com.google.gwt.view.client.Range;
 import com.shared.model.ClientSession;
 import com.shared.model.SessionPseudoName;
 import com.shared.model.User;
 import com.shared.utils.UserUtils;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import com.google.gwt.i18n.client.TimeZone;
 
 /**
  * Created by dmitry on 26.07.16.
@@ -59,7 +57,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
   private SimpleEventBus simpleEventBus;
   long firstPartTimeLength = 60000;
   long firstPartSumAmount = 3500;
-  private Column<ClientSession, String> startColumn;
+  private Column<ClientSession, String> manageButtonsColumn;
   ListDataProvider<ClientSession> listDataProvider;
   private final ClientSessionServiceAsync clientSessionService = GWT.create(ClientSessionService.class);
   //    private List<SessionPseudoName> pseudoNamesList = new ArrayList<>();
@@ -107,6 +105,32 @@ public class ClientSessionGridPanel extends VerticalPanel {
                     listDataProvider.getList().addAll(result);
                     listDataProvider.refresh();
                     clientSessionDataGrid.setVisibleRange(0, listDataProvider.getList().size());
+                    long sum = 0l;
+                    for (ClientSession clientSession : result) {
+                      if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.REMOVED) {
+                        continue;
+                      }
+                      long timeDifferenceLength;
+                      if (clientSession.getStopTime() == 0) {
+                        timeDifferenceLength = System.currentTimeMillis() - clientSession.getStartTime();
+                      } else {
+                        timeDifferenceLength = clientSession.getStopTime() - clientSession.getStartTime();
+                      }
+                      long timeDifferenceLengthInSeconds = getSeconds(timeDifferenceLength);
+                      if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.CREATED) {
+                        sum += 0;
+                      } else {
+                        if (timeDifferenceLengthInSeconds <= getSeconds(firstPartTimeLength)) {
+                          sum += firstPartSumAmount;
+                        } else {
+                          long totalSum = firstPartSumAmount + 50 * (timeDifferenceLength - firstPartTimeLength) / 1000 / 60;
+                          sum += totalSum;
+                        }
+                      }
+                    }
+                    UpdateSumEvent updateSumEvent = new UpdateSumEvent();
+                    updateSumEvent.setSum(sum);
+                    eventBus.fireEvent(updateSumEvent);
                   }
                 });
       }
@@ -208,9 +232,9 @@ public class ClientSessionGridPanel extends VerticalPanel {
       }
     });
 
-    SimplePager pager = new SimplePager(SimplePager.TextLocation.CENTER, true, true);
-    pager.setPageSize(10);
-    pager.setDisplay(clientSessionDataGrid);
+//    SimplePager pager = new SimplePager(SimplePager.TextLocation.CENTER, true, true);
+//    pager.setPageSize(10);
+//    pager.setDisplay(clientSessionDataGrid);
     add(clientSessionDataGrid);
     setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 
@@ -222,7 +246,9 @@ public class ClientSessionGridPanel extends VerticalPanel {
           public String asString() {
             ClientSession.SESSION_STATUS sessionStatus = ClientSession.SESSION_STATUS.valueOf(value);
             if (sessionStatus == ClientSession.SESSION_STATUS.REMOVED) {
-              return "<div style='pointer-events: none; opacity: 0.4; color:red;'>" + sessionStatus.getButtonText() + "</div>";
+              return "<div style='pointer-events: none; opacity: 0.4; color:red;'>*********</div>";
+            } else if (sessionStatus == ClientSession.SESSION_STATUS.PAYED) {
+              return "<div style='pointer-events: none; opacity: 0.4; color:green;'>*********</div>";
             } else {
               return sessionStatus.getButtonText();  //To change body of implemented methods use File | Settings | File Templates.
             }
@@ -230,13 +256,25 @@ public class ClientSessionGridPanel extends VerticalPanel {
         };  //To change body of implemented methods use File | Settings | File Templates.
       }
     }));
-    startColumn = new Column<ClientSession, String>(stringButtonCellBase) {
+
+    Column startTimeColumn = new Column<ClientSession, String>(new TextCell()) {
+      @Override
+      public String getValue(ClientSession object) {
+        DateTimeFormat dateTimeFormat = DateTimeFormat.getFormat("dd-MM-yyyy HH:mm");
+        Long startTime = object.getStartTime();
+        return dateTimeFormat.format(new Date(startTime));
+      }
+    };
+
+    clientSessionDataGrid.addColumn(startTimeColumn);
+
+    manageButtonsColumn = new Column<ClientSession, String>(stringButtonCellBase) {
       @Override
       public String getValue(ClientSession clientSession) {
         return clientSession.getSessionStatus().name();
       }
     };
-    startColumn.setFieldUpdater(new FieldUpdater<ClientSession, String>() {
+    manageButtonsColumn.setFieldUpdater(new FieldUpdater<ClientSession, String>() {
       @Override
       public void update(final int i, final ClientSession clientSession, String s) {
         if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.CREATED) {
@@ -296,7 +334,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
 
       }
     });
-    clientSessionDataGrid.addColumn(startColumn, new TextHeader("Управление"));
+    clientSessionDataGrid.addColumn(manageButtonsColumn, new TextHeader("Управление"));
 
 
     Column<ClientSession, String> timeColumn = new Column<ClientSession, String>(new TextCell()) {
@@ -316,7 +354,6 @@ public class ClientSessionGridPanel extends VerticalPanel {
       @Override
       public String getValue(ClientSession clientSession) {
         long timeDifferenceLength = System.currentTimeMillis() - clientSession.getStartTime();
-        long totalSumCurrentValue = 0;
         long timeDifferenceLengthInSeconds = getSeconds(timeDifferenceLength);
         if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.CREATED) {
           return "0.00";
@@ -477,6 +514,33 @@ public class ClientSessionGridPanel extends VerticalPanel {
             ClientSessionGridPanel.this.clientSessionDataGrid.redrawRow(i);
           }
         }
+        long sum = 0;
+        for (int i = 0; i < ClientSessionGridPanel.this.clientSessionDataGrid.getVisibleItemCount(); i++) {
+          ClientSession clientSession = ClientSessionGridPanel.this.clientSessionDataGrid.getVisibleItem(i);
+            if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.REMOVED) {
+              continue;
+            }
+          long timeDifferenceLength;
+          if (clientSession.getStopTime() == 0) {
+            timeDifferenceLength = System.currentTimeMillis() - clientSession.getStartTime();
+          } else {
+            timeDifferenceLength = clientSession.getStopTime() - clientSession.getStartTime();
+          }
+          long timeDifferenceLengthInSeconds = getSeconds(timeDifferenceLength);
+          if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.CREATED) {
+            sum += 0;
+          } else {
+            if (timeDifferenceLengthInSeconds <= getSeconds(firstPartTimeLength)) {
+              sum += firstPartSumAmount;
+            } else {
+              long totalSum = firstPartSumAmount + 50 * (timeDifferenceLength - firstPartTimeLength) / 1000 / 60;
+              sum += totalSum;
+            }
+          }
+        }
+        UpdateSumEvent updateSumEvent = new UpdateSumEvent();
+        updateSumEvent.setSum(sum);
+        eventBus.fireEvent(updateSumEvent);
       }
     };
 
@@ -493,7 +557,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
         listDataProvider = new ListDataProvider<ClientSession>(clientSessions);
         listDataProvider.addDataDisplay(clientSessionDataGrid);
 //        ColumnSortEvent.ListHandler<ClientSession> sortHandler = new ColumnSortEvent.ListHandler<ClientSession>(clientSessions);
-//        sortHandler.setComparator(startColumn,
+//        sortHandler.setComparator(manageButtonsColumn,
 //                new Comparator<ClientSession>() {
 //                  public int compare(ClientSession t1, ClientSession t2) {
 //                    return t2.compareTo(t1);
