@@ -17,6 +17,7 @@ public class ClientSession implements Serializable, IsSerializable, Comparable<C
   private long creationTime;
   private long startTime;
   private long stopTime;
+  private long finalSum;
   private SessionPseudoName sessionPseudoName;
   private SESSION_STATUS status = SESSION_STATUS.CREATED;
     private User user;
@@ -93,6 +94,14 @@ public class ClientSession implements Serializable, IsSerializable, Comparable<C
 
   public void setStopTime(long stopTime) {
     this.stopTime = stopTime;
+  }
+
+  public long getFinalSum() {
+    return finalSum;
+  }
+
+  public void setFinalSum(long finalSum) {
+    this.finalSum = finalSum;
   }
 
   public SessionPseudoName getSessionPseudoName() {

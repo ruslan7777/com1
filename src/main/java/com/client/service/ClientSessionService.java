@@ -29,9 +29,9 @@ public interface ClientSessionService extends RemoteService {
 
     List<ClientSession> getClientSessions(User currentUser, boolean isShowRemoved, boolean showPayedOn);
 
-    long stopClientSession(ClientSession clientSession);
+    List<ClientSession> stopClientSession(ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed);
 
-    long payClientSession(ClientSession clientSession);
+    List<ClientSession> payClientSession(ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed);
 
     List<SessionPseudoName> getAllPseudoNames();
 
@@ -45,5 +45,5 @@ public interface ClientSessionService extends RemoteService {
 
     User login(String userName, String passwordTextBoxValue);
 
-    long startClientSession(ClientSession clientSession);
+    List<ClientSession> startClientSession(ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed);
 }

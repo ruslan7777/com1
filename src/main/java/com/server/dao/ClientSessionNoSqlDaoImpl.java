@@ -9,6 +9,7 @@ import com.shared.model.SessionPseudoName;
 import com.shared.model.User;
 import com.shared.utils.UserUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -64,13 +65,13 @@ public class ClientSessionNoSqlDaoImpl implements ClientSessionDao{
     }
 
     @Override
-    public long stopClientSession(ClientSession clientSession) {
-        return 0;
+    public List<ClientSession> stopClientSession(ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed) {
+        return new ArrayList<>();
     }
 
     @Override
-    public long payClientSession(ClientSession clientSession) {
-        return 0;
+    public List<ClientSession> payClientSession(ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed) {
+        return new ArrayList<>();
     }
 
     @Override
@@ -104,7 +105,7 @@ public class ClientSessionNoSqlDaoImpl implements ClientSessionDao{
     }
 
     @Override
-    public long startClientSession(ClientSession clientSession) {
-        return 0;
+    public List<ClientSession> startClientSession(ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed) {
+        return new ArrayList<>();
     }
 }

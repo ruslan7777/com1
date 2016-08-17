@@ -15,9 +15,9 @@ public class SettingsHolder implements Serializable, IsSerializable {
     private Long settingsId;
   private Long firstPartSumAmount;
   private Long firstPartLength;
-  private Long maxSessionLength;
-  private boolean isToShowRemoved = true;
-  private boolean isToShowPayed = true;
+  private Long maxSessionLength = 90000l;
+  private boolean isToShowRemoved = false;
+  private boolean isToShowPayed = false;
   private User user;
 
   public Long getSettingsId() {

@@ -31,6 +31,7 @@ import com.google.gwt.user.client.ui.SplitLayoutPanel;
 import com.google.gwt.user.client.ui.TabLayoutPanel;
 import com.google.gwt.user.client.ui.ToggleButton;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.shared.model.ClientSession;
 import com.shared.model.SessionPseudoName;
 import com.shared.utils.UserUtils;
 
@@ -88,14 +89,14 @@ public class MainTabPanel extends TabLayoutPanel {
         eventBus.fireEvent(toggleShowRemovedEvent);
       }
     });
-    showRemovedButton.setWidth("150px");
+    showRemovedButton.setWidth("230px");
     showRemovedButton.setHeight("40px");
-    showRemovedButton.setDown(true);
+    showRemovedButton.setDown(UserUtils.INSTANCE.getCurrentUser().getSettings().isToShowRemoved());
     VerticalPanel eastButtonsPanel = new VerticalPanel();
 
-    Button addButton = new Button("Добавить");
-    addButton.setHeight("30px");
-    addButton.setWidth("200px");
+    Button addButton = new Button("Добавить сессию");
+    addButton.setHeight("70px");
+    addButton.setWidth("230px");
     addButton.addClickHandler(new ClickHandler() {
       @Override
       public void onClick(ClickEvent event) {
@@ -113,7 +114,10 @@ public class MainTabPanel extends TabLayoutPanel {
 
     eastButtonsPanel.add(addButton);
 
-    eastButtonsPanel.getElement().getStyle().setMargin(10, Style.Unit.PX);
+    eastButtonsPanel.getElement().getStyle().setMargin(3, Style.Unit.PX);
+    HTML html = new HTML("<div></div>");
+    html.setHeight("10px");
+    eastButtonsPanel.add(html);
     eastButtonsPanel.add(showRemovedButton);
     showPayedButton.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
       @Override
@@ -125,18 +129,28 @@ public class MainTabPanel extends TabLayoutPanel {
         eventBus.fireEvent(toggleShowPayedEvent);
       }
     });
-    showPayedButton.setWidth("150px");
+    showPayedButton.setWidth("230px");
     showPayedButton.setHeight("40px");
-    showPayedButton.setDown(true);
+    showPayedButton.setDown(UserUtils.INSTANCE.getCurrentUser().getSettings().isToShowPayed());
+    eastButtonsPanel.add(html);
     eastButtonsPanel.add(showPayedButton);
 
-    eastButtonsPanel.add(new Label("Сумма:"));
+    Label sumLabelLabel = new Label("Сумма:");
+    sumLabelLabel.getElement().getStyle().setLeft(20, Style.Unit.PX);
+    sumLabelLabel.getElement().getStyle().setTop(20, Style.Unit.PX);
+    eastButtonsPanel.add(sumLabelLabel);
     sumLabel = new Label();
+    sumLabel.getElement().getStyle().setFontSize(20, Style.Unit.PX);
+    sumLabel.getElement().getStyle().setLeft(20, Style.Unit.PX);
+    sumLabel.getElement().getStyle().setTop(20, Style.Unit.PX);
+    eastButtonsPanel.add(html);
     eastButtonsPanel.add(sumLabel);
 
     splitLayoutPanel.addEast(eastButtonsPanel, 250);
-    splitLayoutPanel.getElement().getStyle().setMargin(5, Style.Unit.PX);
-    splitLayoutPanel.getElement().getStyle().setPadding(5, Style.Unit.PX);
+//    eastButtonsPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+    eastButtonsPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+//    eastButtonsPanel.getElement().getStyle().setMargin(5, Style.Unit.PX);
+//    eastButtonsPanel.getElement().getStyle().setPadding(5, Style.Unit.PX);
     add(splitLayoutPanel, tabTitles[0]);
     HorizontalPanel southPanel = new HorizontalPanel();
     southPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);

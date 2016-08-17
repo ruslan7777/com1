@@ -227,7 +227,7 @@ public class SettingsPanel extends VerticalPanel {
                                 UserUtils.INSTANCE.setCurrentUser(result);
                                 firstPartLengthTextBox.setValue(String.valueOf(result.getSettings().getFirstPartLength()));
                                 firstPartSumAmountTextBox.setValue(String.valueOf(result.getSettings().getFirstPartSumAmount()));
-                                maxSessionLengthTextBox.setValue(String.valueOf(result.getSettings().getMaxSessionLength()));
+                                maxSessionLengthTextBox.setValue(result.getSettings().getMaxSessionLength() == null? "0" : String.valueOf(result.getSettings().getMaxSessionLength()));
                             }
                         });
             }

@@ -26,9 +26,9 @@ public interface ClientSessionServiceAsync {
 
     void getClientSessions(User currentUser, boolean isShowRemoved, boolean showPayedOn, AsyncCallback<List<ClientSession>> asyncCallback);
 
-    void stopClientSession(ClientSession clientSession, AsyncCallback<Long> asyncCallback);
+    void stopClientSession(ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed, AsyncCallback<List<ClientSession>> asyncCallback);
 
-    void payClientSession(ClientSession clientSession, AsyncCallback<Long> asyncCallback);
+    void payClientSession(ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed, AsyncCallback<List<ClientSession>> asyncCallback);
 
     void getAllPseudoNames(AsyncCallback<List<SessionPseudoName>> asyncCallback);
 
@@ -42,5 +42,5 @@ public interface ClientSessionServiceAsync {
 
     void login(String userName, String passwordTextBoxValue, AsyncCallback<User> asyncCallback);
 
-    void startClientSession(ClientSession clientSession, AsyncCallback<Long> asyncCallback);
+    void startClientSession(ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed, AsyncCallback<List<ClientSession>> asyncCallback);
 }

@@ -43,29 +43,30 @@ public class ClientSessionMemoryDaoImpl implements ClientSessionDao{
         settingsHolderMap.put(testSettingsHolder.getSettingsId(), testSettingsHolder);
 
 //        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED);
-        addTestClientSession(testUser, System.currentTimeMillis() - 50000, 0, ClientSession.SESSION_STATUS.CREATED);
-        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED);
+        addTestClientSession(testUser, System.currentTimeMillis() - 50000, 0, ClientSession.SESSION_STATUS.CREATED, 0l);
+        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED, Long.valueOf("3508"));
 //        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED);
 //        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED);
-        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.PAYED);
-//        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED);
-//        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED);
-//        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED);
+        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.PAYED, Long.valueOf("3637"));
 //        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED);
 //        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED);
 //        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED);
 //        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED);
-        addTestClientSession(testUser, System.currentTimeMillis(), System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED);
+//        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED);
+//        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED);
+//        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED);
+        addTestClientSession(testUser, System.currentTimeMillis(), System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED, 0l);
 //        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED);
 //        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED);
 //        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED);
 //        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED);
     }
 
-    private void addTestClientSession(User testUser, long startTime, long stopTime, ClientSession.SESSION_STATUS sessionStatus) {
+    private void addTestClientSession(User testUser, long startTime, long stopTime, ClientSession.SESSION_STATUS sessionStatus, Long finalSum) {
         ClientSession testClientSession = new ClientSession(startTime, stopTime, testUser);
         testClientSession.setId(getMaxId() + 1);
         testClientSession.setCreationTime(startTime - 70000);
+        testClientSession.setFinalSum(finalSum);
         SessionPseudoName removedTestSessionPseudoName12 = new SessionPseudoName("testName" + testClientSession.getId());
         addName(removedTestSessionPseudoName12);
         removedTestSessionPseudoName12.setIsUsed(true);
@@ -107,6 +108,7 @@ public class ClientSessionMemoryDaoImpl implements ClientSessionDao{
                                                  boolean isShowPayed) {
         clientSession.setId(getMaxId() + 1);
         clientSession.setUser(UserUtils.INSTANCE.getCurrentUser());
+        clientSession.setStartTime(System.currentTimeMillis());
         markNameAsUsed(clientSession.getSessionPseudoName());
         this.clientSessionMap.put(clientSession.getId(), clientSession);
         return getClientSessionsList(UserUtils.INSTANCE.getCurrentUser(), isShowRemoved, isShowPayed);
@@ -117,6 +119,7 @@ public class ClientSessionMemoryDaoImpl implements ClientSessionDao{
         ClientSession sessionToRemove = this.clientSessionMap.get(clientSession.getId());
         if (sessionToRemove != null) {
             sessionToRemove.setStatus(ClientSession.SESSION_STATUS.REMOVED);
+            sessionToRemove.setFinalSum(0l);
         }
         return getClientSessionsList(UserUtils.INSTANCE.getCurrentUser(), isShowRemoved, showPayedOn);
     }
@@ -151,18 +154,20 @@ public class ClientSessionMemoryDaoImpl implements ClientSessionDao{
     }
 
     @Override
-    public long stopClientSession(ClientSession clientSession) {
+    public List<ClientSession> stopClientSession(ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed) {
         ClientSession session = this.clientSessionMap.get(clientSession.getId());
         session.setStatus(ClientSession.SESSION_STATUS.STOPPED);
         session.setStopTime(clientSession.getStopTime());
-        return session.getId();
+        session.setFinalSum(clientSession.getFinalSum());
+        return getClientSessionsList(UserUtils.INSTANCE.getCurrentUser(), toShowRemoved, toShowPayed);
     }
 
     @Override
-    public long payClientSession(ClientSession clientSession) {
+    public List<ClientSession> payClientSession(ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed) {
         ClientSession session = this.clientSessionMap.get(clientSession.getId());
         session.setStatus(ClientSession.SESSION_STATUS.PAYED);
-        return session.getId();
+        markNameAsFree(session.getSessionPseudoName());
+        return getClientSessionsList(UserUtils.INSTANCE.getCurrentUser(), toShowRemoved, toShowPayed);
     }
 
     @Override
@@ -232,11 +237,11 @@ public class ClientSessionMemoryDaoImpl implements ClientSessionDao{
     }
 
     @Override
-    public long startClientSession(ClientSession clientSession) {
+    public List<ClientSession> startClientSession(ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed) {
         ClientSession session = this.clientSessionMap.get(clientSession.getId());
         session.setStatus(ClientSession.SESSION_STATUS.STARTED);
         session.setStartTime(clientSession.getStartTime());
-        return session.getId();
+        return getClientSessionsList(UserUtils.INSTANCE.getCurrentUser(), toShowRemoved, toShowPayed);
     }
 
     private long getMaxId() {

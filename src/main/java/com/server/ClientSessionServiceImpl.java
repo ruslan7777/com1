@@ -7,6 +7,7 @@ import com.server.dao.ClientSessionMemoryDaoImpl;
 import com.shared.model.ClientSession;
 import com.shared.model.SessionPseudoName;
 import com.shared.model.User;
+import com.sun.webkit.LoadListenerClient;
 
 import java.util.List;
 
@@ -55,13 +56,13 @@ public class ClientSessionServiceImpl extends RemoteServiceServlet implements Cl
     }
 
     @Override
-    public long stopClientSession(ClientSession clientSession) {
-        return clientSessionDao.stopClientSession(clientSession);
+    public List<ClientSession> stopClientSession(ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed) {
+        return clientSessionDao.stopClientSession(clientSession, toShowRemoved, toShowPayed);
     }
 
     @Override
-    public long payClientSession(ClientSession clientSession) {
-        return clientSessionDao.payClientSession(clientSession);
+    public List<ClientSession> payClientSession(ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed) {
+        return clientSessionDao.payClientSession(clientSession, toShowRemoved, toShowPayed);
     }
 
     @Override
@@ -95,7 +96,7 @@ public class ClientSessionServiceImpl extends RemoteServiceServlet implements Cl
     }
 
     @Override
-    public long startClientSession(ClientSession clientSession) {
-        return clientSessionDao.startClientSession(clientSession);
+    public List<ClientSession> startClientSession(ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed) {
+        return clientSessionDao.startClientSession(clientSession, toShowRemoved, toShowPayed);
     }
 }

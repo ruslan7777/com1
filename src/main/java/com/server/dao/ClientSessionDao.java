@@ -31,9 +31,9 @@ public interface ClientSessionDao {
 
     List<ClientSession> getClientSessionsList(User currentUser, boolean isShowRemoved, boolean showPayedOn);
 
-    long stopClientSession(ClientSession clientSession);
+    List<ClientSession> stopClientSession(ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed);
 
-    long payClientSession(ClientSession clientSession);
+    List<ClientSession> payClientSession(ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed);
 
     List<SessionPseudoName> getAllPseudoNames();
 
@@ -47,5 +47,5 @@ public interface ClientSessionDao {
 
     User login(String userName, String userPassword);
 
-    long startClientSession(ClientSession clientSession);
+    List<ClientSession> startClientSession(ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed);
 }
