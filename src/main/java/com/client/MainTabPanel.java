@@ -1,6 +1,7 @@
 package com.client;
 
 import com.client.events.AddSessionEvent;
+import com.client.events.ChangeDatePointEvent;
 import com.client.events.ToggleShowPayedEvent;
 import com.client.events.ToggleShowRemovedEvent;
 import com.client.events.UpdateSumEvent;
@@ -11,6 +12,8 @@ import com.client.service.ClientSessionService;
 import com.client.service.ClientSessionServiceAsync;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
@@ -32,6 +35,7 @@ import com.google.gwt.user.client.ui.TabLayoutPanel;
 import com.google.gwt.user.client.ui.ToggleButton;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.shared.model.ClientSession;
+import com.shared.model.DatePoint;
 import com.shared.model.SessionPseudoName;
 import com.shared.utils.UserUtils;
 
@@ -46,6 +50,7 @@ public class MainTabPanel extends TabLayoutPanel {
   ToggleButton showRemovedButton;
   ToggleButton showPayedButton;
   Label sumLabel;
+  ListBox datePointListBox;
   private final ClientSessionServiceAsync clientSessionService = GWT.create(ClientSessionService.class);
   /**
    * Creates an empty tab panel.
@@ -56,6 +61,19 @@ public class MainTabPanel extends TabLayoutPanel {
   public MainTabPanel(double barHeight, Style.Unit barUnit, final SimpleEventBus eventBus) {
     super(barHeight, barUnit);
       this.simpleEventBus = eventBus;
+    datePointListBox = new ListBox();
+    for (DatePoint datePoint : DatePoint.values()) {
+      datePointListBox.addItem(datePoint.getText());
+    }
+    datePointListBox.setSelectedIndex(0);
+    datePointListBox.addChangeHandler(new ChangeHandler() {
+      @Override
+      public void onChange(ChangeEvent event) {
+        ChangeDatePointEvent changeDatePointEvent = new ChangeDatePointEvent();
+        changeDatePointEvent.setDatePoint(DatePoint.indexOf(datePointListBox.getSelectedIndex()));
+        eventBus.fireEvent(changeDatePointEvent);
+      }
+    });
     showRemovedButton = new ToggleButton("Показывать удаленные");
     showPayedButton = new ToggleButton("Показывать оплаченные");
     // Create a tab panel
@@ -145,6 +163,7 @@ public class MainTabPanel extends TabLayoutPanel {
     sumLabel.getElement().getStyle().setTop(20, Style.Unit.PX);
     eastButtonsPanel.add(html);
     eastButtonsPanel.add(sumLabel);
+    eastButtonsPanel.add(datePointListBox);
 
     splitLayoutPanel.addEast(eastButtonsPanel, 250);
 //    eastButtonsPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);

@@ -2,7 +2,9 @@ package com.server.dao;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
+import com.google.gwt.user.datepicker.client.CalendarUtil;
 import com.shared.model.ClientSession;
+import com.shared.model.DatePoint;
 import com.shared.model.SessionPseudoName;
 import com.shared.model.SettingsHolder;
 import com.shared.model.User;
@@ -11,6 +13,7 @@ import com.shared.utils.UserUtils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +51,9 @@ public class ClientSessionMemoryDaoImpl implements ClientSessionDao{
 //        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED);
 //        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED);
         addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.PAYED, Long.valueOf("3637"));
+        Date yesterday = new Date();
+        CalendarUtil.addDaysToDate(yesterday, -1);
+        addTestClientSession(testUser, yesterday.getTime(), System.currentTimeMillis(), ClientSession.SESSION_STATUS.PAYED, Long.valueOf("5555"));
 //        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED);
 //        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED);
 //        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED);
@@ -104,28 +110,28 @@ public class ClientSessionMemoryDaoImpl implements ClientSessionDao{
     }
 
     @Override
-    public List<ClientSession> saveClientSession(ClientSession clientSession, boolean isShowRemoved,
+    public List<ClientSession> saveClientSession(DatePoint datePoint, ClientSession clientSession, boolean isShowRemoved,
                                                  boolean isShowPayed) {
         clientSession.setId(getMaxId() + 1);
         clientSession.setUser(UserUtils.INSTANCE.getCurrentUser());
         clientSession.setStartTime(System.currentTimeMillis());
         markNameAsUsed(clientSession.getSessionPseudoName());
         this.clientSessionMap.put(clientSession.getId(), clientSession);
-        return getClientSessionsList(UserUtils.INSTANCE.getCurrentUser(), isShowRemoved, isShowPayed);
+        return getClientSessionsList(datePoint, UserUtils.INSTANCE.getCurrentUser(), isShowRemoved, isShowPayed);
     }
 
     @Override
-    public List<ClientSession> removeClientSession(ClientSession clientSession, boolean isShowRemoved, boolean showPayedOn) {
+    public List<ClientSession> removeClientSession(DatePoint datePoint, ClientSession clientSession, boolean isShowRemoved, boolean showPayedOn) {
         ClientSession sessionToRemove = this.clientSessionMap.get(clientSession.getId());
         if (sessionToRemove != null) {
             sessionToRemove.setStatus(ClientSession.SESSION_STATUS.REMOVED);
             sessionToRemove.setFinalSum(0l);
         }
-        return getClientSessionsList(UserUtils.INSTANCE.getCurrentUser(), isShowRemoved, showPayedOn);
+        return getClientSessionsList(datePoint, UserUtils.INSTANCE.getCurrentUser(), isShowRemoved, showPayedOn);
     }
 
     @Override
-    public List<ClientSession> getClientSessionsList(User currentUser, final boolean isShowRemoved, final boolean showPayedOn) {
+    public List<ClientSession> getClientSessionsList(final DatePoint datePoint, User currentUser, final boolean isShowRemoved, final boolean showPayedOn) {
         List<ClientSession> clientSessions = new ArrayList<>();
         for (ClientSession clientSession : clientSessionMap.values()) {
             if (clientSession.getUser() != null && clientSession.getUser().equals(currentUser)) {
@@ -146,28 +152,40 @@ public class ClientSessionMemoryDaoImpl implements ClientSessionDao{
                 return showPayedOn || ClientSession.SESSION_STATUS.PAYED != clientSession.getSessionStatus();
             }
         };
+        Predicate<ClientSession> datePointPredicate = new Predicate<ClientSession>() {
+            @Override
+            public boolean apply(ClientSession clientSession) {
+                Date comparedDate = new Date();
+                long comparedTime;
+                CalendarUtil.addDaysToDate(comparedDate, datePoint.getShiftValue());
+                CalendarUtil.resetTime(comparedDate);
+                comparedTime = comparedDate.getTime();
+                return clientSession.getStartTime() > comparedTime;
+            }
+        };
         Collection<ClientSession> filteredByRemoveList = Collections2.filter(clientSessions, removedPredicate);
         Collection<ClientSession> clientSessionCollections = Collections2.filter(filteredByRemoveList, payedPredicate);
-        ArrayList<ClientSession> filteredAndSortedSessions = new ArrayList<>(clientSessionCollections);
-        Collections.sort(filteredAndSortedSessions);
-        return filteredAndSortedSessions;
+        Collection<ClientSession> filteredByDateCollections = Collections2.filter(clientSessionCollections, datePointPredicate);
+        ArrayList<ClientSession> filteredCollections = new ArrayList<>(filteredByDateCollections);
+        Collections.sort(filteredCollections);
+        return filteredCollections;
     }
 
     @Override
-    public List<ClientSession> stopClientSession(ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed) {
+    public List<ClientSession> stopClientSession(DatePoint datePoint, ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed) {
         ClientSession session = this.clientSessionMap.get(clientSession.getId());
         session.setStatus(ClientSession.SESSION_STATUS.STOPPED);
         session.setStopTime(clientSession.getStopTime());
         session.setFinalSum(clientSession.getFinalSum());
-        return getClientSessionsList(UserUtils.INSTANCE.getCurrentUser(), toShowRemoved, toShowPayed);
+        return getClientSessionsList(datePoint, UserUtils.INSTANCE.getCurrentUser(), toShowRemoved, toShowPayed);
     }
 
     @Override
-    public List<ClientSession> payClientSession(ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed) {
+    public List<ClientSession> payClientSession(DatePoint datePoint, ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed) {
         ClientSession session = this.clientSessionMap.get(clientSession.getId());
         session.setStatus(ClientSession.SESSION_STATUS.PAYED);
         markNameAsFree(session.getSessionPseudoName());
-        return getClientSessionsList(UserUtils.INSTANCE.getCurrentUser(), toShowRemoved, toShowPayed);
+        return getClientSessionsList(datePoint, UserUtils.INSTANCE.getCurrentUser(), toShowRemoved, toShowPayed);
     }
 
     @Override
@@ -237,11 +255,11 @@ public class ClientSessionMemoryDaoImpl implements ClientSessionDao{
     }
 
     @Override
-    public List<ClientSession> startClientSession(ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed) {
+    public List<ClientSession> startClientSession(DatePoint datePoint, ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed) {
         ClientSession session = this.clientSessionMap.get(clientSession.getId());
         session.setStatus(ClientSession.SESSION_STATUS.STARTED);
         session.setStartTime(clientSession.getStartTime());
-        return getClientSessionsList(UserUtils.INSTANCE.getCurrentUser(), toShowRemoved, toShowPayed);
+        return getClientSessionsList(datePoint, UserUtils.INSTANCE.getCurrentUser(), toShowRemoved, toShowPayed);
     }
 
     private long getMaxId() {

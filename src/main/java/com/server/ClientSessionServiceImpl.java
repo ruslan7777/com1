@@ -5,9 +5,9 @@ import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import com.server.dao.ClientSessionDao;
 import com.server.dao.ClientSessionMemoryDaoImpl;
 import com.shared.model.ClientSession;
+import com.shared.model.DatePoint;
 import com.shared.model.SessionPseudoName;
 import com.shared.model.User;
-import com.sun.webkit.LoadListenerClient;
 
 import java.util.List;
 
@@ -41,28 +41,28 @@ public class ClientSessionServiceImpl extends RemoteServiceServlet implements Cl
     }
 
     @Override
-    public List<ClientSession> saveClientSession(ClientSession clientSession, boolean isShowRemoved, boolean showPayedOn) {
-        return clientSessionDao.saveClientSession(clientSession, isShowRemoved, showPayedOn);//To change body of implemented methods use File | Settings | File Templates.
+    public List<ClientSession> saveClientSession(DatePoint datePoint, ClientSession clientSession, boolean isShowRemoved, boolean showPayedOn) {
+        return clientSessionDao.saveClientSession(datePoint, clientSession, isShowRemoved, showPayedOn);//To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public List<ClientSession> removeClientSession(ClientSession clientSession, boolean isShowRemoved, boolean showPayedOn) {
-        return clientSessionDao.removeClientSession(clientSession, isShowRemoved, showPayedOn);
+    public List<ClientSession> removeClientSession(DatePoint datePoint, ClientSession clientSession, boolean isShowRemoved, boolean showPayedOn) {
+        return clientSessionDao.removeClientSession(datePoint, clientSession, isShowRemoved, showPayedOn);
     }
 
     @Override
-    public List<ClientSession> getClientSessions(User currentUser, boolean isShowRemoved, boolean showPayedOn) {
-        return clientSessionDao.getClientSessionsList(currentUser, isShowRemoved, showPayedOn);
+    public List<ClientSession> getClientSessions(DatePoint datePoint, User currentUser, boolean isShowRemoved, boolean showPayedOn) {
+        return clientSessionDao.getClientSessionsList(datePoint, currentUser, isShowRemoved, showPayedOn);
     }
 
     @Override
-    public List<ClientSession> stopClientSession(ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed) {
-        return clientSessionDao.stopClientSession(clientSession, toShowRemoved, toShowPayed);
+    public List<ClientSession> stopClientSession(DatePoint datePoint, ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed) {
+        return clientSessionDao.stopClientSession(datePoint, clientSession, toShowRemoved, toShowPayed);
     }
 
     @Override
-    public List<ClientSession> payClientSession(ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed) {
-        return clientSessionDao.payClientSession(clientSession, toShowRemoved, toShowPayed);
+    public List<ClientSession> payClientSession(DatePoint datePoint, ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed) {
+        return clientSessionDao.payClientSession(datePoint, clientSession, toShowRemoved, toShowPayed);
     }
 
     @Override
@@ -96,7 +96,7 @@ public class ClientSessionServiceImpl extends RemoteServiceServlet implements Cl
     }
 
     @Override
-    public List<ClientSession> startClientSession(ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed) {
-        return clientSessionDao.startClientSession(clientSession, toShowRemoved, toShowPayed);
+    public List<ClientSession> startClientSession(DatePoint datePoint, ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed) {
+        return clientSessionDao.startClientSession(datePoint, clientSession, toShowRemoved, toShowPayed);
     }
 }

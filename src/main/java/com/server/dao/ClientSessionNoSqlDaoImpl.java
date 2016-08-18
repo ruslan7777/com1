@@ -5,6 +5,7 @@ import com.googlecode.objectify.Key;
 import com.googlecode.objectify.ObjectifyService;
 import com.googlecode.objectify.Result;
 import com.shared.model.ClientSession;
+import com.shared.model.DatePoint;
 import com.shared.model.SessionPseudoName;
 import com.shared.model.User;
 import com.shared.utils.UserUtils;
@@ -49,28 +50,28 @@ public class ClientSessionNoSqlDaoImpl implements ClientSessionDao{
     }
 
     @Override
-    public List<ClientSession> saveClientSession(ClientSession clientSession, boolean isShowRemoved, boolean isShowPayed) {
+    public List<ClientSession> saveClientSession(DatePoint datePoint, ClientSession clientSession, boolean isShowRemoved, boolean isShowPayed) {
         Result<Key<ClientSession>> clientSessionResult = ObjectifyService.ofy().save().entity(clientSession);
-        return getClientSessionsList(UserUtils.INSTANCE.getCurrentUser(), isShowRemoved, isShowPayed);
+        return getClientSessionsList(datePoint, UserUtils.INSTANCE.getCurrentUser(), isShowRemoved, isShowPayed);
     }
 
     @Override
-    public List<ClientSession> removeClientSession(ClientSession clientSession, boolean isShowRemoved, boolean showPayedOn) {
-        return  getClientSessionsList(UserUtils.INSTANCE.getCurrentUser(), isShowRemoved, showPayedOn);
+    public List<ClientSession> removeClientSession(DatePoint datePoint, ClientSession clientSession, boolean isShowRemoved, boolean showPayedOn) {
+        return  getClientSessionsList(datePoint, UserUtils.INSTANCE.getCurrentUser(), isShowRemoved, showPayedOn);
     }
 
     @Override
-    public List<ClientSession> getClientSessionsList(User currentUser, boolean isShowRemoved, boolean showPayedOn) {
+    public List<ClientSession> getClientSessionsList(DatePoint datePoint, User currentUser, boolean isShowRemoved, boolean showPayedOn) {
         return null;
     }
 
     @Override
-    public List<ClientSession> stopClientSession(ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed) {
+    public List<ClientSession> stopClientSession(DatePoint datePoint, ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed) {
         return new ArrayList<>();
     }
 
     @Override
-    public List<ClientSession> payClientSession(ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed) {
+    public List<ClientSession> payClientSession(DatePoint datePoint, ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed) {
         return new ArrayList<>();
     }
 
@@ -105,7 +106,7 @@ public class ClientSessionNoSqlDaoImpl implements ClientSessionDao{
     }
 
     @Override
-    public List<ClientSession> startClientSession(ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed) {
+    public List<ClientSession> startClientSession(DatePoint datePoint, ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed) {
         return new ArrayList<>();
     }
 }

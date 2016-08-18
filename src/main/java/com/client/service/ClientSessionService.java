@@ -3,6 +3,7 @@ package com.client.service;
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 import com.shared.model.ClientSession;
+import com.shared.model.DatePoint;
 import com.shared.model.SessionPseudoName;
 import com.shared.model.User;
 
@@ -23,15 +24,15 @@ public interface ClientSessionService extends RemoteService {
 
     void addNames(List<SessionPseudoName> pseudoNamesList);
 
-    List<ClientSession> saveClientSession(ClientSession clientSession, boolean isShowRemoved, boolean showPayedOn);
+    List<ClientSession> saveClientSession(DatePoint datePoint, ClientSession clientSession, boolean isShowRemoved, boolean showPayedOn);
 
-    List<ClientSession> removeClientSession(ClientSession clientSession, boolean isShowRemoved, boolean showPayedOn);
+    List<ClientSession> removeClientSession(DatePoint datePoint, ClientSession clientSession, boolean isShowRemoved, boolean showPayedOn);
 
-    List<ClientSession> getClientSessions(User currentUser, boolean isShowRemoved, boolean showPayedOn);
+    List<ClientSession> getClientSessions(DatePoint datePoint, User currentUser, boolean isShowRemoved, boolean showPayedOn);
 
-    List<ClientSession> stopClientSession(ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed);
+    List<ClientSession> stopClientSession(DatePoint datePoint, ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed);
 
-    List<ClientSession> payClientSession(ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed);
+    List<ClientSession> payClientSession(DatePoint datePoint, ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed);
 
     List<SessionPseudoName> getAllPseudoNames();
 
@@ -45,5 +46,5 @@ public interface ClientSessionService extends RemoteService {
 
     User login(String userName, String passwordTextBoxValue);
 
-    List<ClientSession> startClientSession(ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed);
+    List<ClientSession> startClientSession(DatePoint datePoint, ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed);
 }

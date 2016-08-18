@@ -14,6 +14,7 @@ import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.shared.model.ClientSession;
+import com.shared.model.DatePoint;
 import com.shared.utils.UserUtils;
 
 import java.util.List;
@@ -60,7 +61,7 @@ public class NameSelectWindow extends DialogBox {
             public void onClick(ClickEvent clickEvent) {
                  final ClientSession clientSession = new ClientSession(System.currentTimeMillis(),
                          0, UserUtils.INSTANCE.getCurrentUser());
-                 clientSessionService.saveClientSession(clientSession, UserUtils.INSTANCE.getCurrentUser().getSettings().isToShowRemoved(),
+                 clientSessionService.saveClientSession(DatePoint.TODAY, clientSession, UserUtils.INSTANCE.getCurrentUser().getSettings().isToShowRemoved(),
                          UserUtils.INSTANCE.getCurrentUser().getSettings().isToShowRemoved(), new AsyncCallback<List<ClientSession>>() {
                      @Override
                      public void onFailure(Throwable throwable) {
