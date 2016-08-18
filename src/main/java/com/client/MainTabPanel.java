@@ -81,7 +81,7 @@ public class MainTabPanel extends TabLayoutPanel {
     setAnimationDuration(301);
 //    getElement().getStyle().setMarginBottom(10.0, Style.Unit.PX);
 //    getElement().getStyle().setMarginLeft(300.0, Style.Unit.PX);
-    setHeight("600px");
+    setHeight("100%");
     setWidth("100%");
     eventBus.addHandler(UpdateSumEvent.TYPE, new UpdateSumEventHandler() {
       @Override

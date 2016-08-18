@@ -2,7 +2,6 @@ package com.server.dao;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
-import com.google.gwt.user.datepicker.client.CalendarUtil;
 import com.shared.model.ClientSession;
 import com.shared.model.DatePoint;
 import com.shared.model.SessionPseudoName;
@@ -11,6 +10,7 @@ import com.shared.model.User;
 import com.shared.utils.UserUtils;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -52,7 +52,10 @@ public class ClientSessionMemoryDaoImpl implements ClientSessionDao{
 //        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED);
         addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.PAYED, Long.valueOf("3637"));
         Date yesterday = new Date();
-        CalendarUtil.addDaysToDate(yesterday, -1);
+        Calendar c = Calendar.getInstance();
+        c.setTime(yesterday);
+        c.add(Calendar.DATE, -1);
+//        CalendarUtil.addDaysToDate(yesterday, -1);
         addTestClientSession(testUser, yesterday.getTime(), System.currentTimeMillis(), ClientSession.SESSION_STATUS.PAYED, Long.valueOf("5555"));
 //        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED);
 //        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED);
@@ -157,9 +160,15 @@ public class ClientSessionMemoryDaoImpl implements ClientSessionDao{
             public boolean apply(ClientSession clientSession) {
                 Date comparedDate = new Date();
                 long comparedTime;
-                CalendarUtil.addDaysToDate(comparedDate, datePoint.getShiftValue());
-                CalendarUtil.resetTime(comparedDate);
-                comparedTime = comparedDate.getTime();
+                Calendar c = Calendar.getInstance();
+                c.setTime(comparedDate);
+                c.add(Calendar.DATE, datePoint.getShiftValue());
+                c.set(Calendar.HOUR, 0);
+                c.set(Calendar.MINUTE, 0);
+                c.set(Calendar.SECOND, 0);
+//                CalendarUtil.addDaysToDate(comparedDate, datePoint.getShiftValue());
+//                CalendarUtil.resetTime(comparedDate);
+                comparedTime = c.getTime().getTime();
                 return clientSession.getStartTime() > comparedTime;
             }
         };

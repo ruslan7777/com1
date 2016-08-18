@@ -14,6 +14,7 @@ import com.google.gwt.user.client.ui.DecoratorPanel;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
+import com.google.gwt.user.client.ui.RootLayoutPanel;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -78,8 +79,8 @@ public class LoginPanel extends VerticalPanel {
                                     UserUtils.init();
                                     UserUtils.INSTANCE.setCurrentUser(result);
                                     UserUtils.INSTANCE.getCurrentUser().setSettings(result.getSettings());
-                                    RootPanel.get().clear();
-                                    RootPanel.get().add(new MainTabPanel(2.5, Style.Unit.EM, simpleEventBus));
+                                    RootLayoutPanel.get().clear();
+                                    RootLayoutPanel.get().add(new MainTabPanel(2.5, Style.Unit.EM, simpleEventBus));
                                 }
                             });
 //                            clientSessionService.getCurrentUser(nameTextBox.getValue(), passwordTextBox.getValue(),

@@ -329,6 +329,11 @@ public class ClientSessionGridPanel extends VerticalPanel {
 
     manageButtonsColumn = new Column<ClientSession, String>(stringButtonCellBase) {
       @Override
+      public void render(Cell.Context context, ClientSession object, SafeHtmlBuilder sb) {
+        super.render(context, object, sb);
+      }
+
+      @Override
       public String getValue(ClientSession clientSession) {
         return clientSession.getSessionStatus().name();
       }
@@ -664,7 +669,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
     };
 
     // Schedule the timer to run once every second, 1000 ms.
-    t.scheduleRepeating(5000);
+    t.scheduleRepeating(1000);
     clientSessionService.getClientSessions(DatePoint.TODAY, UserUtils.INSTANCE.getCurrentUser(), UserUtils.INSTANCE.getCurrentUser().getSettings().isToShowRemoved(),
             UserUtils.INSTANCE.getCurrentUser().getSettings().isToShowPayed(), new AsyncCallback<List<ClientSession>>() {
       @Override

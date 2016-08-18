@@ -41,6 +41,7 @@ public class ClientSession implements Serializable, IsSerializable, Comparable<C
     STOPPED("Остановлена", "Оплатить"), PAYED("Оплачена", "Оплачена"), REMOVED("Удалена", "Удалена");
     private String value;
     private String buttonText;
+    private int order;
 
     SESSION_STATUS(String value, String buttonText) {
       this.value = value;
@@ -53,6 +54,14 @@ public class ClientSession implements Serializable, IsSerializable, Comparable<C
 
     public String getButtonText() {
       return buttonText;
+    }
+
+    public int getOrder() {
+      return order;
+    }
+
+    public void setOrder(int order) {
+      this.order = order;
     }
   }
 
