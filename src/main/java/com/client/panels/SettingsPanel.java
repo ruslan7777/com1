@@ -4,11 +4,8 @@ import com.client.events.UserLoggedInEvent;
 import com.client.events.UserLoggedInHandler;
 import com.client.service.ClientSessionService;
 import com.client.service.ClientSessionServiceAsync;
+import com.client.widgets.HourSettingsWidget;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.dom.client.Node;
-import com.google.gwt.dom.client.NodeList;
-import com.google.gwt.dom.client.OptionElement;
-import com.google.gwt.dom.client.SelectElement;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyPressEvent;
@@ -17,12 +14,14 @@ import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
+import com.shared.model.HourCostModel;
 import com.shared.model.SessionPseudoName;
-import com.shared.model.SettingsHolder;
 import com.shared.model.User;
 import com.shared.utils.UserUtils;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created with IntelliJ IDEA.
@@ -31,7 +30,7 @@ import java.util.List;
  * Time: 3:42 PM
  * To change this template use File | Settings | File Templates.
  */
-public class SettingsPanel extends VerticalPanel {
+public class SettingsPanel extends SplitLayoutPanel {
     private SimpleEventBus simpleEventBus;
     private ClientSessionServiceAsync clientSessionService = GWT.create(ClientSessionService.class);
 //    private FormPanel formPanel = new FormPanel();
@@ -42,12 +41,24 @@ public class SettingsPanel extends VerticalPanel {
         setHeight("300px");
 //        add(new CheckBox("Some check"));
 
-        Label namesLabel = new Label("Имена:");
-        add(namesLabel);
+        VerticalPanel pseudoNamesSettingsPanel = new VerticalPanel();
+        pseudoNamesSettingsPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
+        pseudoNamesSettingsPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_TOP);
+        Label namesLabel = new Label("Настройки псевдонимов:");
+        pseudoNamesSettingsPanel.add(namesLabel);
+        HorizontalPanel addNamePanel = new HorizontalPanel();
+        Label newNameLabel = new Label("Новое имя: ");
         final TextBox namesTextBox = new TextBox();
-        add(namesTextBox);
+        addNamePanel.add(newNameLabel);
+        addNamePanel.add(namesTextBox);
+        pseudoNamesSettingsPanel.add(addNamePanel);
+        HorizontalPanel existingNamesPanel = new HorizontalPanel();
+        Label existingNamesLabel = new Label("Существующие имена: ");
         final ListBox namesBox = new ListBox();
         namesBox.setWidth("200px");
+        existingNamesPanel.add(existingNamesLabel);
+        existingNamesPanel.add(namesBox);
+        pseudoNamesSettingsPanel.add(existingNamesPanel);
         clientSessionService.getAllPseudoNames(new AsyncCallback<List<SessionPseudoName>>() {
             @Override
             public void onFailure(Throwable throwable) {
@@ -132,13 +143,31 @@ public class SettingsPanel extends VerticalPanel {
             }
         });
 
-        add(namesBox);
+//        add(namesBox);
         HorizontalPanel buttonsPanel = new HorizontalPanel();
         buttonsPanel.add(addNameButton);
         buttonsPanel.add(removeNameButton);
-        add(buttonsPanel);
+        pseudoNamesSettingsPanel.add(buttonsPanel);
+        pseudoNamesSettingsPanel.setSpacing(10);
+//        add(pseudoNamesSettingsPanel);
+        addWest(pseudoNamesSettingsPanel, 350);
 
-        add(new Label("Время:"));
+//        add(new Label("Время:"));
+
+        VerticalPanel costSettingsPanel = new VerticalPanel();
+        costSettingsPanel.setSpacing(10);
+        Label costSettingsLabel = new Label("Настройки стоимости:");
+        costSettingsPanel.add(costSettingsLabel);
+
+        VerticalPanel hoursCostPanel = new VerticalPanel();
+        Map<Long, HourCostModel> hourCostModelMap = new HashMap<Long, HourCostModel>();
+        HourCostModel hourCostModel = new HourCostModel();
+        hourCostModel.setHourOrder(1);
+        hourCostModel.setCostPerMinute(5l);
+        hourCostModel.setCostPerHour(2501);
+        hourCostModelMap.put(hourCostModel.getHourOrder(), hourCostModel);
+        hoursCostPanel.add(new HourSettingsWidget(hourCostModelMap));
+        add(hoursCostPanel);
         final TextBox firstPartLengthTextBox = new TextBox();
         firstPartLengthTextBox.addKeyPressHandler(new KeyPressHandler() {
             @Override
@@ -151,7 +180,7 @@ public class SettingsPanel extends VerticalPanel {
                 // do your thang
             }
         });
-        add(firstPartLengthTextBox);
+//        add(firstPartLengthTextBox);
 //        UserUtils.init();
 
         final TextBox firstPartSumAmountTextBox = new TextBox();
@@ -167,7 +196,7 @@ public class SettingsPanel extends VerticalPanel {
             }
         });
 //        clientSessionService.getCurrentUser();
-        add(firstPartSumAmountTextBox);
+//        add(firstPartSumAmountTextBox);
 
         final TextBox maxSessionLengthTextBox = new TextBox();
         firstPartSumAmountTextBox.addKeyPressHandler(new KeyPressHandler() {
@@ -182,7 +211,7 @@ public class SettingsPanel extends VerticalPanel {
             }
         });
 //        clientSessionService.getCurrentUser();
-        add(maxSessionLengthTextBox);
+//        add(maxSessionLengthTextBox);
 
         Button saveButton = new Button("Сохранить");
         saveButton.addClickHandler(new ClickHandler() {
@@ -210,7 +239,7 @@ public class SettingsPanel extends VerticalPanel {
             }
         });
 
-        add(saveButton);
+//        add(saveButton);
 
         simpleEventBus.addHandler(UserLoggedInEvent.TYPE, new UserLoggedInHandler() {
             @Override

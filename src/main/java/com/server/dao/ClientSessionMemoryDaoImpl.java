@@ -129,6 +129,7 @@ public class ClientSessionMemoryDaoImpl implements ClientSessionDao{
         if (sessionToRemove != null) {
             sessionToRemove.setStatus(ClientSession.SESSION_STATUS.REMOVED);
             sessionToRemove.setFinalSum(0l);
+            markNameAsFree(clientSession.getSessionPseudoName());
         }
         return getClientSessionsList(datePoint, UserUtils.INSTANCE.getCurrentUser(), isShowRemoved, showPayedOn);
     }
