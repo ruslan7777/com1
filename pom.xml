@@ -21,6 +21,7 @@
     <tomcat.webport>8082</tomcat.webport>
     <tomcat.ajpport>8182</tomcat.ajpport>
     <tomcat.context>/anticafe</tomcat.context>
+      <guava.version>18.0</guava.version>
   </properties>
 
   <dependencyManagement>
@@ -86,6 +87,16 @@
           <artifactId>appengine-api-1.0-sdk</artifactId>
           <version>1.9.42</version>
           <scope>provided</scope>
+      </dependency>
+      <dependency>
+          <groupId>com.google.guava</groupId>
+          <artifactId>guava</artifactId>
+          <version>${guava.version}</version>
+      </dependency>
+      <dependency>
+          <groupId>com.google.guava</groupId>
+          <artifactId>guava-gwt</artifactId>
+          <version>${guava.version}</version>
       </dependency>
       <!--<dependency>-->
           <!--<groupId>com.google.guava</groupId>-->

@@ -99,17 +99,17 @@ public class ReportsPanel extends VerticalPanel{
 //                                }
 //                            }
 //                        }
-                        for (int i = 0; i < sessionStatusListMap.keySet().size(); i++) {
-                            for (int j = 0; j< data.getNumberOfColumns(); j++) {
-//                            for (ClientSession.SESSION_STATUS status : sessionStatusListMap.keySet()) {
-                                if (j == 0) {
-                                    data.setValue(i, j, sessionStatusListMap.get(i).get(0).getSessionStatus().getValue());
-                                } else {
-                                    data.setValue(i, j, sessionStatusListMap.get(i).size());
-                                }
+//                        for (int i = 0; i < sessionStatusListMap.keySet().size(); i++) {
+//                            for (int j = 0; j< data.getNumberOfColumns(); j++) {
+////                            for (ClientSession.SESSION_STATUS status : sessionStatusListMap.keySet()) {
+//                                if (j == 0) {
+//                                    data.setValue(i, j, sessionStatusListMap.get(i).get(0).getSessionStatus().getValue());
+//                                } else {
+//                                    data.setValue(i, j, sessionStatusListMap.get(i).size());
+//                                }
+////                            }
 //                            }
-                            }
-                        }
+//                        }
 
                         PieChart pie = new PieChart(data, options);
                         add(pie);

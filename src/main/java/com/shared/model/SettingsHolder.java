@@ -5,6 +5,11 @@ import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by dmitry on 14.08.16.
@@ -18,8 +23,31 @@ public class SettingsHolder implements Serializable, IsSerializable {
   private Long maxSessionLength = 90000l;
   private boolean isToShowRemoved = false;
   private boolean isToShowPayed = false;
-  private long unlimitedHoursNumber = 8;
+  private Long unlimitedCost = 800l;
+  private Map<Long, HourCostModel> hourCostModelMap;
+  private countStrategy currentCountStrategy = countStrategy.MULTI_HOURS;
+  private Long hourLength = 180000l;
   private User user;
+
+  public enum countStrategy{
+    MULTI_HOURS, HOUR_MINUTES
+  }
+
+  public countStrategy getCurrentCountStrategy() {
+    return currentCountStrategy;
+  }
+
+  public void setCurrentCountStrategy(countStrategy currentCountStrategy) {
+    this.currentCountStrategy = currentCountStrategy;
+  }
+
+  public Long getHourLength() {
+    return hourLength;
+  }
+
+  public void setHourLength(Long hourLength) {
+    this.hourLength = hourLength;
+  }
 
   public Long getSettingsId() {
     return settingsId;
@@ -67,6 +95,36 @@ public class SettingsHolder implements Serializable, IsSerializable {
 
   public void setIsToShowPayed(boolean isToShowPayed) {
     this.isToShowPayed = isToShowPayed;
+  }
+
+  public Map<Long, HourCostModel> getHourCostModelMap() {
+    return hourCostModelMap;
+  }
+
+  public List<HourCostModel> getOrderedHourCostModels() {
+    List<HourCostModel> hourCostModels = new ArrayList<>();
+    for (Long key : hourCostModelMap.keySet()) {
+      hourCostModels.add(hourCostModelMap.get(key));
+    }
+    Collections.sort(hourCostModels, new Comparator<HourCostModel>() {
+      @Override
+      public int compare(HourCostModel o1, HourCostModel o2) {
+        return o1.getHourOrder() > o2.getHourOrder() ? 1 : -1;
+      }
+    });
+    return hourCostModels;
+  }
+
+  public void setHourCostModelMap(Map<Long, HourCostModel> hourCostModelMap) {
+    this.hourCostModelMap = hourCostModelMap;
+  }
+
+  public Long getUnlimitedCost() {
+    return unlimitedCost;
+  }
+
+  public void setUnlimitedCost(Long unlimitedCost) {
+    this.unlimitedCost = unlimitedCost;
   }
 
   public User getUser() {

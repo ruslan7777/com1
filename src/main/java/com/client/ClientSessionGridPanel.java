@@ -12,6 +12,7 @@ import com.client.events.ToggleShowRemovedEventHandler;
 import com.client.events.UpdateSumEvent;
 import com.client.service.ClientSessionService;
 import com.client.service.ClientSessionServiceAsync;
+import com.google.common.collect.Range;
 import com.google.gwt.cell.client.*;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.builder.shared.TableCellBuilder;
@@ -39,13 +40,17 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
 import com.shared.model.ClientSession;
 import com.shared.model.DatePoint;
+import com.shared.model.HourCostModel;
 import com.shared.model.SessionPseudoName;
+import com.shared.model.SettingsHolder;
 import com.shared.utils.UserUtils;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by dmitry on 26.07.16.
@@ -55,6 +60,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
   long firstPartTimeLength = 60000;
   long firstPartSumAmount = 3500;
   DatePoint currentDatePointValue = DatePoint.TODAY;
+  private SettingsHolder.countStrategy currentCountStrategy;
   private Column<ClientSession, String> manageButtonsColumn;
   ListDataProvider<ClientSession> listDataProvider;
   private final ClientSessionServiceAsync clientSessionService = GWT.create(ClientSessionService.class);
@@ -623,19 +629,20 @@ public class ClientSessionGridPanel extends VerticalPanel {
           }
           long timeDifferenceLength;
           boolean isSessionOver = false;
+          long startTimeInSeconds = getSeconds(clientSession.getStartTime());
           if (clientSession.getStopTime() == 0) {
-            timeDifferenceLength = System.currentTimeMillis() - clientSession.getStartTime();
+            timeDifferenceLength = System.currentTimeMillis() - startTimeInSeconds;
             if (UserUtils.INSTANCE.getCurrentUser().getSettings().getMaxSessionLength() > 0 &&
                     timeDifferenceLength > UserUtils.INSTANCE.getCurrentUser().getSettings().getMaxSessionLength()) {
               isSessionOver = true;
             }
           } else {
-            timeDifferenceLength = clientSession.getStopTime() - clientSession.getStartTime();
+            timeDifferenceLength = clientSession.getStopTime() - startTimeInSeconds;
           }
           long timeDifferenceLengthInSeconds = getSeconds(timeDifferenceLength);
           if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.CREATED) {
-            sum += 0;
-          } else {
+            sum = 0;
+          } else if (UserUtils.INSTANCE.getCurrentUser().getSettings().getCurrentCountStrategy() == SettingsHolder.countStrategy.HOUR_MINUTES) {
             if (timeDifferenceLengthInSeconds <= getSeconds(firstPartTimeLength)) {
               sum += firstPartSumAmount;
             } else {
@@ -659,6 +666,14 @@ public class ClientSessionGridPanel extends VerticalPanel {
                           }
                         });
               }
+            }
+          } else if (UserUtils.INSTANCE.getCurrentUser().getSettings().getCurrentCountStrategy() == SettingsHolder.countStrategy.MULTI_HOURS) {
+            List<HourCostModel> hourCostModels = UserUtils.INSTANCE.getCurrentUser().getSettings().getOrderedHourCostModels();
+            Long hourLength = UserUtils.INSTANCE.getCurrentUser().getSettings().getHourLength();
+            Long currentMinuteCost = 0l;
+            for (HourCostModel hourCostModel : hourCostModels) {
+              Range<Long> range = Range.open(startTimeInSeconds, startTimeInSeconds + timeDifferenceLengthInSeconds);
+//              if ()
             }
           }
         }

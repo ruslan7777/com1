@@ -4,6 +4,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.shared.model.ClientSession;
 import com.shared.model.DatePoint;
+import com.shared.model.HourCostModel;
 import com.shared.model.SessionPseudoName;
 import com.shared.model.SettingsHolder;
 import com.shared.model.User;
@@ -30,6 +31,7 @@ public class ClientSessionMemoryDaoImpl implements ClientSessionDao{
     Map<Long, ClientSession> clientSessionMap = new HashMap<>();
     Map<Long, User> usersMap = new HashMap<>();
     Map<Long, SettingsHolder> settingsHolderMap = new HashMap<>();
+    Map<Long, HourCostModel> hourCostModelMap = new HashMap<>();
 
     public ClientSessionMemoryDaoImpl() {
         User testUser = new User();
@@ -241,6 +243,7 @@ public class ClientSessionMemoryDaoImpl implements ClientSessionDao{
         SettingsHolder settingsHolder = savedUser.getSettings();
         settingsHolder.setFirstPartLength(user.getSettings().getFirstPartLength());
         settingsHolder.setFirstPartSumAmount(user.getSettings().getFirstPartSumAmount());
+        settingsHolder.setHourCostModelMap(user.getSettings().getHourCostModelMap());
         return savedUser;
     }
 

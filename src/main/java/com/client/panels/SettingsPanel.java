@@ -33,6 +33,7 @@ import java.util.Map;
 public class SettingsPanel extends SplitLayoutPanel {
     private SimpleEventBus simpleEventBus;
     private ClientSessionServiceAsync clientSessionService = GWT.create(ClientSessionService.class);
+    HourSettingsWidget hourSettingsWidget;
 //    private FormPanel formPanel = new FormPanel();
 //    VerticalPanel mainPanel = new VerticalPanel();
     public SettingsPanel(SimpleEventBus simpleEventBus) {
@@ -159,15 +160,14 @@ public class SettingsPanel extends SplitLayoutPanel {
         Label costSettingsLabel = new Label("Настройки стоимости:");
         costSettingsPanel.add(costSettingsLabel);
 
-        VerticalPanel hoursCostPanel = new VerticalPanel();
-        Map<Long, HourCostModel> hourCostModelMap = new HashMap<Long, HourCostModel>();
-        HourCostModel hourCostModel = new HourCostModel();
-        hourCostModel.setHourOrder(1);
-        hourCostModel.setCostPerMinute(5l);
-        hourCostModel.setCostPerHour(2501);
-        hourCostModelMap.put(hourCostModel.getHourOrder(), hourCostModel);
-        hoursCostPanel.add(new HourSettingsWidget(hourCostModelMap));
-        add(hoursCostPanel);
+        final VerticalPanel hoursCostPanel = new VerticalPanel();
+        final Map<Long, HourCostModel> hourCostModelMap = new HashMap<Long, HourCostModel>();
+//        HourCostModel hourCostModel = new HourCostModel();
+//        hourCostModel.setHourOrder(1);
+//        hourCostModel.setCostPerMinute(5l);
+//        hourCostModel.setCostPerHour(2501);
+//        hourCostModelMap.put(hourCostModel.getHourOrder(), hourCostModel);
+
         final TextBox firstPartLengthTextBox = new TextBox();
         firstPartLengthTextBox.addKeyPressHandler(new KeyPressHandler() {
             @Override
@@ -213,13 +213,16 @@ public class SettingsPanel extends SplitLayoutPanel {
 //        clientSessionService.getCurrentUser();
 //        add(maxSessionLengthTextBox);
 
-        Button saveButton = new Button("Сохранить");
+        Button saveButton = new Button("Сохранить настройки");
         saveButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 UserUtils.INSTANCE.getCurrentUser().getSettings().setFirstPartLength(Long.valueOf(firstPartLengthTextBox.getValue()));
                 UserUtils.INSTANCE.getCurrentUser().getSettings().setFirstPartSumAmount(Long.valueOf(firstPartSumAmountTextBox.getValue()));
                 UserUtils.INSTANCE.getCurrentUser().getSettings().setMaxSessionLength(Long.valueOf(maxSessionLengthTextBox.getValue()));
+                UserUtils.INSTANCE.getCurrentUser().getSettings().setUnlimitedCost(Long.valueOf(hourSettingsWidget.getUnlimCostTextBox().getValue()));
+                UserUtils.INSTANCE.getCurrentUser().getSettings().setHourCostModelMap(hourCostModelMap);
+
                 clientSessionService.saveUser(UserUtils.INSTANCE.getCurrentUser(), new AsyncCallback<User>() {
                     @Override
                     public void onFailure(Throwable caught) {
@@ -239,6 +242,11 @@ public class SettingsPanel extends SplitLayoutPanel {
             }
         });
 
+        HorizontalPanel southPanel = new HorizontalPanel();
+        southPanel.add(saveButton);
+
+        addSouth(southPanel, 30);
+        add(hoursCostPanel);
 //        add(saveButton);
 
         simpleEventBus.addHandler(UserLoggedInEvent.TYPE, new UserLoggedInHandler() {
@@ -256,7 +264,16 @@ public class SettingsPanel extends SplitLayoutPanel {
                                 UserUtils.INSTANCE.setCurrentUser(result);
                                 firstPartLengthTextBox.setValue(String.valueOf(result.getSettings().getFirstPartLength()));
                                 firstPartSumAmountTextBox.setValue(String.valueOf(result.getSettings().getFirstPartSumAmount()));
-                                maxSessionLengthTextBox.setValue(result.getSettings().getMaxSessionLength() == null? "0" : String.valueOf(result.getSettings().getMaxSessionLength()));
+                                maxSessionLengthTextBox.setValue(result.getSettings().getMaxSessionLength() == null ? "0" : String.valueOf(result.getSettings().getMaxSessionLength()));
+                                Map<Long, HourCostModel> longHourCostModelMap = result.getSettings().getHourCostModelMap();
+                                if (longHourCostModelMap != null) {
+                                    for (Long key : longHourCostModelMap.keySet()) {
+                                        hourCostModelMap.put(key, longHourCostModelMap.get(key));
+                                    }
+                                }
+                                hourSettingsWidget = new HourSettingsWidget(hourCostModelMap);
+                                hourSettingsWidget.getUnlimCostTextBox().setValue(result.getSettings().getUnlimitedCost() == null ? "0" : String.valueOf(result.getSettings().getUnlimitedCost()));
+                                hoursCostPanel.add(hourSettingsWidget);
                             }
                         });
             }
