@@ -46,11 +46,9 @@ import com.shared.model.SettingsHolder;
 import com.shared.utils.UserUtils;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by dmitry on 26.07.16.
@@ -255,13 +253,6 @@ public class ClientSessionGridPanel extends VerticalPanel {
             listDataProvider.getList().addAll(result);
             listDataProvider.refresh();
             clientSessionDataGrid.setVisibleRange(0, listDataProvider.getList().size());
-//            for (int i = 0; i < clientSessionDataGrid.getVisibleItemCount(); i ++) {
-//              clientSessionDataGrid.redrawRow(i);
-//            }
-//            clientSessionDataGrid.redraw();
-//            listDataProvider.get
-//            clientSessionDataGrid.setRowCount(clientSessionDataGrid.getVisibleItems().size() + 1, true);
-//            clientSessionDataGrid.setRowData(clientSessionDataGrid.getVisibleItems().size() + 1, Arrays.asList(clientSession));
           }
         });
       }
@@ -400,7 +391,6 @@ public class ClientSessionGridPanel extends VerticalPanel {
               decoratedPopupPanel.setAutoHideEnabled(true);
 //              decoratedPopupPanel.setWidget(new HTML(result + "is stopped"));
               decoratedPopupPanel.show();
-//              clientSessionDataGrid.redrawRow(i);
             }
           });
         } else if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.STOPPED) {
@@ -424,7 +414,6 @@ public class ClientSessionGridPanel extends VerticalPanel {
               decoratedPopupPanel.setAutoHideEnabled(true);
               decoratedPopupPanel.setWidget(new HTML(result + "Оплачена"));
               decoratedPopupPanel.show();
-//              clientSessionDataGrid.redrawRow(i);
             }
           });
         } else if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.REMOVED) {
@@ -453,20 +442,28 @@ public class ClientSessionGridPanel extends VerticalPanel {
       public String getValue(ClientSession clientSession) {
         long timeDifferenceLength = System.currentTimeMillis() - clientSession.getStartTime();
         long timeDifferenceLengthInSeconds = getSeconds(timeDifferenceLength);
+        long totalSum = 0;
         if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.CREATED ||
                 clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.REMOVED) {
           return "0.00";
         } else if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.STOPPED ||
                 clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.PAYED) {
           return getPrettyMoney(clientSession.getFinalSum());
-        } else {
-          if (timeDifferenceLengthInSeconds <= getSeconds(firstPartTimeLength)) {
-            return getPrettyMoney(firstPartSumAmount);
+        } else if (UserUtils.INSTANCE.getCurrentUser().getSettings().getCurrentCountStrategy() == SettingsHolder.countStrategy.HOUR_MINUTES){
+          long startTimeInSeconds = getSeconds(clientSession.getStartTime());
+          if (clientSession.getStopTime() == 0) {
+            timeDifferenceLength = System.currentTimeMillis() - startTimeInSeconds;
+            if (UserUtils.INSTANCE.getCurrentUser().getSettings().getMaxSessionLength() > 0 &&
+                    timeDifferenceLength > UserUtils.INSTANCE.getCurrentUser().getSettings().getMaxSessionLength()) {
+            }
           } else {
-            long totalSum = firstPartSumAmount + 50 * (timeDifferenceLength - firstPartTimeLength) / 1000 / 60;
-            return getPrettyMoney(totalSum);
+            timeDifferenceLength = clientSession.getStopTime() - startTimeInSeconds;
           }
+          totalSum = getHourMinutestSum(0, clientSession, timeDifferenceLength, false);
+        } else if (UserUtils.INSTANCE.getCurrentUser().getSettings().getCurrentCountStrategy() == SettingsHolder.countStrategy.MULTI_HOURS) {
+          totalSum = getMultiHoursSum(0, clientSession);
         }
+        return getPrettyMoney(totalSum);
       }
     }, new TextHeader("Сумма"));
 
@@ -553,7 +550,6 @@ public class ClientSessionGridPanel extends VerticalPanel {
             listDataProvider.getList().addAll(result);
             listDataProvider.refresh();
             clientSessionDataGrid.setVisibleRange(0, listDataProvider.getList().size());
-//            clientSessionDataGrid.redrawRow(index);
             Audio audio = Audio.createIfSupported();
             audio.setSrc(GWT.getHostPageBaseURL() + "sounds/7.wav");
             audio.play();
@@ -627,55 +623,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
             sum += clientSession.getFinalSum();
             continue;
           }
-          long timeDifferenceLength;
-          boolean isSessionOver = false;
-          long startTimeInSeconds = getSeconds(clientSession.getStartTime());
-          if (clientSession.getStopTime() == 0) {
-            timeDifferenceLength = System.currentTimeMillis() - startTimeInSeconds;
-            if (UserUtils.INSTANCE.getCurrentUser().getSettings().getMaxSessionLength() > 0 &&
-                    timeDifferenceLength > UserUtils.INSTANCE.getCurrentUser().getSettings().getMaxSessionLength()) {
-              isSessionOver = true;
-            }
-          } else {
-            timeDifferenceLength = clientSession.getStopTime() - startTimeInSeconds;
-          }
-          long timeDifferenceLengthInSeconds = getSeconds(timeDifferenceLength);
-          if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.CREATED) {
-            sum = 0;
-          } else if (UserUtils.INSTANCE.getCurrentUser().getSettings().getCurrentCountStrategy() == SettingsHolder.countStrategy.HOUR_MINUTES) {
-            if (timeDifferenceLengthInSeconds <= getSeconds(firstPartTimeLength)) {
-              sum += firstPartSumAmount;
-            } else {
-              long totalSum = firstPartSumAmount + 50 * (timeDifferenceLength - firstPartTimeLength) / 1000 / 60;
-              sum += totalSum;
-              if (isSessionOver) {
-                clientSession.setFinalSum(totalSum);
-                clientSessionService.stopClientSession(currentDatePointValue, clientSession, UserUtils.INSTANCE.getCurrentUser().getSettings().isToShowRemoved(),
-                        UserUtils.INSTANCE.getCurrentUser().getSettings().isToShowPayed(), new AsyncCallback<List<ClientSession>>() {
-                          @Override
-                          public void onFailure(Throwable caught) {
-
-                          }
-
-                          @Override
-                          public void onSuccess(List<ClientSession> result) {
-                            listDataProvider.getList().clear();
-                            listDataProvider.getList().addAll(result);
-                            listDataProvider.refresh();
-                            clientSessionDataGrid.setVisibleRange(0, listDataProvider.getList().size());
-                          }
-                        });
-              }
-            }
-          } else if (UserUtils.INSTANCE.getCurrentUser().getSettings().getCurrentCountStrategy() == SettingsHolder.countStrategy.MULTI_HOURS) {
-            List<HourCostModel> hourCostModels = UserUtils.INSTANCE.getCurrentUser().getSettings().getOrderedHourCostModels();
-            Long hourLength = UserUtils.INSTANCE.getCurrentUser().getSettings().getHourLength();
-            Long currentMinuteCost = 0l;
-            for (HourCostModel hourCostModel : hourCostModels) {
-              Range<Long> range = Range.open(startTimeInSeconds, startTimeInSeconds + timeDifferenceLengthInSeconds);
-//              if ()
-            }
-          }
+          sum = getSum(sum, clientSession);
         }
         UpdateSumEvent updateSumEvent = new UpdateSumEvent();
         updateSumEvent.setSum(sum);
@@ -709,6 +657,100 @@ public class ClientSessionGridPanel extends VerticalPanel {
       }
     });
 
+  }
+
+  private long getSum(long sum, ClientSession clientSession) {
+    long timeDifferenceLength;
+    boolean isSessionOver = false;
+    long startTimeInSeconds = getSeconds(clientSession.getStartTime());
+    if (clientSession.getStopTime() == 0) {
+      timeDifferenceLength = System.currentTimeMillis() - startTimeInSeconds;
+      if (UserUtils.INSTANCE.getCurrentUser().getSettings().getMaxSessionLength() > 0 &&
+              timeDifferenceLength > UserUtils.INSTANCE.getCurrentUser().getSettings().getMaxSessionLength()) {
+        isSessionOver = true;
+      }
+    } else {
+      timeDifferenceLength = clientSession.getStopTime() - startTimeInSeconds;
+    }
+    if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.CREATED) {
+      sum += 0;
+    } else if (UserUtils.INSTANCE.getCurrentUser().getSettings().getCurrentCountStrategy() == SettingsHolder.countStrategy.HOUR_MINUTES) {
+      sum = getHourMinutestSum(sum, clientSession, timeDifferenceLength, isSessionOver);
+    } else if (UserUtils.INSTANCE.getCurrentUser().getSettings().getCurrentCountStrategy() == SettingsHolder.countStrategy.MULTI_HOURS) {
+      sum = getMultiHoursSum(sum, clientSession);
+    }
+    return sum;
+  }
+
+  private long getHourMinutestSum(long sum, ClientSession clientSession, long timeDifferenceLength, boolean isSessionOver) {
+    long timeDifferenceLengthInSeconds = getSeconds(timeDifferenceLength);
+    if (timeDifferenceLengthInSeconds <= getSeconds(firstPartTimeLength)) {
+      sum += firstPartSumAmount;
+    } else {
+      long totalSum = firstPartSumAmount + 50 * (timeDifferenceLength - firstPartTimeLength) / 1000 / 60;
+      sum += totalSum;
+      if (isSessionOver) {
+        clientSession.setFinalSum(totalSum);
+        clientSessionService.stopClientSession(currentDatePointValue, clientSession, UserUtils.INSTANCE.getCurrentUser().getSettings().isToShowRemoved(),
+                UserUtils.INSTANCE.getCurrentUser().getSettings().isToShowPayed(), new AsyncCallback<List<ClientSession>>() {
+                  @Override
+                  public void onFailure(Throwable caught) {
+
+                  }
+
+                  @Override
+                  public void onSuccess(List<ClientSession> result) {
+                    listDataProvider.getList().clear();
+                    listDataProvider.getList().addAll(result);
+                    listDataProvider.refresh();
+                    clientSessionDataGrid.setVisibleRange(0, listDataProvider.getList().size());
+                  }
+                });
+      }
+    }
+    return sum;
+  }
+
+  private long getMultiHoursSum(long sum, ClientSession clientSession) {
+    List<HourCostModel> hourCostModels = UserUtils.INSTANCE.getCurrentUser().getSettings().getOrderedHourCostModels();
+    Long hourLength = UserUtils.INSTANCE.getCurrentUser().getSettings().getHourLength();
+    boolean isFirstHourGoing = true;
+    long hoursSum = 0;
+    boolean isRangeFound = false;
+    for (HourCostModel hourCostModel : hourCostModels) {
+      Range<Long> range;
+//      if (isFirstHourGoing) {
+//        range = Range.open(clientSession.getStartTime(), clientSession.getStartTime() + hourLength * hourCostModel.getHourOrder());
+//      } else {
+        range = Range.open(clientSession.getStartTime() + hourLength * (hourCostModel.getHourOrder() - 1), clientSession.getStartTime() + hourLength * hourCostModel.getHourOrder());
+//      }
+      if (range.contains(System.currentTimeMillis())) {
+        sum = hourCostModel.getCostPerMinute() * (System.currentTimeMillis() - clientSession.getStartTime() -
+        hourLength * (hourCostModel.getHourOrder() - 1)) / 1000 / 60;
+        isRangeFound = true;
+        return hoursSum + sum;
+      } else {
+        hoursSum += hourCostModel.getCostPerHour();
+//        sum = hoursSum;
+        isFirstHourGoing = false;
+//        return hoursSum;
+      }
+//        sum = hourCostModels.get((int) (hourCostModel.getHourOrder() - 1)).getCostPerHour() +
+//                hourCostModel.getCostPerMinute() * ((System.currentTimeMillis() - clientSession.getStartTime() +
+//                        (hourLength * hourCostModel.getHourOrder()))) / 1000 / 60;
+//      return sum;
+      }
+    if (!isRangeFound) {
+      long difference = System.currentTimeMillis() - clientSession.getStartTime();
+      HourCostModel lastHourCostModel = hourCostModels.get(hourCostModels.size() - 1);
+      long numberOfHours = difference / hourLength;
+      long leftMilliSeconds = difference % (numberOfHours*1000*60);
+      long leftSum = (hoursSum + lastHourCostModel.getCostPerHour() * (numberOfHours - hourCostModels.size()) +
+              lastHourCostModel.getCostPerMinute() * leftMilliSeconds) / 1000 / 60;
+      return hoursSum + (lastHourCostModel.getCostPerHour() * (numberOfHours - hourCostModels.size())) + leftSum;
+
+    }
+    return hoursSum;
   }
 
 

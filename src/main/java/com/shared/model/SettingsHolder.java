@@ -8,6 +8,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -26,8 +27,24 @@ public class SettingsHolder implements Serializable, IsSerializable {
   private Long unlimitedCost = 800l;
   private Map<Long, HourCostModel> hourCostModelMap;
   private countStrategy currentCountStrategy = countStrategy.MULTI_HOURS;
-  private Long hourLength = 180000l;
+  private Long hourLength = 60000l;
   private User user;
+
+  public SettingsHolder() {
+    hourCostModelMap = new HashMap<>();
+    HourCostModel hourCostModel = new HourCostModel();
+    hourCostModel.setHourOrder(1);
+    hourCostModel.setCostPerHour(250);
+    hourCostModel.setCostPerMinute(5);
+    hourCostModel.setSettingsHolderId(1);
+    hourCostModelMap.put(hourCostModel.getHourOrder(), hourCostModel);
+    HourCostModel hourCostModel2 = new HourCostModel();
+    hourCostModel2.setHourOrder(2);
+    hourCostModel2.setCostPerHour(200);
+    hourCostModel2.setCostPerMinute(4);
+    hourCostModel2.setSettingsHolderId(1);
+    hourCostModelMap.put(hourCostModel2.getHourOrder(), hourCostModel2);
+  }
 
   public enum countStrategy{
     MULTI_HOURS, HOUR_MINUTES
