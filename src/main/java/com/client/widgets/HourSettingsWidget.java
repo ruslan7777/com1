@@ -31,6 +31,9 @@ public class HourSettingsWidget extends VerticalPanel {
     return unlimCostTextBox;
   }
 
+  public HourSettingsWidget() {
+  }
+
   public HourSettingsWidget(final Map<Long, HourCostModel> hourCostModelMap) {
     this.hourCostModelMap = hourCostModelMap;
     setWidth("200px");

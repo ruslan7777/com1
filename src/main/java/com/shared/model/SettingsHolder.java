@@ -47,7 +47,20 @@ public class SettingsHolder implements Serializable, IsSerializable {
   }
 
   public enum countStrategy{
-    MULTI_HOURS, HOUR_MINUTES
+    MULTI_HOURS("Разные часы"), HOUR_MINUTES("Первый час");
+    private String text;
+
+    countStrategy(String text) {
+      this.text = text;
+    }
+
+    public String getText() {
+      return text;
+    }
+
+    public void setText(String text) {
+      this.text = text;
+    }
   }
 
   public countStrategy getCurrentCountStrategy() {
