@@ -5,6 +5,7 @@ import com.client.events.UserLoggedInHandler;
 import com.client.service.ClientSessionService;
 import com.client.service.ClientSessionServiceAsync;
 import com.client.widgets.HourSettingsWidget;
+import com.client.widgets.MoreLessUnlimWidget;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -16,6 +17,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import com.shared.model.HourCostModel;
+import com.shared.model.MoreLessUnlimModel;
 import com.shared.model.SessionPseudoName;
 import com.shared.model.SettingsHolder;
 import com.shared.model.User;
@@ -36,6 +38,7 @@ public class SettingsPanel extends SplitLayoutPanel {
     private SimpleEventBus simpleEventBus;
     private ClientSessionServiceAsync clientSessionService = GWT.create(ClientSessionService.class);
     HourSettingsWidget hourSettingsWidget;
+    MoreLessUnlimWidget moreLessUnlimWidget;
 //    private FormPanel formPanel = new FormPanel();
 //    VerticalPanel mainPanel = new VerticalPanel();
     public SettingsPanel(SimpleEventBus simpleEventBus) {
@@ -48,47 +51,34 @@ public class SettingsPanel extends SplitLayoutPanel {
         radioBoxesPanel.setHeight("30px");
         radioBoxesPanel.setWidth("400px");
         final DeckLayoutPanel deckLayoutPanel = new DeckLayoutPanel();
-        deckLayoutPanel.setSize("150px", "150px");
-        VerticalPanel firstDeck = new VerticalPanel();
-        VerticalPanel secondDeck = new VerticalPanel();
-        VerticalPanel thirdDeck = new VerticalPanel();
-        firstDeck.add(new Label("ddd"));
-        deckLayoutPanel.add(firstDeck);
-        secondDeck.add(new Label("bbb"));
-        deckLayoutPanel.add(secondDeck);
-        thirdDeck.add(new Label("dddsss"));
-        deckLayoutPanel.add(thirdDeck);
-        deckLayoutPanel.showWidget(0);
-        deckLayoutPanel.forceLayout();
+        deckLayoutPanel.setSize("400px", "500px");
+        moreLessUnlimWidget = new MoreLessUnlimWidget();
+        deckLayoutPanel.add(moreLessUnlimWidget);
         for (SettingsHolder.countStrategy countStrategy : SettingsHolder.countStrategy.values()) {
-            String countStrategyText = countStrategy.getText();
-            RadioButton radioButton = new RadioButton("count", countStrategyText);
-            radioButton.setFormValue(countStrategy.name());
-            radioButton.ensureDebugId(
-                    "cwRadioButton-sport-" + countStrategyText.replaceAll(" ", ""));
             if (SettingsHolder.countStrategy.HOUR_MINUTES == countStrategy) {
-                radioButton.addClickHandler(new ClickHandler() {
-                    @Override
-                    public void onClick(ClickEvent event) {
-                     deckLayoutPanel.showWidget(0);
-                    }
-                });
-                radioButton.setValue(true);
+
             } else if (SettingsHolder.countStrategy.MULTI_HOURS == countStrategy) {
+                String countStrategyText = countStrategy.getText();
+                RadioButton radioButton = new RadioButton("count", countStrategyText);
+                radioButton.setValue(true);
+                radioButton.setFormValue(countStrategy.name());
+                radioButton.ensureDebugId(
+                        "cwRadioButton-sport-" + countStrategyText.replaceAll(" ", ""));
                 radioButton.addClickHandler(new ClickHandler() {
                     @Override
                     public void onClick(ClickEvent event) {
-                        deckLayoutPanel.showWidget(1);
+
                     }
                 });
+                radioBoxesPanel.add(radioButton);
+                deckLayoutPanel.showWidget(0);
             }
-            radioBoxesPanel.add(radioButton);
         }
         costSettingsVerticalPanel.add(radioBoxesPanel);
 
         costSettingsVerticalPanel.add(deckLayoutPanel);
         setWidth("100%");
-        setHeight("300px");
+        setHeight("500px");
 //        add(new CheckBox("Some check"));
 
         VerticalPanel pseudoNamesSettingsPanel = new VerticalPanel();
@@ -269,8 +259,9 @@ public class SettingsPanel extends SplitLayoutPanel {
                 UserUtils.INSTANCE.getCurrentUser().getSettings().setFirstPartLength(Long.valueOf(firstPartLengthTextBox.getValue()));
                 UserUtils.INSTANCE.getCurrentUser().getSettings().setFirstPartSumAmount(Long.valueOf(firstPartSumAmountTextBox.getValue()));
                 UserUtils.INSTANCE.getCurrentUser().getSettings().setMaxSessionLength(Long.valueOf(maxSessionLengthTextBox.getValue()));
-                UserUtils.INSTANCE.getCurrentUser().getSettings().setUnlimitedCost(Long.valueOf(hourSettingsWidget.getUnlimCostTextBox().getValue()));
+//                UserUtils.INSTANCE.getCurrentUser().getSettings().setUnlimitedCost(Long.valueOf(hourSettingsWidget.getUnlimCostTextBox().getValue()));
                 UserUtils.INSTANCE.getCurrentUser().getSettings().setHourCostModelMap(hourCostModelMap);
+                UserUtils.INSTANCE.getCurrentUser().getSettings().setMoreLessUnlimModelMap(moreLessUnlimWidget.getSettings());
 
                 clientSessionService.saveUser(UserUtils.INSTANCE.getCurrentUser(), new AsyncCallback<User>() {
                     @Override
@@ -315,16 +306,20 @@ public class SettingsPanel extends SplitLayoutPanel {
                                 firstPartLengthTextBox.setValue(String.valueOf(result.getSettings().getFirstPartLength()));
                                 firstPartSumAmountTextBox.setValue(String.valueOf(result.getSettings().getFirstPartSumAmount()));
                                 maxSessionLengthTextBox.setValue(result.getSettings().getMaxSessionLength() == null ? "0" : String.valueOf(result.getSettings().getMaxSessionLength()));
-                                Map<Long, HourCostModel> longHourCostModelMap = result.getSettings().getHourCostModelMap();
-                                if (longHourCostModelMap != null) {
-                                    for (Long key : longHourCostModelMap.keySet()) {
-                                        hourCostModelMap.put(key, longHourCostModelMap.get(key));
-                                    }
+                                SettingsHolder settings = UserUtils.INSTANCE.getCurrentUser().getSettings();
+                                if (settings.getCurrentCountStrategy() == SettingsHolder.countStrategy.MULTI_HOURS) {
+                                    moreLessUnlimWidget.showSettings(settings.getOrderedMoreLessUnlimModels());
                                 }
-                                hourSettingsWidget = new HourSettingsWidget(hourCostModelMap);
-                                hourSettingsWidget.getUnlimCostTextBox().setValue(result.getSettings().getUnlimitedCost() == null ? "0" : String.valueOf(result.getSettings().getUnlimitedCost()));
-                                    deckLayoutPanel.insert(hourSettingsWidget, 0);
-                                deckLayoutPanel.forceLayout();
+// Map<Long, HourCostModel> longHourCostModelMap = result.getSettings().getHourCostModelMap();
+//                                if (longHourCostModelMap != null) {
+//                                    for (Long key : longHourCostModelMap.keySet()) {
+//                                        hourCostModelMap.put(key, longHourCostModelMap.get(key));
+//                                    }
+//                                }
+//                                hourSettingsWidget = new HourSettingsWidget(hourCostModelMap);
+//                                hourSettingsWidget.getUnlimCostTextBox().setValue(result.getSettings().getUnlimitedCost() == null ? "0" : String.valueOf(result.getSettings().getUnlimitedCost()));
+//                                    deckLayoutPanel.insert(hourSettingsWidget, 0);
+//                                deckLayoutPanel.forceLayout();
                             }
                         });
             }

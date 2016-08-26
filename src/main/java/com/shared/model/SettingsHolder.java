@@ -26,12 +26,14 @@ public class SettingsHolder implements Serializable, IsSerializable {
   private boolean isToShowPayed = false;
   private Long unlimitedCost = 800l;
   private Map<Long, HourCostModel> hourCostModelMap;
+  private Map<Long, MoreLessUnlimModel> moreLessUnlimModelMap;
   private countStrategy currentCountStrategy = countStrategy.MULTI_HOURS;
   private Long hourLength = 60000l;
   private User user;
 
   public SettingsHolder() {
     hourCostModelMap = new HashMap<>();
+    moreLessUnlimModelMap = new HashMap<>();
     HourCostModel hourCostModel = new HourCostModel();
     hourCostModel.setHourOrder(1);
     hourCostModel.setCostPerHour(250);
@@ -47,7 +49,7 @@ public class SettingsHolder implements Serializable, IsSerializable {
   }
 
   public enum countStrategy{
-    MULTI_HOURS("Разные часы"), HOUR_MINUTES("Первый час");
+    MULTI_HOURS("Больше>Меньше>Безлимит"), HOUR_MINUTES("Первый час");
     private String text;
 
     countStrategy(String text) {
@@ -147,6 +149,24 @@ public class SettingsHolder implements Serializable, IsSerializable {
 
   public void setHourCostModelMap(Map<Long, HourCostModel> hourCostModelMap) {
     this.hourCostModelMap = hourCostModelMap;
+  }
+
+  public List<MoreLessUnlimModel> getOrderedMoreLessUnlimModels() {
+    List<MoreLessUnlimModel> moreLessUnlimModels = new ArrayList<>();
+    for (Long key : moreLessUnlimModelMap.keySet()) {
+      moreLessUnlimModels.add(moreLessUnlimModelMap.get(key));
+    }
+    Collections.sort(moreLessUnlimModels, new Comparator<MoreLessUnlimModel>() {
+      @Override
+      public int compare(MoreLessUnlimModel o1, MoreLessUnlimModel o2) {
+        return o1.getOrder() > o2.getOrder() ? 1 : -1;
+      }
+    });
+    return moreLessUnlimModels;
+  }
+
+  public void setMoreLessUnlimModelMap(Map<Long, MoreLessUnlimModel> moreLessUnlimModelMap) {
+    this.moreLessUnlimModelMap = moreLessUnlimModelMap;
   }
 
   public Long getUnlimitedCost() {

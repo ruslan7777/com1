@@ -714,16 +714,11 @@ public class ClientSessionGridPanel extends VerticalPanel {
   private long getMultiHoursSum(long sum, ClientSession clientSession) {
     List<HourCostModel> hourCostModels = UserUtils.INSTANCE.getCurrentUser().getSettings().getOrderedHourCostModels();
     Long hourLength = UserUtils.INSTANCE.getCurrentUser().getSettings().getHourLength();
-    boolean isFirstHourGoing = true;
     long hoursSum = 0;
     boolean isRangeFound = false;
     for (HourCostModel hourCostModel : hourCostModels) {
       Range<Long> range;
-//      if (isFirstHourGoing) {
-//        range = Range.open(clientSession.getStartTime(), clientSession.getStartTime() + hourLength * hourCostModel.getHourOrder());
-//      } else {
         range = Range.open(clientSession.getStartTime() + hourLength * (hourCostModel.getHourOrder() - 1), clientSession.getStartTime() + hourLength * hourCostModel.getHourOrder());
-//      }
       if (range.contains(System.currentTimeMillis())) {
         sum = hourCostModel.getCostPerMinute() * (System.currentTimeMillis() - clientSession.getStartTime() -
         hourLength * (hourCostModel.getHourOrder() - 1)) / 1000 / 60;
@@ -731,14 +726,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
         return hoursSum + sum;
       } else {
         hoursSum += hourCostModel.getCostPerHour();
-//        sum = hoursSum;
-        isFirstHourGoing = false;
-//        return hoursSum;
       }
-//        sum = hourCostModels.get((int) (hourCostModel.getHourOrder() - 1)).getCostPerHour() +
-//                hourCostModel.getCostPerMinute() * ((System.currentTimeMillis() - clientSession.getStartTime() +
-//                        (hourLength * hourCostModel.getHourOrder()))) / 1000 / 60;
-//      return sum;
       }
     if (!isRangeFound) {
       long difference = System.currentTimeMillis() - clientSession.getStartTime();
