@@ -41,6 +41,7 @@ import com.google.gwt.view.client.ProvidesKey;
 import com.shared.model.ClientSession;
 import com.shared.model.DatePoint;
 import com.shared.model.HourCostModel;
+import com.shared.model.MoreLessUnlimModel;
 import com.shared.model.SessionPseudoName;
 import com.shared.model.SettingsHolder;
 import com.shared.utils.UserUtils;
@@ -712,22 +713,54 @@ public class ClientSessionGridPanel extends VerticalPanel {
   }
 
   private long getMultiHoursSum(long sum, ClientSession clientSession) {
+    List<MoreLessUnlimModel> moreLessUnlimModels = UserUtils.INSTANCE.getCurrentUser().getSettings().getOrderedMoreLessUnlimModels();
+    Long hourLength = 20000l;
+
+    long hoursSum = 0;
+    long costPerMinute = 0;
+    long unlimCost = 0;
+    if (!moreLessUnlimModels.isEmpty()) {
+      costPerMinute = moreLessUnlimModels.get(0).getCostPerMinute();
+      unlimCost = moreLessUnlimModels.get(0).getUnlimCost();
+    }
+    long difference = System.currentTimeMillis() - clientSession.getStartTime();
+    long hoursGone = (System.currentTimeMillis() - clientSession.getStartTime())/hourLength;
+    for (MoreLessUnlimModel moreLessUnlimModel : moreLessUnlimModels) {
+      if (hoursGone >= moreLessUnlimModel.getNumberOfHours()) {
+        hoursSum = moreLessUnlimModel.getCostForHours();
+      }
+    }
+    long leftMilliSeconds = 0;
+    if (hoursGone < 2) {
+      leftMilliSeconds = difference;
+    } else {
+      leftMilliSeconds = difference % (hoursGone * 1000 * 60 * 60);
+//      leftMilliSeconds = difference % (hoursGone * 1000 * 60 * 60) *  20000 / (hoursGone * 1000 * 60 * 60) ;
+    }
+    long totalSum = hoursSum + (leftMilliSeconds * costPerMinute) / 1000 / 60;
+    if (totalSum > unlimCost) {
+      return -1;
+    }
+    return totalSum;
+  }
+
+  private long getMultiHoursMultiMinutesSum(long sum, ClientSession clientSession) {
     List<HourCostModel> hourCostModels = UserUtils.INSTANCE.getCurrentUser().getSettings().getOrderedHourCostModels();
     Long hourLength = UserUtils.INSTANCE.getCurrentUser().getSettings().getHourLength();
     long hoursSum = 0;
     boolean isRangeFound = false;
     for (HourCostModel hourCostModel : hourCostModels) {
       Range<Long> range;
-        range = Range.open(clientSession.getStartTime() + hourLength * (hourCostModel.getHourOrder() - 1), clientSession.getStartTime() + hourLength * hourCostModel.getHourOrder());
+      range = Range.open(clientSession.getStartTime() + hourLength * (hourCostModel.getHourOrder() - 1), clientSession.getStartTime() + hourLength * hourCostModel.getHourOrder());
       if (range.contains(System.currentTimeMillis())) {
         sum = hourCostModel.getCostPerMinute() * (System.currentTimeMillis() - clientSession.getStartTime() -
-        hourLength * (hourCostModel.getHourOrder() - 1)) / 1000 / 60;
+                hourLength * (hourCostModel.getHourOrder() - 1)) / 1000 / 60;
         isRangeFound = true;
         return hoursSum + sum;
       } else {
         hoursSum += hourCostModel.getCostPerHour();
       }
-      }
+    }
     if (!isRangeFound) {
       long difference = System.currentTimeMillis() - clientSession.getStartTime();
       HourCostModel lastHourCostModel = hourCostModels.get(hourCostModels.size() - 1);
@@ -740,7 +773,6 @@ public class ClientSessionGridPanel extends VerticalPanel {
     }
     return hoursSum;
   }
-
 
   private void setNameFree(ClientSession clientSession) {
     clientSessionService.markNameAsFree(clientSession.getSessionPseudoName(), new AsyncCallback<Void>() {
@@ -757,6 +789,13 @@ public class ClientSessionGridPanel extends VerticalPanel {
   }
 
   private String getPrettyMoney(long minPayment) {
+    if (minPayment == -1) {
+      List<MoreLessUnlimModel> moreLessUnlimModels = UserUtils.INSTANCE.getCurrentUser().getSettings().getOrderedMoreLessUnlimModels();
+      long unlimSum = moreLessUnlimModels.get(0).getUnlimCost();
+      if (!moreLessUnlimModels.isEmpty()) {
+        return "Безлимит - " + getPrettyMoney(unlimSum);
+      }
+    }
     return new BigDecimal(minPayment).divide(new BigDecimal("100")).setScale(2, BigDecimal.ROUND_HALF_UP).toString();
   }
 

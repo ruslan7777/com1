@@ -60,9 +60,9 @@ public class MoreLessUnlimWidget extends ScrollPanel {
         final TextBox numberOfHoursTextBox = new AntiTextBox();
         numberOfHoursTextBox.setName("numberOfHoursTextBox");
         final TextBox hoursCostTextBox = new AntiTextBox();
-        numberOfHoursTextBox.setName("hoursCostTextBox");
+        hoursCostTextBox.setName("hoursCostTextBox");
         final TextBox hoursCostInCentsTextBox = new AntiTextBox();
-        numberOfHoursTextBox.setName("hoursCostInCentsTextBox");
+        numberOfHoursTextBox.setName("numberOfHoursTextBox");
         numberHoursCostPanel.add(new Label("За "));
         numberOfHoursTextBox.setWidth("20px");
         numberHoursCostPanel.add(numberOfHoursTextBox);
@@ -71,6 +71,7 @@ public class MoreLessUnlimWidget extends ScrollPanel {
         numberHoursCostPanel.add(hoursCostTextBox);
         numberHoursCostPanel.add(new Label("руб."));
         hoursCostInCentsTextBox.setWidth("30px");
+        hoursCostInCentsTextBox.setName("hoursCostInCentsTextBox");
         numberHoursCostPanel.add(hoursCostInCentsTextBox);
         numberHoursCostPanel.add(new Label("коп."));
         Button removeButton = new Button("Удалить");

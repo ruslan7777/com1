@@ -46,6 +46,12 @@ public class SettingsHolder implements Serializable, IsSerializable {
     hourCostModel2.setCostPerMinute(4);
     hourCostModel2.setSettingsHolderId(1);
     hourCostModelMap.put(hourCostModel2.getHourOrder(), hourCostModel2);
+    MoreLessUnlimModel moreLessUnlimModel = new MoreLessUnlimModel(1, 1, 5, 2, 250, 350);
+    moreLessUnlimModelMap.put(moreLessUnlimModel.getOrder(), moreLessUnlimModel);
+    MoreLessUnlimModel moreLessUnlimModel2 = new MoreLessUnlimModel(1, 2, 5, 3, 300, 350);
+    moreLessUnlimModelMap.put(moreLessUnlimModel2.getOrder(), moreLessUnlimModel2);
+    MoreLessUnlimModel moreLessUnlimModel3 = new MoreLessUnlimModel(1, 3, 5, 4, 350, 350);
+    moreLessUnlimModelMap.put(moreLessUnlimModel3.getOrder(), moreLessUnlimModel3);
   }
 
   public enum countStrategy{
@@ -163,6 +169,10 @@ public class SettingsHolder implements Serializable, IsSerializable {
       }
     });
     return moreLessUnlimModels;
+  }
+
+  public Map<Long, MoreLessUnlimModel> getMoreLessUnlimModelMap() {
+    return moreLessUnlimModelMap;
   }
 
   public void setMoreLessUnlimModelMap(Map<Long, MoreLessUnlimModel> moreLessUnlimModelMap) {

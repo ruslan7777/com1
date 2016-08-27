@@ -20,14 +20,15 @@ public class MoreLessUnlimModel implements Serializable, IsSerializable {
   private long numberOfHours;
   private long costForHours;
 
-  public MoreLessUnlimModel(long settingsHolderId, long hourOrder, long costPerMinute, long costPerHour,
-                            long numberOfHours, long costForHours) {
-    this.order = order;
+  public MoreLessUnlimModel(long settingsHolderId, long hourOrder, long costPerMinute,
+                            long numberOfHours, long costForHours, long unlimCost) {
+    this.order = hourOrder;
     this.settingsHolderId = settingsHolderId;
     this.unlimCost = hourOrder;
     this.costPerMinute = costPerMinute;
     this.numberOfHours = numberOfHours;
     this.costForHours = costForHours;
+    this.unlimCost = unlimCost;
   }
 
   public MoreLessUnlimModel() {

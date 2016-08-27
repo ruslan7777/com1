@@ -246,7 +246,7 @@ public class ClientSessionMemoryDaoImpl implements ClientSessionDao{
         settingsHolder.setFirstPartLength(user.getSettings().getFirstPartLength());
         settingsHolder.setFirstPartSumAmount(user.getSettings().getFirstPartSumAmount());
         settingsHolder.setHourCostModelMap(user.getSettings().getHourCostModelMap());
-        settingsHolder.setHourCostModelMap(user.getSettings().getHourCostModelMap());
+        settingsHolder.setMoreLessUnlimModelMap(user.getSettings().getMoreLessUnlimModelMap());
         return savedUser;
     }
 
