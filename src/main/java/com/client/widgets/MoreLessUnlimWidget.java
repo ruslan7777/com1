@@ -19,6 +19,7 @@ import com.shared.model.HourCostModel;
 import com.shared.model.MoreLessUnlimModel;
 import com.shared.model.SettingsHolder;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -120,7 +121,7 @@ public class MoreLessUnlimWidget extends ScrollPanel {
       numberHoursCostPanel.add(new Label("руб."));
       hoursCostInCentsTextBox.setWidth("30px");
       numberHoursCostPanel.add(hoursCostInCentsTextBox);
-      numberOfHoursTextBox.setValue(minutesCost != 0 ? String.valueOf(minutesCost) : "0");
+      hoursCostInCentsTextBox.setValue(minutesCost != 0 ? String.valueOf(minutesCost) : "00");
       numberHoursCostPanel.add(new Label("коп."));
       Button removeButton = new Button("Удалить");
       removeButton.addClickHandler(new ClickHandler() {
@@ -135,6 +136,8 @@ public class MoreLessUnlimWidget extends ScrollPanel {
         hoursCostsPanel.add(numberHoursCostPanel);
       }
       setAddButtonEnabled(addHourButton);
+      unlimCostTextBox.setValue(moreLessUnlimModel.getUnlimCost() != 0 ? String.valueOf(moreLessUnlimModel.getUnlimCost()) : "0");
+      costPerMinuteTextBox.setValue(moreLessUnlimModel.getCostPerMinute() != 0 ? String.valueOf(moreLessUnlimModel.getCostPerMinute()) : "0");
     }
   }
 
@@ -168,7 +171,9 @@ public class MoreLessUnlimWidget extends ScrollPanel {
       }
       moreLessUnlimModel.setCostPerMinute(Long.valueOf(costPerMinuteTextBox.getValue()));
       moreLessUnlimModel.setUnlimCost(Long.valueOf(unlimCostTextBox.getValue()));
-      moreLessUnlimModelMap.put(order++, moreLessUnlimModel);
+      order += 1;
+      moreLessUnlimModel.setOrder(order);
+      moreLessUnlimModelMap.put(moreLessUnlimModel.getOrder(), moreLessUnlimModel);
     }
     return moreLessUnlimModelMap;
   }

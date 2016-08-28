@@ -50,11 +50,11 @@ public class HourSettingsWidget extends VerticalPanel {
     add(new Label("Час № "));
     add(hoursOrderListBox);
     final HorizontalPanel costPerMinutePanel = new HorizontalPanel();
-    costPerMinutePanel.add(new Label("Стоимость минуты:"));
+    costPerMinutePanel.add(new Label("Стоимость минуты, коп:"));
     costPerMinuteTextBox.setValue(firstHourCostModel != null ? String.valueOf(firstHourCostModel.getCostPerMinute()) : null);
     costPerMinutePanel.add(costPerMinuteTextBox);
     HorizontalPanel hourCostPanel = new HorizontalPanel();
-    hourCostPanel.add(new Label("Стоимость часа:"));
+    hourCostPanel.add(new Label("Стоимость часа, коп:"));
     hourCostTextBox.setValue(firstHourCostModel != null ? String.valueOf(firstHourCostModel.getCostPerHour()) : null);
     hourCostPanel.add(hourCostTextBox);
     add(costPerMinutePanel);

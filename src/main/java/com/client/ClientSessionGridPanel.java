@@ -397,7 +397,8 @@ public class ClientSessionGridPanel extends VerticalPanel {
             }
           });
         } else if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.STOPPED ||
-                clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.PAYED) {
+                clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.PAYED ||
+                clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.STOPPED_UNLIMITED) {
           clientSession.setStatus(ClientSession.SESSION_STATUS.PAYED ) ;
           clientSessionService.payClientSession(currentDatePointValue, clientSession, UserUtils.INSTANCE.getCurrentUser().getSettings().isToShowRemoved(),
                   UserUtils.INSTANCE.getCurrentUser().getSettings().isToShowPayed(), new AsyncCallback<List<ClientSession>>() {
@@ -726,6 +727,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
     long hoursSum = 0;
     long costPerMinute = 0;
     long unlimCost = 0;
+    long hoursSet = 0;
     if (!moreLessUnlimModels.isEmpty()) {
       costPerMinute = moreLessUnlimModels.get(0).getCostPerMinute();
       unlimCost = moreLessUnlimModels.get(0).getUnlimCost();
@@ -734,6 +736,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
     long hoursGone = (System.currentTimeMillis() - clientSession.getStartTime())/hourLength;
     for (MoreLessUnlimModel moreLessUnlimModel : moreLessUnlimModels) {
       if (hoursGone >= moreLessUnlimModel.getNumberOfHours()) {
+        hoursSet = moreLessUnlimModel.getNumberOfHours();
         hoursSum = moreLessUnlimModel.getCostForHours();
       }
     }
@@ -741,11 +744,12 @@ public class ClientSessionGridPanel extends VerticalPanel {
     if (hoursGone < 2) {
       leftMilliSeconds = difference;
     } else {
-      leftMilliSeconds = difference % (hourLength * hoursGone);
+      leftMilliSeconds = difference % (hourLength * hoursSet);
 //      leftMilliSeconds = difference % (hoursGone * 1000 * 60 * 60) *  20000 / (hoursGone * 1000 * 60 * 60) ;
     }
     long totalSum = hoursSum + (leftMilliSeconds * costPerMinute) / 1000 / 60;
     if (totalSum > unlimCost) {
+      clientSession.setStopTime(System.currentTimeMillis());
       clientSession.setFinalSum(UserUtils.INSTANCE.getCurrentUser().getSettings().getUnlimitedCost());
       clientSessionService.unlimClientSession(currentDatePointValue, clientSession, UserUtils.INSTANCE.getCurrentUser().getSettings().isToShowRemoved(),
               UserUtils.INSTANCE.getCurrentUser().getSettings().isToShowPayed(), new AsyncCallback<List<ClientSession>>() {
