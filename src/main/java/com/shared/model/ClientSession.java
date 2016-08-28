@@ -38,7 +38,7 @@ public class ClientSession implements Serializable, IsSerializable, Comparable<C
 
   public enum SESSION_STATUS implements Serializable, IsSerializable {
     CREATED("Создана", "Старт"), STARTED("В процессе", "Стоп"), PAUSED("Приостановлена", "Возобновить"),
-    STOPPED("Остановлена", "Оплатить"), PAYED("Оплачена", "Оплачена"), REMOVED("Удалена", "Удалена");
+    STOPPED("Остановлена", "Оплатить"), STOPPED_UNLIMITED ("Безлимит", "Оплатить"), PAYED("Оплачена", "Оплачена"), REMOVED("Удалена", "Удалена");
     private String value;
     private String buttonText;
     private int order;

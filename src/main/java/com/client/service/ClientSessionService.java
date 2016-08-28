@@ -47,4 +47,6 @@ public interface ClientSessionService extends RemoteService {
     User login(String userName, String passwordTextBoxValue);
 
     List<ClientSession> startClientSession(DatePoint datePoint, ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed);
+
+    List<ClientSession> unlimClientSession(DatePoint currentDatePointValue, ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed);
 }

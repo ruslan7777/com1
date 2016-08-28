@@ -44,4 +44,6 @@ public interface ClientSessionServiceAsync {
     void login(String userName, String passwordTextBoxValue, AsyncCallback<User> asyncCallback);
 
     void startClientSession(DatePoint datePoint, ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed, AsyncCallback<List<ClientSession>> asyncCallback);
+
+    void unlimClientSession(DatePoint currentDatePointValue, ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed, AsyncCallback<List<ClientSession>> asyncCallback);
 }

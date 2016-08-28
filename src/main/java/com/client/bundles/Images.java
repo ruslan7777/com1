@@ -16,4 +16,7 @@ public interface Images extends ClientBundle {
    @Source("images/stopped.png")
    ImageResource stopped();
 
+ @Source("images/unlimited.gif")
+ ImageResource stopped_unlimited();
+
  }

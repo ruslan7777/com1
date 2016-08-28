@@ -100,7 +100,8 @@ public class ClientSessionGridPanel extends VerticalPanel {
                         continue;
                       }
                       if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.STOPPED ||
-                              clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.PAYED) {
+                              clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.PAYED ||
+                              clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.STOPPED_UNLIMITED) {
                         sum += clientSession.getFinalSum();
                         continue;
                       }
@@ -170,7 +171,8 @@ public class ClientSessionGridPanel extends VerticalPanel {
                         continue;
                       }
                       if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.STOPPED ||
-                              clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.PAYED) {
+                              clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.PAYED ||
+                              clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.STOPPED_UNLIMITED) {
                         sum += clientSession.getFinalSum();
                         continue;
                       }
@@ -394,8 +396,9 @@ public class ClientSessionGridPanel extends VerticalPanel {
               decoratedPopupPanel.show();
             }
           });
-        } else if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.STOPPED) {
-          clientSession.setStatus(ClientSession.SESSION_STATUS.PAYED);
+        } else if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.STOPPED ||
+                clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.PAYED) {
+          clientSession.setStatus(ClientSession.SESSION_STATUS.PAYED ) ;
           clientSessionService.payClientSession(currentDatePointValue, clientSession, UserUtils.INSTANCE.getCurrentUser().getSettings().isToShowRemoved(),
                   UserUtils.INSTANCE.getCurrentUser().getSettings().isToShowPayed(), new AsyncCallback<List<ClientSession>>() {
             @Override
@@ -448,7 +451,8 @@ public class ClientSessionGridPanel extends VerticalPanel {
                 clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.REMOVED) {
           return "0.00";
         } else if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.STOPPED ||
-                clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.PAYED) {
+                clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.PAYED ||
+                clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.STOPPED_UNLIMITED) {
           return getPrettyMoney(clientSession.getFinalSum());
         } else if (UserUtils.INSTANCE.getCurrentUser().getSettings().getCurrentCountStrategy() == SettingsHolder.countStrategy.HOUR_MINUTES){
           long startTimeInSeconds = getSeconds(clientSession.getStartTime());
@@ -497,6 +501,8 @@ public class ClientSessionGridPanel extends VerticalPanel {
       public ImageResource getValue(ClientSession clientSession) {
         if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.STARTED) {
           return Images.INSTANCE.progress();
+        } else if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.STOPPED_UNLIMITED) {
+          return Images.INSTANCE.stopped_unlimited();
         } else {
           return Images.INSTANCE.stopped();
         }
@@ -620,7 +626,8 @@ public class ClientSessionGridPanel extends VerticalPanel {
               continue;
             }
           if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.STOPPED ||
-                  clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.PAYED) {
+                  clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.PAYED ||
+                  clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.STOPPED_UNLIMITED) {
             sum += clientSession.getFinalSum();
             continue;
           }
@@ -734,11 +741,33 @@ public class ClientSessionGridPanel extends VerticalPanel {
     if (hoursGone < 2) {
       leftMilliSeconds = difference;
     } else {
-      leftMilliSeconds = difference % (hoursGone * 1000 * 60 * 60);
+      leftMilliSeconds = difference % (hourLength * hoursGone);
 //      leftMilliSeconds = difference % (hoursGone * 1000 * 60 * 60) *  20000 / (hoursGone * 1000 * 60 * 60) ;
     }
     long totalSum = hoursSum + (leftMilliSeconds * costPerMinute) / 1000 / 60;
     if (totalSum > unlimCost) {
+      clientSession.setFinalSum(UserUtils.INSTANCE.getCurrentUser().getSettings().getUnlimitedCost());
+      clientSessionService.unlimClientSession(currentDatePointValue, clientSession, UserUtils.INSTANCE.getCurrentUser().getSettings().isToShowRemoved(),
+              UserUtils.INSTANCE.getCurrentUser().getSettings().isToShowPayed(), new AsyncCallback<List<ClientSession>>() {
+                @Override
+                public void onFailure(Throwable caught) {
+
+                }
+
+                @Override
+                public void onSuccess(List<ClientSession> result) {
+                  listDataProvider.getList().clear();
+                  listDataProvider.getList().addAll(result);
+                  listDataProvider.refresh();
+                  clientSessionDataGrid.setVisibleRange(0, listDataProvider.getList().size());
+                  DecoratedPopupPanel decoratedPopupPanel = new DecoratedPopupPanel();
+                  decoratedPopupPanel.center();
+                  decoratedPopupPanel.setAutoHideEnabled(true);
+//              decoratedPopupPanel.setWidget(new HTML(result + "is stopped"));
+                  decoratedPopupPanel.show();
+                }
+              }
+      );
       return -1;
     }
     return totalSum;
@@ -944,7 +973,8 @@ public class ClientSessionGridPanel extends VerticalPanel {
             continue;
           }
           if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.STOPPED ||
-                  clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.PAYED) {
+                  clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.PAYED ||
+                  clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.STOPPED_UNLIMITED) {
             sum += clientSession.getFinalSum();
             continue;
           }

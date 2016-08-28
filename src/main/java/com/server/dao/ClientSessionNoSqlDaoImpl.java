@@ -109,4 +109,9 @@ public class ClientSessionNoSqlDaoImpl implements ClientSessionDao{
     public List<ClientSession> startClientSession(DatePoint datePoint, ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed) {
         return new ArrayList<>();
     }
+
+    @Override
+    public List<ClientSession> unlimClientSession(DatePoint currentDatePointValue, ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed) {
+        return null;
+    }
 }

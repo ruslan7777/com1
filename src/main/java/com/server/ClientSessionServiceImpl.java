@@ -99,4 +99,9 @@ public class ClientSessionServiceImpl extends RemoteServiceServlet implements Cl
     public List<ClientSession> startClientSession(DatePoint datePoint, ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed) {
         return clientSessionDao.startClientSession(datePoint, clientSession, toShowRemoved, toShowPayed);
     }
+
+    @Override
+    public List<ClientSession> unlimClientSession(DatePoint currentDatePointValue, ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed) {
+        return clientSessionDao.unlimClientSession(currentDatePointValue, clientSession, toShowRemoved, toShowPayed);
+    }
 }

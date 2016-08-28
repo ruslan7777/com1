@@ -278,6 +278,15 @@ public class ClientSessionMemoryDaoImpl implements ClientSessionDao{
         return getClientSessionsList(datePoint, UserUtils.INSTANCE.getCurrentUser(), toShowRemoved, toShowPayed);
     }
 
+    @Override
+    public List<ClientSession> unlimClientSession(DatePoint currentDatePointValue, ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed) {
+        ClientSession session = this.clientSessionMap.get(clientSession.getId());
+        session.setStatus(ClientSession.SESSION_STATUS.STOPPED_UNLIMITED);
+        session.setStopTime(clientSession.getStopTime());
+        session.setFinalSum(clientSession.getFinalSum());
+        return getClientSessionsList(currentDatePointValue, UserUtils.INSTANCE.getCurrentUser(), toShowRemoved, toShowPayed);
+    }
+
     private long getMaxId() {
         long maxId = 0;
         for (Long key : clientSessionMap.keySet()) {
