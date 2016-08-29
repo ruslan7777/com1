@@ -12,6 +12,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.TextBox;
+import com.google.gwt.user.client.ui.ValueBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.shared.model.ClientSession;
@@ -30,7 +31,19 @@ import java.util.Map;
 public class MoreLessUnlimWidget extends ScrollPanel {
   private Map<Long, MoreLessUnlimModel> hourCostModelMap;
   private final TextBox costPerMinuteTextBox = new AntiTextBox();
-  final TextBox unlimCostTextBox = new AntiTextBox();
+  final TextBox unlimCostTextBox = new AntiTextBox() {
+    @Override
+    public void setValue(String value) {
+      super.setValue(new BigDecimal(value).divide(new BigDecimal("100")).setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+    }
+
+    @Override
+    public String getValue() {
+      String superValue = super.getValue();
+      long value = new BigDecimal(superValue).multiply(new BigDecimal("100")).longValue();
+      return String.valueOf(value);
+    }
+  };
   private VerticalPanel hoursCostsPanel;
   final Button addHourButton = new Button("Добавить стоимость");
 
@@ -45,9 +58,9 @@ public class MoreLessUnlimWidget extends ScrollPanel {
     hoursCostsPanel.setSize("400px", "150px");
     hoursCostsPanel.setSpacing(5);
     mainPanel.add(hoursCostsPanel);
-    mainPanel.add(new Label("Стоимость минуты: "));
+    mainPanel.add(new Label("Стоимость минуты, коп.: "));
     mainPanel.add(costPerMinuteTextBox);
-    mainPanel.add(new Label("Стоимость безлимита: "));
+    mainPanel.add(new Label("Стоимость безлимита, руб.: "));
     mainPanel.add(unlimCostTextBox);
     setAddButtonEnabled(addHourButton);
     addHourButton.addClickHandler(new ClickHandler() {

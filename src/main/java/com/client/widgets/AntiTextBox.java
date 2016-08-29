@@ -1,5 +1,6 @@
 package com.client.widgets;
 
+import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.dom.client.KeyDownHandler;
 import com.google.gwt.event.dom.client.KeyPressEvent;
@@ -13,7 +14,8 @@ import java.util.List;
  * Created by dmitry on 22.08.16.
  */
 public class AntiTextBox extends TextBox {
-  List<Integer> permittedChars = Arrays.asList(48, 49, 50, 51, 52, 53, 54, 55, 56, 57);
+  List<Integer> permittedChars = Arrays.asList(48, 49, 50, 51, 52, 53, 54, 55, 56, 57, KeyCodes.KEY_BACKSPACE,
+          KeyCodes.KEY_DELETE, KeyCodes.KEY_LEFT, KeyCodes.KEY_RIGHT, KeyCodes.KEY_NUM_PERIOD);
   public AntiTextBox() {
     addKeyDownHandler(new KeyDownHandler() {
       @Override
@@ -21,7 +23,7 @@ public class AntiTextBox extends TextBox {
         int enteredChar = event.getNativeKeyCode();
         if (!permittedChars.contains(enteredChar)) {
           // show some error
-          return;
+          event.preventDefault();
         }
       }
     });

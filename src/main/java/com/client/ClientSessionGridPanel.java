@@ -94,37 +94,9 @@ public class ClientSessionGridPanel extends VerticalPanel {
                     listDataProvider.getList().addAll(result);
                     listDataProvider.refresh();
                     clientSessionDataGrid.setVisibleRange(0, listDataProvider.getList().size());
-                    long sum = 0l;
-                    for (ClientSession clientSession : result) {
-                      if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.REMOVED) {
-                        continue;
-                      }
-                      if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.STOPPED ||
-                              clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.PAYED ||
-                              clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.STOPPED_UNLIMITED) {
-                        sum += clientSession.getFinalSum();
-                        continue;
-                      }
-                      long timeDifferenceLength;
-                      if (clientSession.getStopTime() == 0) {
-                        timeDifferenceLength = System.currentTimeMillis() - clientSession.getStartTime();
-                      } else {
-                        timeDifferenceLength = clientSession.getStopTime() - clientSession.getStartTime();
-                      }
-                      long timeDifferenceLengthInSeconds = getSeconds(timeDifferenceLength);
-                      if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.CREATED) {
-                        sum += 0;
-                      } else {
-                        if (timeDifferenceLengthInSeconds <= getSeconds(firstPartTimeLength)) {
-                          sum += firstPartSumAmount;
-                        } else {
-                          long totalSum = firstPartSumAmount + 50 * (timeDifferenceLength - firstPartTimeLength) / 1000 / 60;
-                          sum += totalSum;
-                        }
-                      }
-                    }
+
                     UpdateSumEvent updateSumEvent = new UpdateSumEvent();
-                    updateSumEvent.setSum(sum);
+                    updateSumEvent.setSum(getSum(result));
                     eventBus.fireEvent(updateSumEvent);
                   }
                 });
@@ -316,7 +288,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
       }
     }));
 
-    Column startTimeColumn = new Column<ClientSession, String>(new TextCell()) {
+    Column<ClientSession, String> startTimeColumn = new Column<ClientSession, String>(new TextCell()) {
       @Override
       public String getValue(ClientSession object) {
         DateTimeFormat dateTimeFormat = DateTimeFormat.getFormat("dd-MM-yyyy HH:mm");
@@ -325,7 +297,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
       }
     };
 
-    clientSessionDataGrid.addColumn(startTimeColumn);
+    clientSessionDataGrid.addColumn(startTimeColumn, new TextHeader("Время начала"));
 
     manageButtonsColumn = new Column<ClientSession, String>(stringButtonCellBase) {
       @Override
@@ -368,14 +340,13 @@ public class ClientSessionGridPanel extends VerticalPanel {
         } else if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.STARTED) {
           clientSession.setStopTime(System.currentTimeMillis());
           clientSession.setStatus(ClientSession.SESSION_STATUS.STOPPED);
-          long timeDifferenceLength = System.currentTimeMillis() - clientSession.getStartTime();
-          long timeDifferenceLengthInSeconds = getSeconds(timeDifferenceLength);
-            if (timeDifferenceLengthInSeconds <= getSeconds(firstPartTimeLength)) {
-              clientSession.setFinalSum(firstPartSumAmount);
-            } else {
-              long totalSum = firstPartSumAmount + 50 * (timeDifferenceLength - firstPartTimeLength) / 1000 / 60;
-              clientSession.setFinalSum(totalSum);
-            }
+          long finalSum = 0;
+          if (SettingsHolder.countStrategy.MULTI_HOURS == UserUtils.INSTANCE.getCurrentUser().getSettings().getCurrentCountStrategy()) {
+            finalSum = getMultiHoursSum(0, clientSession);
+          } else if(SettingsHolder.countStrategy.MULTI_HOURS == UserUtils.INSTANCE.getCurrentUser().getSettings().getCurrentCountStrategy()) {
+            finalSum = getHourMinutestSum(0, clientSession, false);
+          }
+          clientSession.setFinalSum(((finalSum + 99) / 100 ) * 100);
           clientSessionService.stopClientSession(currentDatePointValue, clientSession, UserUtils.INSTANCE.getCurrentUser().getSettings().isToShowRemoved(),
                   UserUtils.INSTANCE.getCurrentUser().getSettings().isToShowPayed(), new AsyncCallback<List<ClientSession>>() {
             @Override
@@ -397,7 +368,6 @@ public class ClientSessionGridPanel extends VerticalPanel {
             }
           });
         } else if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.STOPPED ||
-                clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.PAYED ||
                 clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.STOPPED_UNLIMITED) {
           clientSession.setStatus(ClientSession.SESSION_STATUS.PAYED ) ;
           clientSessionService.payClientSession(currentDatePointValue, clientSession, UserUtils.INSTANCE.getCurrentUser().getSettings().isToShowRemoved(),
@@ -417,13 +387,13 @@ public class ClientSessionGridPanel extends VerticalPanel {
               DecoratedPopupPanel decoratedPopupPanel = new DecoratedPopupPanel();
               decoratedPopupPanel.center();
               decoratedPopupPanel.setAutoHideEnabled(true);
-              decoratedPopupPanel.setWidget(new HTML(result + "Оплачена"));
+              decoratedPopupPanel.setWidget(new HTML(clientSession.getSessionPseudoName() + "Оплачена"));
               decoratedPopupPanel.show();
             }
           });
-        } else if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.REMOVED) {
+        } else if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.REMOVED ||
+                clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.PAYED) {
         }
-
       }
     });
     clientSessionDataGrid.addColumn(manageButtonsColumn, new TextHeader("Управление"));
@@ -465,7 +435,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
           } else {
             timeDifferenceLength = clientSession.getStopTime() - startTimeInSeconds;
           }
-          totalSum = getHourMinutestSum(0, clientSession, timeDifferenceLength, false);
+          totalSum = getHourMinutestSum(0, clientSession, false);
         } else if (UserUtils.INSTANCE.getCurrentUser().getSettings().getCurrentCountStrategy() == SettingsHolder.countStrategy.MULTI_HOURS) {
           totalSum = getMultiHoursSum(0, clientSession);
         }
@@ -684,14 +654,15 @@ public class ClientSessionGridPanel extends VerticalPanel {
     if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.CREATED) {
       sum += 0;
     } else if (UserUtils.INSTANCE.getCurrentUser().getSettings().getCurrentCountStrategy() == SettingsHolder.countStrategy.HOUR_MINUTES) {
-      sum = getHourMinutestSum(sum, clientSession, timeDifferenceLength, isSessionOver);
+      sum = getHourMinutestSum(sum, clientSession, isSessionOver);
     } else if (UserUtils.INSTANCE.getCurrentUser().getSettings().getCurrentCountStrategy() == SettingsHolder.countStrategy.MULTI_HOURS) {
       sum = getMultiHoursSum(sum, clientSession);
     }
     return sum;
   }
 
-  private long getHourMinutestSum(long sum, ClientSession clientSession, long timeDifferenceLength, boolean isSessionOver) {
+  private long getHourMinutestSum(long sum, ClientSession clientSession, boolean isSessionOver) {
+    long timeDifferenceLength = System.currentTimeMillis() - clientSession.getStartTime();
     long timeDifferenceLengthInSeconds = getSeconds(timeDifferenceLength);
     if (timeDifferenceLengthInSeconds <= getSeconds(firstPartTimeLength)) {
       sum += firstPartSumAmount;
@@ -722,22 +693,24 @@ public class ClientSessionGridPanel extends VerticalPanel {
 
   private long getMultiHoursSum(long sum, ClientSession clientSession) {
     List<MoreLessUnlimModel> moreLessUnlimModels = UserUtils.INSTANCE.getCurrentUser().getSettings().getOrderedMoreLessUnlimModels();
-    Long hourLength = 20000l;
+    Long hourLength = 1000 * 60 * 60l;
 
     long hoursSum = 0;
     long costPerMinute = 0;
     long unlimCost = 0;
     long hoursSet = 0;
+    MoreLessUnlimModel moreLessUnlimModel = null;
     if (!moreLessUnlimModels.isEmpty()) {
-      costPerMinute = moreLessUnlimModels.get(0).getCostPerMinute();
-      unlimCost = moreLessUnlimModels.get(0).getUnlimCost();
+      moreLessUnlimModel = moreLessUnlimModels.get(0);
+      costPerMinute = moreLessUnlimModel.getCostPerMinute();
+      unlimCost = moreLessUnlimModel.getUnlimCost();
     }
     long difference = System.currentTimeMillis() - clientSession.getStartTime();
     long hoursGone = (System.currentTimeMillis() - clientSession.getStartTime())/hourLength;
-    for (MoreLessUnlimModel moreLessUnlimModel : moreLessUnlimModels) {
-      if (hoursGone >= moreLessUnlimModel.getNumberOfHours()) {
-        hoursSet = moreLessUnlimModel.getNumberOfHours();
-        hoursSum = moreLessUnlimModel.getCostForHours();
+    for (MoreLessUnlimModel model : moreLessUnlimModels) {
+      if (hoursGone >= model.getNumberOfHours()) {
+        hoursSet = model.getNumberOfHours();
+        hoursSum = model.getCostForHours();
       }
     }
     long leftMilliSeconds = 0;
@@ -750,7 +723,9 @@ public class ClientSessionGridPanel extends VerticalPanel {
     long totalSum = hoursSum + (leftMilliSeconds * costPerMinute) / 1000 / 60;
     if (totalSum > unlimCost) {
       clientSession.setStopTime(System.currentTimeMillis());
-      clientSession.setFinalSum(UserUtils.INSTANCE.getCurrentUser().getSettings().getUnlimitedCost());
+      if (moreLessUnlimModel != null) {
+        clientSession.setFinalSum(moreLessUnlimModel.getUnlimCost());
+      }
       clientSessionService.unlimClientSession(currentDatePointValue, clientSession, UserUtils.INSTANCE.getCurrentUser().getSettings().isToShowRemoved(),
               UserUtils.INSTANCE.getCurrentUser().getSettings().isToShowPayed(), new AsyncCallback<List<ClientSession>>() {
                 @Override
@@ -971,35 +946,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
       String ageStr = "";
       List<ClientSession> items = clientSessionDataGrid.getVisibleItems();
       if (items.size() > 0) {
-        int sum = 0;
-        for (ClientSession clientSession : items) {
-          if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.REMOVED) {
-            continue;
-          }
-          if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.STOPPED ||
-                  clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.PAYED ||
-                  clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.STOPPED_UNLIMITED) {
-            sum += clientSession.getFinalSum();
-            continue;
-          }
-          long timeDifferenceLength;
-          if (clientSession.getStopTime() == 0) {
-            timeDifferenceLength = System.currentTimeMillis() - clientSession.getStartTime();
-          } else {
-            timeDifferenceLength = clientSession.getStopTime() - clientSession.getStartTime();
-          }
-          long timeDifferenceLengthInSeconds = getSeconds(timeDifferenceLength);
-          if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.CREATED) {
-            sum += 0;
-          } else {
-            if (timeDifferenceLengthInSeconds <= getSeconds(firstPartTimeLength)) {
-              sum += firstPartSumAmount;
-            } else {
-              long totalSum = firstPartSumAmount + 50 * (timeDifferenceLength - firstPartTimeLength) / 1000 / 60;
-              sum += totalSum;
-            }
-          }
-        }
+        int sum = getSum(items);
         ageStr = "Итого: " + getPrettyMoney(sum);
       }
 
@@ -1020,6 +967,27 @@ public class ClientSessionGridPanel extends VerticalPanel {
 
       return true;
     }
+  }
+
+  private int getSum(List<ClientSession> items) {
+    int sum = 0;
+    for (ClientSession clientSession : items) {
+      if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.REMOVED) {
+        continue;
+      }
+      if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.STOPPED ||
+              clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.PAYED ||
+              clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.STOPPED_UNLIMITED) {
+        sum += clientSession.getFinalSum();
+        continue;
+      }
+      if (UserUtils.INSTANCE.getCurrentUser().getSettings().getCurrentCountStrategy() == SettingsHolder.countStrategy.MULTI_HOURS){
+        sum += getMultiHoursSum(0, clientSession);
+      } else if (UserUtils.INSTANCE.getCurrentUser().getSettings().getCurrentCountStrategy() == SettingsHolder.countStrategy.HOUR_MINUTES){
+        sum += getHourMinutestSum(0, clientSession, false);
+      }
+    }
+    return sum;
   }
 
 }

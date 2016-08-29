@@ -21,7 +21,8 @@
     <tomcat.webport>8082</tomcat.webport>
     <tomcat.ajpport>8182</tomcat.ajpport>
     <tomcat.context>/anticafe</tomcat.context>
-      <guava.version>18.0</guava.version>
+      <guava.gwt.version>18.0</guava.gwt.version>
+      <guava.version>19.0</guava.version>
   </properties>
 
   <dependencyManagement>
@@ -96,7 +97,7 @@
       <dependency>
           <groupId>com.google.guava</groupId>
           <artifactId>guava-gwt</artifactId>
-          <version>${guava.version}</version>
+          <version>${guava.gwt.version}</version>
       </dependency>
       <!--<dependency>-->
           <!--<groupId>com.google.guava</groupId>-->
