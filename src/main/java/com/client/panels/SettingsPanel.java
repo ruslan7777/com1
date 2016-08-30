@@ -256,12 +256,32 @@ public class SettingsPanel extends SplitLayoutPanel {
         saveButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                UserUtils.INSTANCE.getCurrentUser().getSettings().setFirstPartLength(Long.valueOf(firstPartLengthTextBox.getValue()));
-                UserUtils.INSTANCE.getCurrentUser().getSettings().setFirstPartSumAmount(Long.valueOf(firstPartSumAmountTextBox.getValue()));
-                UserUtils.INSTANCE.getCurrentUser().getSettings().setMaxSessionLength(Long.valueOf(maxSessionLengthTextBox.getValue()));
+//                UserUtils.INSTANCE.getCurrentUser().getSettings().setFirstPartLength(Long.valueOf(firstPartLengthTextBox.getValue()));
+//                UserUtils.INSTANCE.getCurrentUser().getSettings().setFirstPartSumAmount(Long.valueOf(firstPartSumAmountTextBox.getValue()));
+//                UserUtils.INSTANCE.getCurrentUser().getSettings().setMaxSessionLength(Long.valueOf(maxSessionLengthTextBox.getValue()));
 //                UserUtils.INSTANCE.getCurrentUser().getSettings().setUnlimitedCost(Long.valueOf(hourSettingsWidget.getUnlimCostTextBox().getValue()));
-                UserUtils.INSTANCE.getCurrentUser().getSettings().setHourCostModelMap(hourCostModelMap);
-                UserUtils.INSTANCE.getCurrentUser().getSettings().setMoreLessUnlimModelMap(moreLessUnlimWidget.getSettings());
+                UserUtils.INSTANCE.setHourCostModelMap(hourCostModelMap);
+                if (!moreLessUnlimWidget.validate()) {
+                    DecoratedPopupPanel decoratedPopupPanel = new DecoratedPopupPanel();
+                    decoratedPopupPanel.center();
+                    decoratedPopupPanel.setAutoHideEnabled(true);
+                    decoratedPopupPanel.setWidget(new HTML("Не все поля заполнены"));
+                    decoratedPopupPanel.show();
+                    event.preventDefault();
+                    event.stopPropagation();
+                    return;
+                }
+                if(!moreLessUnlimWidget.validateOrder()) {
+                    DecoratedPopupPanel decoratedPopupPanel = new DecoratedPopupPanel();
+                    decoratedPopupPanel.center();
+                    decoratedPopupPanel.setAutoHideEnabled(true);
+                    decoratedPopupPanel.setWidget(new HTML("Количество часов указано не верно. Каждый последующий должен быть больше предыдущего"));
+                    decoratedPopupPanel.show();
+                    event.preventDefault();
+                    event.stopPropagation();
+                    return;
+                }
+                UserUtils.INSTANCE.setMoreLessUnlimModelMap(moreLessUnlimWidget.getSettings());
 
                 clientSessionService.saveUser(UserUtils.INSTANCE.getCurrentUser(), new AsyncCallback<User>() {
                     @Override
@@ -275,7 +295,7 @@ public class SettingsPanel extends SplitLayoutPanel {
                         DecoratedPopupPanel decoratedPopupPanel = new DecoratedPopupPanel();
                         decoratedPopupPanel.center();
                         decoratedPopupPanel.setAutoHideEnabled(true);
-                        decoratedPopupPanel.setWidget(new HTML(result.getUserName() + " обновлен"));
+                        decoratedPopupPanel.setWidget(new HTML("Настройки системы подсчета обновлены"));
                         decoratedPopupPanel.show();
                     }
                 });
@@ -303,12 +323,12 @@ public class SettingsPanel extends SplitLayoutPanel {
                             @Override
                             public void onSuccess(User result) {
                                 UserUtils.INSTANCE.setCurrentUser(result);
-                                firstPartLengthTextBox.setValue(String.valueOf(result.getSettings().getFirstPartLength()));
-                                firstPartSumAmountTextBox.setValue(String.valueOf(result.getSettings().getFirstPartSumAmount()));
-                                maxSessionLengthTextBox.setValue(result.getSettings().getMaxSessionLength() == null ? "0" : String.valueOf(result.getSettings().getMaxSessionLength()));
-                                SettingsHolder settings = UserUtils.INSTANCE.getCurrentUser().getSettings();
+//                                firstPartLengthTextBox.setValue(String.valueOf(UserUtils.INSTANCE.getCurrentUser().getSgetFirstPartLength()));
+//                                firstPartSumAmountTextBox.setValue(String.valueOf(result.getSettings().getFirstPartSumAmount()));
+//                                maxSessionLengthTextBox.setValue(result.getSettings().getMaxSessionLength() == null ? "0" : String.valueOf(result.getSettings().getMaxSessionLength()));
+                                SettingsHolder settings = UserUtils.INSTANCE.getSettings();
                                 if (settings.getCurrentCountStrategy() == SettingsHolder.countStrategy.MULTI_HOURS) {
-                                    moreLessUnlimWidget.showSettings(settings.getOrderedMoreLessUnlimModels());
+                                    moreLessUnlimWidget.showSettings(UserUtils.INSTANCE.getOrderedMoreLessUnlimModels());
                                 }
 // Map<Long, HourCostModel> longHourCostModelMap = result.getSettings().getHourCostModelMap();
 //                                if (longHourCostModelMap != null) {
@@ -325,9 +345,9 @@ public class SettingsPanel extends SplitLayoutPanel {
             }
         });
 
-        firstPartLengthTextBox.setValue(String.valueOf(UserUtils.INSTANCE.getCurrentUser().getSettings().getFirstPartLength()));
-        firstPartSumAmountTextBox.setValue(String.valueOf(UserUtils.INSTANCE.getCurrentUser().getSettings().getFirstPartSumAmount()));
-        maxSessionLengthTextBox.setValue(String.valueOf(UserUtils.INSTANCE.getCurrentUser().getSettings().getMaxSessionLength()));
+//        firstPartLengthTextBox.setValue(String.valueOf(UserUtils.INSTANCE.getCurrentUser().getSettings().getFirstPartLength()));
+//        firstPartSumAmountTextBox.setValue(String.valueOf(UserUtils.INSTANCE.getCurrentUser().getSettings().getFirstPartSumAmount()));
+//        maxSessionLengthTextBox.setValue(String.valueOf(UserUtils.INSTANCE.getCurrentUser().getSettings().getMaxSessionLength()));
     }
 
 }

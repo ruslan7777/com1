@@ -100,7 +100,7 @@ public class MainTabPanel extends TabLayoutPanel {
     showRemovedButton.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
       @Override
       public void onValueChange(ValueChangeEvent<Boolean> event) {
-        UserUtils.INSTANCE.getCurrentUser().getSettings().setIsToShowRemoved(event.getValue());
+        UserUtils.getSettings().setIsToShowRemoved(event.getValue());
         ToggleShowRemovedEvent toggleShowRemovedEvent = new ToggleShowRemovedEvent();
         toggleShowRemovedEvent.setIsShowRemovedOn(event.getValue());
         toggleShowRemovedEvent.setIsShowPayedCurrentState(showPayedButton.getValue());
@@ -109,7 +109,7 @@ public class MainTabPanel extends TabLayoutPanel {
     });
     showRemovedButton.setWidth("230px");
     showRemovedButton.setHeight("40px");
-    showRemovedButton.setDown(UserUtils.INSTANCE.getCurrentUser().getSettings().isToShowRemoved());
+    showRemovedButton.setDown(UserUtils.getSettings().isToShowRemoved());
     VerticalPanel eastButtonsPanel = new VerticalPanel();
 
     Button addButton = new Button("Добавить сессию");
@@ -140,7 +140,7 @@ public class MainTabPanel extends TabLayoutPanel {
     showPayedButton.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
       @Override
       public void onValueChange(ValueChangeEvent<Boolean> event) {
-        UserUtils.INSTANCE.getCurrentUser().getSettings().setIsToShowPayed(event.getValue());
+        UserUtils.getSettings().setIsToShowPayed(event.getValue());
         ToggleShowPayedEvent toggleShowPayedEvent = new ToggleShowPayedEvent();
         toggleShowPayedEvent.setIsShowPayedOn(event.getValue());
         toggleShowPayedEvent.setIsShowRemovedCurrentState(showRemovedButton.getValue());
@@ -149,7 +149,7 @@ public class MainTabPanel extends TabLayoutPanel {
     });
     showPayedButton.setWidth("230px");
     showPayedButton.setHeight("40px");
-    showPayedButton.setDown(UserUtils.INSTANCE.getCurrentUser().getSettings().isToShowPayed());
+    showPayedButton.setDown(UserUtils.getSettings().isToShowPayed());
     eastButtonsPanel.add(html);
     eastButtonsPanel.add(showPayedButton);
 

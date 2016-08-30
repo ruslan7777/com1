@@ -18,14 +18,14 @@ public class ClientSession implements Serializable, IsSerializable, Comparable<C
   private long startTime;
   private long stopTime;
   private long finalSum;
-  private SessionPseudoName sessionPseudoName;
+  private String sessionPseudoName;
   private SESSION_STATUS status = SESSION_STATUS.CREATED;
-    private User user;
+    private long userId;
 
-  public ClientSession(long startTime, long stopTime, User user) {
+  public ClientSession(long startTime, long stopTime, long userId) {
     this.startTime = startTime;
     this.stopTime = stopTime;
-      this.user = user;
+      this.userId = userId;
   }
 
   public ClientSession() {
@@ -113,19 +113,19 @@ public class ClientSession implements Serializable, IsSerializable, Comparable<C
     this.finalSum = finalSum;
   }
 
-  public SessionPseudoName getSessionPseudoName() {
+  public String getSessionPseudoName() {
     return sessionPseudoName;
   }
 
-  public void setSessionPseudoName(SessionPseudoName sessionPseudoName) {
+  public void setSessionPseudoName(String sessionPseudoName) {
     this.sessionPseudoName = sessionPseudoName;
   }
 
-    public User getUser() {
-        return user;
-    }
+  public long getUserId() {
+    return userId;
+  }
 
-    public void setUser(User user) {
-        this.user = user;
-    }
+  public void setUserId(long userId) {
+    this.userId = userId;
+  }
 }

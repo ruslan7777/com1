@@ -74,15 +74,15 @@ public class ClientSessionGridPanel extends VerticalPanel {
   public ClientSessionGridPanel(final SimpleEventBus eventBus) {
     this.simpleEventBus = eventBus;
     clientSessionDataGrid.setFooterBuilder(new CustomFooterBuilder());
-    firstPartTimeLength = UserUtils.INSTANCE.getCurrentUser().getSettings().getFirstPartLength();
-    firstPartSumAmount = UserUtils.INSTANCE.getCurrentUser().getSettings().getFirstPartSumAmount();
+    firstPartTimeLength = UserUtils.getSettings().getFirstPartLength();
+    firstPartSumAmount = UserUtils.getSettings().getFirstPartSumAmount();
     simpleEventBus.addHandler(ChangeDatePointEvent.TYPE, new ChangeDatePointEventHandler() {
       @Override
       public void changeDatePoint(ChangeDatePointEvent changeDatePointEvent) {
         currentDatePointValue = changeDatePointEvent.getDatePoint();
         clientSessionService.getClientSessions(currentDatePointValue, UserUtils.INSTANCE.getCurrentUser(),
-                UserUtils.INSTANCE.getCurrentUser().getSettings().isToShowRemoved(),
-                UserUtils.INSTANCE.getCurrentUser().getSettings().isToShowPayed(), new AsyncCallback<List<ClientSession>>() {
+                UserUtils.getSettings().isToShowRemoved(),
+                UserUtils.getSettings().isToShowPayed(), new AsyncCallback<List<ClientSession>>() {
                   @Override
                   public void onFailure(Throwable caught) {
 
@@ -212,10 +212,10 @@ public class ClientSessionGridPanel extends VerticalPanel {
       public void addClientSession(AddSessionEvent addSessionEvent) {
         final ClientSession clientSession = new ClientSession();
         final SessionPseudoName sessionPseudoName = new SessionPseudoName(addSessionEvent.getClientPseudoName());
-        clientSession.setSessionPseudoName(sessionPseudoName);
+        clientSession.setSessionPseudoName(sessionPseudoName.getName());
         clientSession.setCreationTime(System.currentTimeMillis());
-        clientSessionService.saveClientSession(currentDatePointValue, clientSession, UserUtils.INSTANCE.getCurrentUser().getSettings().isToShowRemoved(),
-                UserUtils.INSTANCE.getCurrentUser().getSettings().isToShowPayed(), new AsyncCallback<List<ClientSession>>() {
+        clientSessionService.saveClientSession(currentDatePointValue, clientSession, UserUtils.getSettings().isToShowRemoved(),
+                UserUtils.getSettings().isToShowPayed(), new AsyncCallback<List<ClientSession>>() {
           @Override
           public void onFailure(Throwable caught) {
 
@@ -239,7 +239,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
     Column<ClientSession, String> pseudoNameColumn = new Column<ClientSession, String>(new TextCell()) {
       @Override
       public String getValue(ClientSession object) {
-        return object.getSessionPseudoName().getName();
+        return object.getSessionPseudoName();
       }
     };
     clientSessionDataGrid.setColumnWidth(pseudoNameColumn, 200, Style.Unit.PX);
@@ -297,7 +297,25 @@ public class ClientSessionGridPanel extends VerticalPanel {
       }
     };
 
-    clientSessionDataGrid.addColumn(startTimeColumn, new TextHeader("Время начала"));
+    clientSessionDataGrid.addColumn(startTimeColumn, new TextHeader("Начало"));
+
+    Column<ClientSession, String> stopTimeColumn = new Column<ClientSession, String>(new TextCell()) {
+      @Override
+      public void render(Cell.Context context, ClientSession object, SafeHtmlBuilder sb) {
+        if (object.getStopTime() != 0) {
+          super.render(context, object, sb);
+        }
+      }
+
+      @Override
+      public String getValue(ClientSession object) {
+        DateTimeFormat dateTimeFormat = DateTimeFormat.getFormat("dd-MM-yyyy HH:mm");
+        Long startTime = object.getStopTime();
+        return dateTimeFormat.format(new Date(startTime));
+      }
+    };
+
+    clientSessionDataGrid.addColumn(stopTimeColumn, new TextHeader("Конец"));
 
     manageButtonsColumn = new Column<ClientSession, String>(stringButtonCellBase) {
       @Override
@@ -317,8 +335,8 @@ public class ClientSessionGridPanel extends VerticalPanel {
           clientSession.setStartTime(System.currentTimeMillis());
           clientSession.setStatus(ClientSession.SESSION_STATUS.STARTED);
           clientSession.setFinalSum(firstPartSumAmount);
-          clientSessionService.startClientSession(currentDatePointValue, clientSession, UserUtils.INSTANCE.getCurrentUser().getSettings().isToShowRemoved(),
-                  UserUtils.INSTANCE.getCurrentUser().getSettings().isToShowPayed(), new AsyncCallback<List<ClientSession>>() {
+          clientSessionService.startClientSession(currentDatePointValue, clientSession, UserUtils.getSettings().isToShowRemoved(),
+                  UserUtils.getSettings().isToShowPayed(), new AsyncCallback<List<ClientSession>>() {
             @Override
             public void onFailure(Throwable caught) {
 
@@ -333,7 +351,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
               DecoratedPopupPanel decoratedPopupPanel = new DecoratedPopupPanel();
               decoratedPopupPanel.center();
               decoratedPopupPanel.setAutoHideEnabled(true);
-              decoratedPopupPanel.setWidget(new HTML(clientSession.getSessionPseudoName().getName() + " стартовал"));
+              decoratedPopupPanel.setWidget(new HTML(clientSession.getSessionPseudoName() + " стартовал"));
               decoratedPopupPanel.show();
             }
           });
@@ -341,14 +359,14 @@ public class ClientSessionGridPanel extends VerticalPanel {
           clientSession.setStopTime(System.currentTimeMillis());
           clientSession.setStatus(ClientSession.SESSION_STATUS.STOPPED);
           long finalSum = 0;
-          if (SettingsHolder.countStrategy.MULTI_HOURS == UserUtils.INSTANCE.getCurrentUser().getSettings().getCurrentCountStrategy()) {
+          if (SettingsHolder.countStrategy.MULTI_HOURS == UserUtils.getSettings().getCurrentCountStrategy()) {
             finalSum = getMultiHoursSum(0, clientSession);
-          } else if(SettingsHolder.countStrategy.MULTI_HOURS == UserUtils.INSTANCE.getCurrentUser().getSettings().getCurrentCountStrategy()) {
+          } else if(SettingsHolder.countStrategy.MULTI_HOURS == UserUtils.getSettings().getCurrentCountStrategy()) {
             finalSum = getHourMinutestSum(0, clientSession, false);
           }
           clientSession.setFinalSum(((finalSum + 99) / 100 ) * 100);
-          clientSessionService.stopClientSession(currentDatePointValue, clientSession, UserUtils.INSTANCE.getCurrentUser().getSettings().isToShowRemoved(),
-                  UserUtils.INSTANCE.getCurrentUser().getSettings().isToShowPayed(), new AsyncCallback<List<ClientSession>>() {
+          clientSessionService.stopClientSession(currentDatePointValue, clientSession, UserUtils.getSettings().isToShowRemoved(),
+                  UserUtils.getSettings().isToShowPayed(), new AsyncCallback<List<ClientSession>>() {
             @Override
             public void onFailure(Throwable caught) {
 
@@ -370,8 +388,8 @@ public class ClientSessionGridPanel extends VerticalPanel {
         } else if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.STOPPED ||
                 clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.STOPPED_UNLIMITED) {
           clientSession.setStatus(ClientSession.SESSION_STATUS.PAYED ) ;
-          clientSessionService.payClientSession(currentDatePointValue, clientSession, UserUtils.INSTANCE.getCurrentUser().getSettings().isToShowRemoved(),
-                  UserUtils.INSTANCE.getCurrentUser().getSettings().isToShowPayed(), new AsyncCallback<List<ClientSession>>() {
+          clientSessionService.payClientSession(currentDatePointValue, clientSession, UserUtils.getSettings().isToShowRemoved(),
+                  UserUtils.getSettings().isToShowPayed(), new AsyncCallback<List<ClientSession>>() {
             @Override
             public void onFailure(Throwable caught) {
 
@@ -425,18 +443,18 @@ public class ClientSessionGridPanel extends VerticalPanel {
                 clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.PAYED ||
                 clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.STOPPED_UNLIMITED) {
           return getPrettyMoney(clientSession.getFinalSum());
-        } else if (UserUtils.INSTANCE.getCurrentUser().getSettings().getCurrentCountStrategy() == SettingsHolder.countStrategy.HOUR_MINUTES){
+        } else if (UserUtils.getSettings().getCurrentCountStrategy() == SettingsHolder.countStrategy.HOUR_MINUTES){
           long startTimeInSeconds = getSeconds(clientSession.getStartTime());
           if (clientSession.getStopTime() == 0) {
             timeDifferenceLength = System.currentTimeMillis() - startTimeInSeconds;
-            if (UserUtils.INSTANCE.getCurrentUser().getSettings().getMaxSessionLength() > 0 &&
-                    timeDifferenceLength > UserUtils.INSTANCE.getCurrentUser().getSettings().getMaxSessionLength()) {
+            if (UserUtils.getSettings().getMaxSessionLength() > 0 &&
+                    timeDifferenceLength > UserUtils.getSettings().getMaxSessionLength()) {
             }
           } else {
             timeDifferenceLength = clientSession.getStopTime() - startTimeInSeconds;
           }
           totalSum = getHourMinutestSum(0, clientSession, false);
-        } else if (UserUtils.INSTANCE.getCurrentUser().getSettings().getCurrentCountStrategy() == SettingsHolder.countStrategy.MULTI_HOURS) {
+        } else if (UserUtils.getSettings().getCurrentCountStrategy() == SettingsHolder.countStrategy.MULTI_HOURS) {
           totalSum = getMultiHoursSum(0, clientSession);
         }
         return getPrettyMoney(totalSum);
@@ -514,8 +532,8 @@ public class ClientSessionGridPanel extends VerticalPanel {
       @Override
       public void update(final int index, final ClientSession clientSession, String value) {
 //        clientSession.setStatus(ClientSession.SESSION_STATUS.REMOVED);
-        clientSessionService.removeClientSession(currentDatePointValue, clientSession, UserUtils.INSTANCE.getCurrentUser().getSettings().isToShowRemoved(),
-                UserUtils.INSTANCE.getCurrentUser().getSettings().isToShowPayed(), new AsyncCallback<List<ClientSession>>() {
+        clientSessionService.removeClientSession(currentDatePointValue, clientSession, UserUtils.getSettings().isToShowRemoved(),
+                UserUtils.getSettings().isToShowPayed(), new AsyncCallback<List<ClientSession>>() {
           @Override
           public void onFailure(Throwable caught) {
 
@@ -612,8 +630,8 @@ public class ClientSessionGridPanel extends VerticalPanel {
 
     // Schedule the timer to run once every second, 1000 ms.
     t.scheduleRepeating(1000);
-    clientSessionService.getClientSessions(DatePoint.TODAY, UserUtils.INSTANCE.getCurrentUser(), UserUtils.INSTANCE.getCurrentUser().getSettings().isToShowRemoved(),
-            UserUtils.INSTANCE.getCurrentUser().getSettings().isToShowPayed(), new AsyncCallback<List<ClientSession>>() {
+    clientSessionService.getClientSessions(DatePoint.TODAY, UserUtils.INSTANCE.getCurrentUser(), UserUtils.getSettings().isToShowRemoved(),
+            UserUtils.getSettings().isToShowPayed(), new AsyncCallback<List<ClientSession>>() {
       @Override
       public void onFailure(Throwable throwable) {
         //To change body of implemented methods use File | Settings | File Templates.
@@ -644,8 +662,8 @@ public class ClientSessionGridPanel extends VerticalPanel {
     long startTimeInSeconds = getSeconds(clientSession.getStartTime());
     if (clientSession.getStopTime() == 0) {
       timeDifferenceLength = System.currentTimeMillis() - startTimeInSeconds;
-      if (UserUtils.INSTANCE.getCurrentUser().getSettings().getMaxSessionLength() > 0 &&
-              timeDifferenceLength > UserUtils.INSTANCE.getCurrentUser().getSettings().getMaxSessionLength()) {
+      if (UserUtils.getSettings().getMaxSessionLength() > 0 &&
+              timeDifferenceLength > UserUtils.getSettings().getMaxSessionLength()) {
         isSessionOver = true;
       }
     } else {
@@ -653,9 +671,9 @@ public class ClientSessionGridPanel extends VerticalPanel {
     }
     if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.CREATED) {
       sum += 0;
-    } else if (UserUtils.INSTANCE.getCurrentUser().getSettings().getCurrentCountStrategy() == SettingsHolder.countStrategy.HOUR_MINUTES) {
+    } else if (UserUtils.getSettings().getCurrentCountStrategy() == SettingsHolder.countStrategy.HOUR_MINUTES) {
       sum = getHourMinutestSum(sum, clientSession, isSessionOver);
-    } else if (UserUtils.INSTANCE.getCurrentUser().getSettings().getCurrentCountStrategy() == SettingsHolder.countStrategy.MULTI_HOURS) {
+    } else if (UserUtils.getSettings().getCurrentCountStrategy() == SettingsHolder.countStrategy.MULTI_HOURS) {
       sum = getMultiHoursSum(sum, clientSession);
     }
     return sum;
@@ -671,8 +689,8 @@ public class ClientSessionGridPanel extends VerticalPanel {
       sum += totalSum;
       if (isSessionOver) {
         clientSession.setFinalSum(totalSum);
-        clientSessionService.stopClientSession(currentDatePointValue, clientSession, UserUtils.INSTANCE.getCurrentUser().getSettings().isToShowRemoved(),
-                UserUtils.INSTANCE.getCurrentUser().getSettings().isToShowPayed(), new AsyncCallback<List<ClientSession>>() {
+        clientSessionService.stopClientSession(currentDatePointValue, clientSession, UserUtils.getSettings().isToShowRemoved(),
+                UserUtils.getSettings().isToShowPayed(), new AsyncCallback<List<ClientSession>>() {
                   @Override
                   public void onFailure(Throwable caught) {
 
@@ -692,8 +710,8 @@ public class ClientSessionGridPanel extends VerticalPanel {
   }
 
   private long getMultiHoursSum(long sum, ClientSession clientSession) {
-    List<MoreLessUnlimModel> moreLessUnlimModels = UserUtils.INSTANCE.getCurrentUser().getSettings().getOrderedMoreLessUnlimModels();
-    Long hourLength = 1000 * 60 * 60l;
+    List<MoreLessUnlimModel> moreLessUnlimModels = UserUtils.INSTANCE.getOrderedMoreLessUnlimModels();
+    Long hourLength = 1000 * 60l;
 
     long hoursSum = 0;
     long costPerMinute = 0;
@@ -726,8 +744,8 @@ public class ClientSessionGridPanel extends VerticalPanel {
       if (moreLessUnlimModel != null) {
         clientSession.setFinalSum(moreLessUnlimModel.getUnlimCost());
       }
-      clientSessionService.unlimClientSession(currentDatePointValue, clientSession, UserUtils.INSTANCE.getCurrentUser().getSettings().isToShowRemoved(),
-              UserUtils.INSTANCE.getCurrentUser().getSettings().isToShowPayed(), new AsyncCallback<List<ClientSession>>() {
+      clientSessionService.unlimClientSession(currentDatePointValue, clientSession, UserUtils.getSettings().isToShowRemoved(),
+              UserUtils.getSettings().isToShowPayed(), new AsyncCallback<List<ClientSession>>() {
                 @Override
                 public void onFailure(Throwable caught) {
 
@@ -753,8 +771,8 @@ public class ClientSessionGridPanel extends VerticalPanel {
   }
 
   private long getMultiHoursMultiMinutesSum(long sum, ClientSession clientSession) {
-    List<HourCostModel> hourCostModels = UserUtils.INSTANCE.getCurrentUser().getSettings().getOrderedHourCostModels();
-    Long hourLength = UserUtils.INSTANCE.getCurrentUser().getSettings().getHourLength();
+    List<HourCostModel> hourCostModels = UserUtils.getOrderedHourCostModels();
+    Long hourLength = UserUtils.getSettings().getHourLength();
     long hoursSum = 0;
     boolean isRangeFound = false;
     for (HourCostModel hourCostModel : hourCostModels) {
@@ -783,7 +801,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
   }
 
   private void setNameFree(ClientSession clientSession) {
-    clientSessionService.markNameAsFree(clientSession.getSessionPseudoName(), new AsyncCallback<Void>() {
+    clientSessionService.markNameAsFree(new SessionPseudoName(clientSession.getSessionPseudoName()), new AsyncCallback<Void>() {
       @Override
       public void onFailure(Throwable caught) {
 
@@ -798,7 +816,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
 
   private String getPrettyMoney(long minPayment) {
     if (minPayment == -1) {
-      List<MoreLessUnlimModel> moreLessUnlimModels = UserUtils.INSTANCE.getCurrentUser().getSettings().getOrderedMoreLessUnlimModels();
+      List<MoreLessUnlimModel> moreLessUnlimModels = UserUtils.INSTANCE.getOrderedMoreLessUnlimModels();
       long unlimSum = moreLessUnlimModels.get(0).getUnlimCost();
       if (!moreLessUnlimModels.isEmpty()) {
         return "Безлимит - " + getPrettyMoney(unlimSum);
@@ -981,9 +999,9 @@ public class ClientSessionGridPanel extends VerticalPanel {
         sum += clientSession.getFinalSum();
         continue;
       }
-      if (UserUtils.INSTANCE.getCurrentUser().getSettings().getCurrentCountStrategy() == SettingsHolder.countStrategy.MULTI_HOURS){
+      if (UserUtils.getSettings().getCurrentCountStrategy() == SettingsHolder.countStrategy.MULTI_HOURS){
         sum += getMultiHoursSum(0, clientSession);
-      } else if (UserUtils.INSTANCE.getCurrentUser().getSettings().getCurrentCountStrategy() == SettingsHolder.countStrategy.HOUR_MINUTES){
+      } else if (UserUtils.getSettings().getCurrentCountStrategy() == SettingsHolder.countStrategy.HOUR_MINUTES){
         sum += getHourMinutestSum(0, clientSession, false);
       }
     }

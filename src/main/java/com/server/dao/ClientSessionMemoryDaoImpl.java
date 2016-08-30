@@ -76,14 +76,14 @@ public class ClientSessionMemoryDaoImpl implements ClientSessionDao{
     }
 
     private void addTestClientSession(User testUser, long startTime, long stopTime, ClientSession.SESSION_STATUS sessionStatus, Long finalSum) {
-        ClientSession testClientSession = new ClientSession(startTime, stopTime, testUser);
+        ClientSession testClientSession = new ClientSession(startTime, stopTime, testUser.getUserId());
         testClientSession.setId(getMaxId() + 1);
         testClientSession.setCreationTime(startTime - 70000);
         testClientSession.setFinalSum(finalSum);
         SessionPseudoName removedTestSessionPseudoName12 = new SessionPseudoName("testName" + testClientSession.getId());
         addName(removedTestSessionPseudoName12);
         removedTestSessionPseudoName12.setIsUsed(true);
-        testClientSession.setSessionPseudoName(removedTestSessionPseudoName12);
+        testClientSession.setSessionPseudoName(removedTestSessionPseudoName12.getName());
         testClientSession.setStatus(sessionStatus);
         clientSessionMap.put(testClientSession.getId(), testClientSession);
     }
@@ -120,9 +120,9 @@ public class ClientSessionMemoryDaoImpl implements ClientSessionDao{
     public List<ClientSession> saveClientSession(DatePoint datePoint, ClientSession clientSession, boolean isShowRemoved,
                                                  boolean isShowPayed) {
         clientSession.setId(getMaxId() + 1);
-        clientSession.setUser(UserUtils.INSTANCE.getCurrentUser());
+        clientSession.setUserId(UserUtils.INSTANCE.getCurrentUser().getUserId());
         clientSession.setStartTime(System.currentTimeMillis());
-        markNameAsUsed(clientSession.getSessionPseudoName());
+        markNameAsUsed(new SessionPseudoName(clientSession.getSessionPseudoName()));
         this.clientSessionMap.put(clientSession.getId(), clientSession);
         return getClientSessionsList(datePoint, UserUtils.INSTANCE.getCurrentUser(), isShowRemoved, isShowPayed);
     }
@@ -133,7 +133,7 @@ public class ClientSessionMemoryDaoImpl implements ClientSessionDao{
         if (sessionToRemove != null) {
             sessionToRemove.setStatus(ClientSession.SESSION_STATUS.REMOVED);
             sessionToRemove.setFinalSum(0l);
-            markNameAsFree(clientSession.getSessionPseudoName());
+            markNameAsFree(new SessionPseudoName(clientSession.getSessionPseudoName()));
         }
         return getClientSessionsList(datePoint, UserUtils.INSTANCE.getCurrentUser(), isShowRemoved, showPayedOn);
     }
@@ -142,7 +142,7 @@ public class ClientSessionMemoryDaoImpl implements ClientSessionDao{
     public List<ClientSession> getClientSessionsList(final DatePoint datePoint, User currentUser, final boolean isShowRemoved, final boolean showPayedOn) {
         List<ClientSession> clientSessions = new ArrayList<>();
         for (ClientSession clientSession : clientSessionMap.values()) {
-            if (clientSession.getUser() != null && clientSession.getUser().equals(currentUser)) {
+            if (clientSession.getUserId() == currentUser.getUserId()) {
 //                if (isShowRemoved || (clientSession.getSessionStatus() != ClientSession.SESSION_STATUS.REMOVED)) {
                     clientSessions.add(clientSession);
 //                }
@@ -198,7 +198,7 @@ public class ClientSessionMemoryDaoImpl implements ClientSessionDao{
     public List<ClientSession> payClientSession(DatePoint datePoint, ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed) {
         ClientSession session = this.clientSessionMap.get(clientSession.getId());
         session.setStatus(ClientSession.SESSION_STATUS.PAYED);
-        markNameAsFree(session.getSessionPseudoName());
+        markNameAsFree(new SessionPseudoName(session.getSessionPseudoName()));
         return getClientSessionsList(datePoint, UserUtils.INSTANCE.getCurrentUser(), toShowRemoved, toShowPayed);
     }
 
@@ -230,7 +230,7 @@ public class ClientSessionMemoryDaoImpl implements ClientSessionDao{
                 for (Long settingsKey : settingsHolderMap.keySet()) {
                     SettingsHolder settingsHolder = settingsHolderMap.get(settingsKey);
                     if (settingsHolder.getUser().equals(userFromMap)) {
-                        userFromMap.setSettings(settingsHolder);
+                        UserUtils.setSettings(settingsHolder);
                         return userFromMap;
                     }
                 }
@@ -242,11 +242,11 @@ public class ClientSessionMemoryDaoImpl implements ClientSessionDao{
     @Override
     public User saveUser(User user) {
         User savedUser = usersMap.get(user.getUserId());
-        SettingsHolder settingsHolder = savedUser.getSettings();
-        settingsHolder.setFirstPartLength(user.getSettings().getFirstPartLength());
-        settingsHolder.setFirstPartSumAmount(user.getSettings().getFirstPartSumAmount());
-        settingsHolder.setHourCostModelMap(user.getSettings().getHourCostModelMap());
-        settingsHolder.setMoreLessUnlimModelMap(user.getSettings().getMoreLessUnlimModelMap());
+        SettingsHolder settingsHolder = UserUtils.getSettings();
+//        settingsHolder.setFirstPartLength(user.getSettings().getFirstPartLength());
+//        settingsHolder.setFirstPartSumAmount(user.getSettings().getFirstPartSumAmount());
+//        UserUtils.INSTANCE.setHourCostModelMap(user.getSettings().getHourCostModelMap());
+//        settingsHolder.setMoreLessUnlimModelMap(user.getSettings().getMoreLessUnlimModelMap());
         return savedUser;
     }
 
@@ -259,8 +259,8 @@ public class ClientSessionMemoryDaoImpl implements ClientSessionDao{
                 for (Long settingsKey : settingsHolderMap.keySet()) {
                     SettingsHolder settingsHolder = settingsHolderMap.get(settingsKey);
                     if (settingsHolder.getUser().equals(userFromMap)) {
-                        userFromMap.setSettings(settingsHolder);
                         UserUtils.init();
+                        UserUtils.setSettings(settingsHolder);
                         UserUtils.INSTANCE.setCurrentUser(userFromMap);
                         return userFromMap;
                     }

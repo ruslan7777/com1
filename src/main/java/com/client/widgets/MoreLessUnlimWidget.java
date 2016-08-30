@@ -29,21 +29,8 @@ import java.util.Map;
  * Created by dmitry on 22.08.16.
  */
 public class MoreLessUnlimWidget extends ScrollPanel {
-  private Map<Long, MoreLessUnlimModel> hourCostModelMap;
   private final TextBox costPerMinuteTextBox = new AntiTextBox();
-  final TextBox unlimCostTextBox = new AntiTextBox() {
-    @Override
-    public void setValue(String value) {
-      super.setValue(new BigDecimal(value).divide(new BigDecimal("100")).setScale(2, BigDecimal.ROUND_HALF_UP).toString());
-    }
-
-    @Override
-    public String getValue() {
-      String superValue = super.getValue();
-      long value = new BigDecimal(superValue).multiply(new BigDecimal("100")).longValue();
-      return String.valueOf(value);
-    }
-  };
+  final TextBox unlimCostTextBox = new AntiMoneyTextBox();
   private VerticalPanel hoursCostsPanel;
   final Button addHourButton = new Button("Добавить стоимость");
 
@@ -73,21 +60,16 @@ public class MoreLessUnlimWidget extends ScrollPanel {
         numberHoursCostPanel.setHeight("50px");
         final TextBox numberOfHoursTextBox = new AntiTextBox();
         numberOfHoursTextBox.setName("numberOfHoursTextBox");
-        final TextBox hoursCostTextBox = new AntiTextBox();
+        final TextBox hoursCostTextBox = new AntiMoneyTextBox();
         hoursCostTextBox.setName("hoursCostTextBox");
-        final TextBox hoursCostInCentsTextBox = new AntiTextBox();
         numberOfHoursTextBox.setName("numberOfHoursTextBox");
         numberHoursCostPanel.add(new Label("За "));
-        numberOfHoursTextBox.setWidth("20px");
+        numberOfHoursTextBox.setWidth("40px");
         numberHoursCostPanel.add(numberOfHoursTextBox);
         numberHoursCostPanel.add(new Label("часа - "));
         hoursCostTextBox.setWidth("30px");
         numberHoursCostPanel.add(hoursCostTextBox);
         numberHoursCostPanel.add(new Label("руб."));
-        hoursCostInCentsTextBox.setWidth("30px");
-        hoursCostInCentsTextBox.setName("hoursCostInCentsTextBox");
-        numberHoursCostPanel.add(hoursCostInCentsTextBox);
-        numberHoursCostPanel.add(new Label("коп."));
         Button removeButton = new Button("Удалить");
         removeButton.addClickHandler(new ClickHandler() {
           @Override
@@ -116,26 +98,18 @@ public class MoreLessUnlimWidget extends ScrollPanel {
       numberHoursCostPanel.setHeight("50px");
       final TextBox numberOfHoursTextBox = new AntiTextBox();
       numberOfHoursTextBox.setName("numberOfHoursTextBox");
-      final TextBox hoursCostTextBox = new AntiTextBox();
+      final TextBox hoursCostTextBox = new AntiMoneyTextBox();
       hoursCostTextBox.setName("hoursCostTextBox");
-      final TextBox hoursCostInCentsTextBox = new AntiTextBox();
-      hoursCostInCentsTextBox.setName("hoursCostInCentsTextBox");
       numberHoursCostPanel.add(new Label("За "));
-      numberOfHoursTextBox.setWidth("20px");
+      numberOfHoursTextBox.setWidth("40px");
       numberOfHoursTextBox.setValue(moreLessUnlimModel.getNumberOfHours() != 0 ? String.valueOf(moreLessUnlimModel.getNumberOfHours()) : null);
       numberHoursCostPanel.add(numberOfHoursTextBox);
       numberHoursCostPanel.add(new Label("часа - "));
       hoursCostTextBox.setWidth("30px");
       long cost = moreLessUnlimModel.getCostForHours();
-      long hourCost = cost/100;
-      hoursCostTextBox.setValue(hourCost != 0 ? String.valueOf(hourCost) : "0");
-      long minutesCost = cost % 100;
+      hoursCostTextBox.setValue(cost != 0 ? String.valueOf(cost) : "0");
       numberHoursCostPanel.add(hoursCostTextBox);
       numberHoursCostPanel.add(new Label("руб."));
-      hoursCostInCentsTextBox.setWidth("30px");
-      numberHoursCostPanel.add(hoursCostInCentsTextBox);
-      hoursCostInCentsTextBox.setValue(minutesCost != 0 ? String.valueOf(minutesCost) : "00");
-      numberHoursCostPanel.add(new Label("коп."));
       Button removeButton = new Button("Удалить");
       removeButton.addClickHandler(new ClickHandler() {
         @Override
@@ -154,6 +128,50 @@ public class MoreLessUnlimWidget extends ScrollPanel {
     }
   }
 
+  public boolean validate() {
+    for (int i = 0; i < hoursCostsPanel.getWidgetCount(); i++) {
+      Widget widget = hoursCostsPanel.getWidget(i);
+      if (widget instanceof HorizontalPanel) {
+        HorizontalPanel horizontalPanel = (HorizontalPanel) widget;
+        for (int j = 0; j < horizontalPanel.getWidgetCount(); j++) {
+          Widget childWidget = horizontalPanel.getWidget(j);
+          if (childWidget instanceof AntiTextBox) {
+            if (((AntiTextBox) childWidget).getValue() == null || ((AntiTextBox) childWidget).getValue().isEmpty() ) {
+              return false;
+            }
+          }
+        }
+      }
+    }
+    return true;
+  }
+
+  public boolean validateOrder() {
+    long prevNumberOfHoursValue = 0;
+    for (int i = 0; i < hoursCostsPanel.getWidgetCount(); i++) {
+      Widget widget = hoursCostsPanel.getWidget(i);
+      if (widget instanceof HorizontalPanel) {
+        HorizontalPanel horizontalPanel = (HorizontalPanel) widget;
+        for (int j = 0; j < horizontalPanel.getWidgetCount(); j++) {
+          Widget childWidget = horizontalPanel.getWidget(j);
+          if (childWidget instanceof AntiTextBox) {
+            if (((AntiTextBox) childWidget).getName().equals("numberOfHoursTextBox")) {
+              if (Long.valueOf(((AntiTextBox) childWidget).getValue()) <= prevNumberOfHoursValue) {
+                return false;
+              } else {
+                prevNumberOfHoursValue = Long.valueOf(((AntiTextBox) childWidget).getValue());
+              }
+            }
+            if (((AntiTextBox) childWidget).getValue() == null || ((AntiTextBox) childWidget).getValue().isEmpty() ) {
+              return false;
+            }
+          }
+        }
+      }
+    }
+    return true;
+  }
+
   private void setAddButtonEnabled(Button addHourButton) {
     addHourButton.setEnabled(hoursCostsPanel.getWidgetCount() < 7);
   }
@@ -166,7 +184,6 @@ public class MoreLessUnlimWidget extends ScrollPanel {
       Widget widget = hoursCostsPanel.getWidget(i);
       if (widget instanceof HorizontalPanel) {
         HorizontalPanel horizontalPanel = (HorizontalPanel) widget;
-        StringBuilder sumBuilder = new StringBuilder();
         for (int j = 0; j < horizontalPanel.getWidgetCount(); j++) {
           Widget childWidget = horizontalPanel.getWidget(j);
           if (childWidget instanceof AntiTextBox) {
@@ -174,13 +191,11 @@ public class MoreLessUnlimWidget extends ScrollPanel {
             if (antiTextBox.getName().equals("numberOfHoursTextBox")) {
               moreLessUnlimModel.setNumberOfHours(antiTextBox.getValue() != null ? Long.valueOf(antiTextBox.getValue()) : 0);
             } else if (antiTextBox.getName().equals("hoursCostTextBox")) {
-              sumBuilder.append(antiTextBox.getValue() != null ? antiTextBox.getValue() : "");
-            } else if (antiTextBox.getName().equals("hoursCostInCentsTextBox")) {
-              sumBuilder.append(antiTextBox.getValue() != null ? antiTextBox.getValue() : "00");
+              antiTextBox = (AntiMoneyTextBox) childWidget;
+              moreLessUnlimModel.setCostForHours(antiTextBox.getValue() != null ? Long.valueOf(antiTextBox.getValue()) : 0);
             }
           }
         }
-        moreLessUnlimModel.setCostForHours(Long.valueOf(sumBuilder.toString()));
       }
       moreLessUnlimModel.setCostPerMinute(Long.valueOf(costPerMinuteTextBox.getValue()));
       moreLessUnlimModel.setUnlimCost(Long.valueOf(unlimCostTextBox.getValue()));

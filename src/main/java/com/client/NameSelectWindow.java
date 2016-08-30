@@ -60,9 +60,9 @@ public class NameSelectWindow extends DialogBox {
             @Override
             public void onClick(ClickEvent clickEvent) {
                  final ClientSession clientSession = new ClientSession(System.currentTimeMillis(),
-                         0, UserUtils.INSTANCE.getCurrentUser());
-                 clientSessionService.saveClientSession(DatePoint.TODAY, clientSession, UserUtils.INSTANCE.getCurrentUser().getSettings().isToShowRemoved(),
-                         UserUtils.INSTANCE.getCurrentUser().getSettings().isToShowRemoved(), new AsyncCallback<List<ClientSession>>() {
+                         0, UserUtils.INSTANCE.getCurrentUser().getUserId());
+                 clientSessionService.saveClientSession(DatePoint.TODAY, clientSession, UserUtils.getSettings().isToShowRemoved(),
+                         UserUtils.getSettings().isToShowRemoved(), new AsyncCallback<List<ClientSession>>() {
                      @Override
                      public void onFailure(Throwable throwable) {
                          //To change body of implemented methods use File | Settings | File Templates.
