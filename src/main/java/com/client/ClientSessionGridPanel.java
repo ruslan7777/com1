@@ -711,7 +711,8 @@ public class ClientSessionGridPanel extends VerticalPanel {
 
   private long getMultiHoursSum(long sum, ClientSession clientSession) {
     List<MoreLessUnlimModel> moreLessUnlimModels = UserUtils.INSTANCE.getOrderedMoreLessUnlimModels();
-    Long hourLength = 1000 * 60l;
+//    Long hourLength = 1000 * 60l + 1000 * 13;
+    Long hourLength = 1000 * 60l * 60;
 
     long hoursSum = 0;
     long costPerMinute = 0;
@@ -732,12 +733,12 @@ public class ClientSessionGridPanel extends VerticalPanel {
       }
     }
     long leftMilliSeconds = 0;
-    if (hoursGone < 2) {
-      leftMilliSeconds = difference;
-    } else {
+    if (hoursSet != 0) {
       leftMilliSeconds = difference % (hourLength * hoursSet);
-//      leftMilliSeconds = difference % (hoursGone * 1000 * 60 * 60) *  20000 / (hoursGone * 1000 * 60 * 60) ;
+    } else {
+      leftMilliSeconds = difference;
     }
+//      leftMilliSeconds = difference % (hoursGone * 1000 * 60 * 60) *  20000 / (hoursGone * 1000 * 60 * 60) ;
     long totalSum = hoursSum + (leftMilliSeconds * costPerMinute) / 1000 / 60;
     if (totalSum > unlimCost) {
       clientSession.setStopTime(System.currentTimeMillis());
