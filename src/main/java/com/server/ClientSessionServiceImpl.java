@@ -4,6 +4,7 @@ import com.client.service.ClientSessionService;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import com.server.dao.ClientSessionDao;
 import com.server.dao.ClientSessionMemoryDaoImpl;
+import com.server.dao.ClientSessionNoSqlDaoImpl;
 import com.shared.model.ClientSession;
 import com.shared.model.DatePoint;
 import com.shared.model.SessionPseudoName;
@@ -20,6 +21,7 @@ import java.util.List;
  */
 public class ClientSessionServiceImpl extends RemoteServiceServlet implements ClientSessionService {
     private ClientSessionDao clientSessionDao = new ClientSessionMemoryDaoImpl();
+//    private ClientSessionDao clientSessionDao = new ClientSessionNoSqlDaoImpl();
     @Override
     public List<SessionPseudoName> getFreePseudoNames() {
         return clientSessionDao.getFreePseudoNames();  //To change body of implemented methods use File | Settings | File Templates.

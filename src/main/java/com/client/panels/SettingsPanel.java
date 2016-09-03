@@ -22,6 +22,11 @@ import com.shared.model.SessionPseudoName;
 import com.shared.model.SettingsHolder;
 import com.shared.model.User;
 import com.shared.utils.UserUtils;
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Entity;
+//import com.google.appengine.tools.remoteapi.RemoteApiInstaller;
+//import com.google.appengine.tools.remoteapi.RemoteApiOptions;
 
 import java.util.HashMap;
 import java.util.List;
@@ -125,7 +130,8 @@ public class SettingsPanel extends SplitLayoutPanel {
                     Window.alert("Такое имя уже есть в базе");
                     return;
                 }
-                clientSessionService.addName(new SessionPseudoName(namesTextBoxValue), new AsyncCallback<Void>() {
+                clientSessionService.addName(new SessionPseudoName(namesTextBoxValue, UserUtils.INSTANCE.getCurrentUser().getUserId()),
+                        new AsyncCallback<Void>() {
                     @Override
                     public void onFailure(Throwable caught) {
 
@@ -301,6 +307,30 @@ public class SettingsPanel extends SplitLayoutPanel {
                 });
             }
         });
+
+//        Button testButton = new Button("Test ds");
+//        testButton.addClickHandler(new ClickHandler() {
+//            @Override
+//            public void onClick(ClickEvent event) {
+//                String serverString = args[0];
+//                RemoteApiOptions options;
+//                if (serverString.equals("localhost")) {
+//                    options = new RemoteApiOptions().server(serverString,
+//                            8080).useDevelopmentServerCredential();
+//                } else {
+//                    options = new RemoteApiOptions().server(serverString,
+//                            443).useApplicationDefaultCredential();
+//                }
+//                RemoteApiInstaller installer = new RemoteApiInstaller();
+//                installer.install(options);
+//                try {
+//                    DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
+//                    System.out.println("Key of new entity is " + ds.put(new Entity("Hello Remote API!")));
+//                } finally {
+//                    installer.uninstall();
+//                }
+//            }
+//        });
 
         HorizontalPanel southPanel = new HorizontalPanel();
         southPanel.add(saveButton);

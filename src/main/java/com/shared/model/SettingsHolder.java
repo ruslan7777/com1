@@ -28,7 +28,7 @@ public class SettingsHolder implements Serializable, IsSerializable {
 
   private countStrategy currentCountStrategy = countStrategy.MULTI_HOURS;
   private Long hourLength = 60000l;
-  private User user;
+  private Long userId;
 
   public SettingsHolder() {
   }
@@ -122,11 +122,11 @@ public class SettingsHolder implements Serializable, IsSerializable {
     this.unlimitedCost = unlimitedCost;
   }
 
-  public User getUser() {
-    return user;
+  public Long getUserId() {
+    return userId;
   }
 
-  public void setUser(User user) {
-    this.user = user;
+  public void setUserId(Long userId) {
+    this.userId = userId;
   }
 }

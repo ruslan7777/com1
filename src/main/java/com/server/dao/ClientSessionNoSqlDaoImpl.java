@@ -7,10 +7,13 @@ import com.googlecode.objectify.Result;
 import com.shared.model.ClientSession;
 import com.shared.model.DatePoint;
 import com.shared.model.SessionPseudoName;
+import com.shared.model.SettingsHolder;
 import com.shared.model.User;
 import com.shared.utils.UserUtils;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -26,7 +29,7 @@ public class ClientSessionNoSqlDaoImpl implements ClientSessionDao{
     @Override
     public List<SessionPseudoName> getFreePseudoNames() {
         List<SessionPseudoName> freeNames = ObjectifyService.ofy().load().type(SessionPseudoName.class).
-                filter(new Query.FilterPredicate("isUsed", Query.FilterOperator.EQUAL, "false")).list();//To change body of implemented methods use File | Settings | File Templates.
+                filter("isUsed == ", "false").list();//To change body of implemented methods use File | Settings | File Templates.
         return freeNames;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -57,61 +60,89 @@ public class ClientSessionNoSqlDaoImpl implements ClientSessionDao{
 
     @Override
     public List<ClientSession> removeClientSession(DatePoint datePoint, ClientSession clientSession, boolean isShowRemoved, boolean showPayedOn) {
+        ObjectifyService.ofy().save().entity(clientSession);
         return  getClientSessionsList(datePoint, UserUtils.INSTANCE.getCurrentUser(), isShowRemoved, showPayedOn);
     }
 
     @Override
     public List<ClientSession> getClientSessionsList(DatePoint datePoint, User currentUser, boolean isShowRemoved, boolean showPayedOn) {
-        return null;
+        Date comparedDate = new Date();
+        long comparedTime = 0;
+        Calendar c = Calendar.getInstance();
+        c.setTime(comparedDate);
+        c.add(Calendar.DATE, datePoint.getShiftValue());
+        c.set(Calendar.HOUR, 0);
+        c.set(Calendar.MINUTE, 0);
+        c.set(Calendar.SECOND, 0);
+        return ObjectifyService.ofy().load().type(ClientSession.class)
+                .filter("userId =", currentUser.getUserId())
+                .filter("startTime > ", comparedTime).list();
     }
 
     @Override
     public List<ClientSession> stopClientSession(DatePoint datePoint, ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed) {
-        return new ArrayList<>();
+        ObjectifyService.ofy().save().entity(clientSession);
+        return getClientSessionsList(datePoint, UserUtils.INSTANCE.getCurrentUser(), toShowRemoved,
+                toShowPayed);
     }
 
     @Override
     public List<ClientSession> payClientSession(DatePoint datePoint, ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed) {
-        return new ArrayList<>();
+        ObjectifyService.ofy().save().entity(clientSession);
+        return getClientSessionsList(datePoint, UserUtils.INSTANCE.getCurrentUser(), toShowRemoved,
+                toShowPayed);
     }
 
     @Override
     public List<SessionPseudoName> getAllPseudoNames() {
-        return null;
+        return ObjectifyService.ofy().load().type(SessionPseudoName.class).filter("userId =", UserUtils.INSTANCE.getCurrentUser().getUserId())
+                .list();
     }
 
     @Override
     public void addName(SessionPseudoName namesTextBoxValue) {
-
+        ObjectifyService.ofy().save().entity(namesTextBoxValue);
     }
 
     @Override
     public void removeName(SessionPseudoName sessionPseudoName) {
-
+        ObjectifyService.ofy().delete().entity(sessionPseudoName);
     }
 
     @Override
     public User getCurrentUser(String userName, String userPassword) {
-        return null;
+        return ObjectifyService.ofy().load().type(User.class).filter("userName =", "userName").first().now();
     }
 
     @Override
     public User saveUser(User user) {
-        return null;
+        ObjectifyService.ofy().save().entity(user);
+        return getCurrentUser(user.getUserName(), user.getPassword());
     }
 
     @Override
     public User login(String userName, String userPassword) {
-        return null;
+        User user = ObjectifyService.ofy().load().type(User.class).filter("userName =", "userName").first().now();
+        if (user != null) {
+//            SettingsHolder settingsHolder = ObjectifyService.ofy().load().type(SettingsHolder.class).filter("userId =", user.getUserId()).first().now();
+//            UserUtils.init();
+//            UserUtils.setSettings(settingsHolder);
+//            UserUtils.INSTANCE.setCurrentUser(user);
+        }
+        return user;
     }
 
     @Override
     public List<ClientSession> startClientSession(DatePoint datePoint, ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed) {
-        return new ArrayList<>();
+        ObjectifyService.ofy().save().entity(clientSession);
+        return getClientSessionsList(datePoint, UserUtils.INSTANCE.getCurrentUser(), toShowRemoved,
+                toShowPayed);
     }
 
     @Override
     public List<ClientSession> unlimClientSession(DatePoint currentDatePointValue, ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed) {
-        return null;
+        ObjectifyService.ofy().save().entity(clientSession);
+        return getClientSessionsList(currentDatePointValue, UserUtils.INSTANCE.getCurrentUser(), toShowRemoved,
+                toShowPayed);
     }
 }

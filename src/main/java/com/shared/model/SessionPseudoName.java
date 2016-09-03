@@ -14,9 +14,15 @@ public class SessionPseudoName implements Serializable, IsSerializable {
   @Id
   private String name;
   private boolean isUsed;
+  private long userId;
 
   public SessionPseudoName(String name) {
     this.name = name;
+  }
+
+  public SessionPseudoName(String name, Long userId) {
+    this.name = name;
+    this.userId = userId;
   }
 
   public SessionPseudoName() {
@@ -38,7 +44,15 @@ public class SessionPseudoName implements Serializable, IsSerializable {
     this.isUsed = isUsed;
   }
 
-    @Override
+  public long getUserId() {
+    return userId;
+  }
+
+  public void setUserId(long userId) {
+    this.userId = userId;
+  }
+
+  @Override
     public boolean equals(Object obj) {
       if (obj instanceof SessionPseudoName) {
         return this.getName().equals(((SessionPseudoName) obj).getName());
