@@ -259,8 +259,28 @@ public class MainTabPanel extends TabLayoutPanel {
       }
     });
     HorizontalPanel buttonContainer = new HorizontalPanel();
+    Button hiberButton = new Button("Hibernate");
+    hiberButton.addClickHandler(new ClickHandler() {
+      @Override
+      public void onClick(ClickEvent event) {
+        clientSessionService.saveHiberClientSession(DatePoint.ALL, new ClientSession(), UserUtils.getSettings().isToShowRemoved(),
+                UserUtils.getSettings().isToShowPayed(), new AsyncCallback<List<ClientSession>>() {
+                  @Override
+                  public void onFailure(Throwable caught) {
+
+                  }
+
+                  @Override
+                  public void onSuccess(List<ClientSession> result) {
+                    System.out.println("test message");
+                  }
+                });
+      }
+    });
+
     buttonContainer.add(createButton);
     buttonContainer.add(cancelButton);
+    buttonContainer.add(hiberButton);
     dialogContents.add(buttonContainer);
 //          Button addEntityButton = new Button("Создать client");
 //          addEntityButton.addClickHandler(new ClickHandler() {

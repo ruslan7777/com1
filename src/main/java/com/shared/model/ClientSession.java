@@ -1,18 +1,24 @@
 package com.shared.model;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
-import com.googlecode.objectify.annotation.Entity;
-import com.googlecode.objectify.annotation.Id;
+//import com.googlecode.objectify.annotation.Entity;
+//import com.googlecode.objectify.annotation.Id;
 
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 /**
  * Created by dmitry on 26.07.16.
  */
-@Entity
+//@Entity
+@javax.persistence.Entity
 public class ClientSession implements Serializable, IsSerializable, Comparable<ClientSession> {
+//    @Id
     @Id
+    @GeneratedValue(strategy= GenerationType.AUTO)
     private Long id;
   private long creationTime;
   private long startTime;

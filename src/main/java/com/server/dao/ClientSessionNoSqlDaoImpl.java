@@ -59,6 +59,11 @@ public class ClientSessionNoSqlDaoImpl implements ClientSessionDao{
     }
 
     @Override
+    public List<ClientSession> saveHiberClientSession(DatePoint datePoint, ClientSession clientSession, boolean isShowRemoved, boolean showPayedOn) {
+        return null;
+    }
+
+    @Override
     public List<ClientSession> removeClientSession(DatePoint datePoint, ClientSession clientSession, boolean isShowRemoved, boolean showPayedOn) {
         ObjectifyService.ofy().save().entity(clientSession);
         return  getClientSessionsList(datePoint, UserUtils.INSTANCE.getCurrentUser(), isShowRemoved, showPayedOn);

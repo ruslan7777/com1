@@ -48,6 +48,11 @@ public class ClientSessionServiceImpl extends RemoteServiceServlet implements Cl
     }
 
     @Override
+    public List<ClientSession> saveHiberClientSession(DatePoint datePoint, ClientSession clientSession, boolean isShowRemoved, boolean showPayedOn) {
+        return clientSessionDao.saveHiberClientSession(datePoint, clientSession, isShowRemoved, showPayedOn);
+    }
+
+    @Override
     public List<ClientSession> removeClientSession(DatePoint datePoint, ClientSession clientSession, boolean isShowRemoved, boolean showPayedOn) {
         return clientSessionDao.removeClientSession(datePoint, clientSession, isShowRemoved, showPayedOn);
     }

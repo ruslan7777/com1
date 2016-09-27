@@ -2,7 +2,9 @@ package com.server.dao;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
-import com.server.hibernate.util.HibernateAnnotationUtil;
+import com.googlecode.objectify.Key;
+import com.googlecode.objectify.ObjectifyService;
+import com.googlecode.objectify.Result;
 import com.shared.model.ClientSession;
 import com.shared.model.DatePoint;
 import com.shared.model.HourCostModel;
@@ -11,9 +13,6 @@ import com.shared.model.SessionPseudoName;
 import com.shared.model.SettingsHolder;
 import com.shared.model.User;
 import com.shared.utils.UserUtils;
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -31,7 +30,7 @@ import java.util.Map;
  * Time: 5:23 PM
  * To change this template use File | Settings | File Templates.
  */
-public class ClientSessionMemoryDaoImpl implements ClientSessionDao{
+public class ClientSessionHibernateDaoImpl implements ClientSessionDao{
     Map<String,SessionPseudoName> pseudoNamesMap = new HashMap<>();
     Map<Long, ClientSession> clientSessionMap = new HashMap<>();
     Map<Long, User> usersMap = new HashMap<>();
@@ -39,7 +38,7 @@ public class ClientSessionMemoryDaoImpl implements ClientSessionDao{
     Map<Long, HourCostModel> hourCostModelMap = new HashMap<>();
     Map<Long, MoreLessUnlimModel> moreLessUnlimModelMap = new HashMap<>();
 
-    public ClientSessionMemoryDaoImpl() {
+    public ClientSessionHibernateDaoImpl() {
         User testUser = new User();
         testUser.setUserId(0l);
         testUser.setUserName("a");
@@ -123,49 +122,17 @@ public class ClientSessionMemoryDaoImpl implements ClientSessionDao{
     @Override
     public List<ClientSession> saveClientSession(DatePoint datePoint, ClientSession clientSession, boolean isShowRemoved,
                                                  boolean isShowPayed) {
-        Session session = HibernateAnnotationUtil.getSessionFactory().openSession();
-        Transaction tx = session.beginTransaction();
-        session.save(clientSession);
-        tx.commit();
-        session.close();
-
-        //Loading the Student and the Course objects
-        HibernateAnnotationUtil.shutdown();
-        System.out.println("------Done------");
-        return new ArrayList<>();
-
-//        clientSession.setId(getMaxId() + 1);
-//        clientSession.setUserId(UserUtils.INSTANCE.getCurrentUser().getUserId());
-//        clientSession.setStartTime(System.currentTimeMillis());
-//        markNameAsUsed(new SessionPseudoName(clientSession.getSessionPseudoName()));
-//        this.clientSessionMap.put(clientSession.getId(), clientSession);
-//        return getClientSessionsList(datePoint, UserUtils.INSTANCE.getCurrentUser(), isShowRemoved, isShowPayed);
-
+        clientSession.setId(getMaxId() + 1);
+        clientSession.setUserId(UserUtils.INSTANCE.getCurrentUser().getUserId());
+        clientSession.setStartTime(System.currentTimeMillis());
+        markNameAsUsed(new SessionPseudoName(clientSession.getSessionPseudoName()));
+        this.clientSessionMap.put(clientSession.getId(), clientSession);
+        return getClientSessionsList(datePoint, UserUtils.INSTANCE.getCurrentUser(), isShowRemoved, isShowPayed);
     }
 
     @Override
     public List<ClientSession> saveHiberClientSession(DatePoint datePoint, ClientSession clientSession, boolean isShowRemoved, boolean showPayedOn) {
-        Session session = HibernateAnnotationUtil.getSessionFactory().openSession();
-        Transaction transaction = null;
-        try {
-
-//            saveObjects(session);
-
-            transaction = session.beginTransaction();
-
-            ClientSession clientSessionToSave = new ClientSession();
-            session.save(clientSessionToSave);
-            transaction.commit();
-        } catch (HibernateException e) {
-            if (transaction != null) {
-                transaction.rollback();
-            }
-            e.printStackTrace();
-        } finally {
-            session.close();
-        }
-
-        return new ArrayList<>();
+        return null;
     }
 
     @Override
@@ -185,7 +152,7 @@ public class ClientSessionMemoryDaoImpl implements ClientSessionDao{
         for (ClientSession clientSession : clientSessionMap.values()) {
             if (clientSession.getUserId() == currentUser.getUserId()) {
 //                if (isShowRemoved || (clientSession.getSessionStatus() != ClientSession.SESSION_STATUS.REMOVED)) {
-                    clientSessions.add(clientSession);
+                clientSessions.add(clientSession);
 //                }
             }
         }
