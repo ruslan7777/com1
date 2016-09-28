@@ -197,9 +197,9 @@ public class ClientSessionGridPanel extends VerticalPanel {
 //      pseudoNamesList.addAll(Arrays.asList(new SessionPseudoName("BLACK"), new SessionPseudoName("RED"), new SessionPseudoName("YELLOW"),
 //              new SessionPseudoName("WHITE"), new SessionPseudoName("GREEN")));
     Long userId = UserUtils.INSTANCE.getCurrentUser().getUserId();
-    clientSessionService.addNames(Arrays.asList(new SessionPseudoName("BLACK", userId), new SessionPseudoName("RED", userId),
-            new SessionPseudoName("YELLOW", userId), new SessionPseudoName("WHITE", userId),
-            new SessionPseudoName("GREEN", userId)), new AsyncCallback<Void>() {
+    clientSessionService.addNames(Arrays.asList(new SessionPseudoName("BLACK", UserUtils.INSTANCE.getCurrentUser()), new SessionPseudoName("RED", UserUtils.INSTANCE.getCurrentUser()),
+            new SessionPseudoName("YELLOW", UserUtils.INSTANCE.getCurrentUser()), new SessionPseudoName("WHITE", UserUtils.INSTANCE.getCurrentUser()),
+            new SessionPseudoName("GREEN", UserUtils.INSTANCE.getCurrentUser())), new AsyncCallback<Void>() {
       @Override
       public void onFailure(Throwable throwable) {
         //To change body of implemented methods use File | Settings | File Templates.
@@ -805,7 +805,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
 
   private void setNameFree(ClientSession clientSession) {
     clientSessionService.markNameAsFree(new SessionPseudoName(clientSession.getSessionPseudoName(),
-            UserUtils.INSTANCE.getCurrentUser().getUserId()), new AsyncCallback<Void>() {
+            UserUtils.INSTANCE.getCurrentUser()), new AsyncCallback<Void>() {
       @Override
       public void onFailure(Throwable caught) {
 
@@ -894,7 +894,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
       public void onClick(ClickEvent clickEvent) {
         final AddSessionEvent event = new AddSessionEvent();
         event.setClientPseudoName(namesListBox.getSelectedValue());
-        clientSessionService.markNameAsUsed(new SessionPseudoName(namesListBox.getSelectedValue(), UserUtils.INSTANCE.getCurrentUser().getUserId()), new AsyncCallback<Void>() {
+        clientSessionService.markNameAsUsed(new SessionPseudoName(namesListBox.getSelectedValue(), UserUtils.INSTANCE.getCurrentUser()), new AsyncCallback<Void>() {
           @Override
           public void onFailure(Throwable caught) {
 

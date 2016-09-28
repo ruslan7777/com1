@@ -62,7 +62,6 @@ public class LoginPanel extends VerticalPanel {
             @Override
             public void onKeyUp(KeyUpEvent event) {
                 if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
-                    User currentUser = null;
                     clientSessionService.login(nameTextBox.getValue(), passwordTextBox.getValue(),
                             new AsyncCallback<User>() {
                                 @Override

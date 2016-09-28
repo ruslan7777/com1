@@ -1,9 +1,15 @@
 package com.shared.model;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
-import com.googlecode.objectify.annotation.Entity;
-import com.googlecode.objectify.annotation.Id;
 
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import java.io.Serializable;
 
 /**
@@ -12,6 +18,7 @@ import java.io.Serializable;
 @Entity
 public class MoreLessUnlimModel implements Serializable, IsSerializable {
   @Id
+  @GeneratedValue(strategy= GenerationType.AUTO)
   private Long id;
   private long order;
   private long settingsHolderId;
@@ -19,6 +26,10 @@ public class MoreLessUnlimModel implements Serializable, IsSerializable {
   private long costPerMinute;
   private long numberOfHours;
   private long costForHours;
+
+  @OneToOne()
+  @JoinColumn(name="userId", nullable = true)
+  private User user;
 
   public MoreLessUnlimModel(long settingsHolderId, long hourOrder, long costPerMinute,
                             long numberOfHours, long costForHours, long unlimCost) {
@@ -88,5 +99,13 @@ public class MoreLessUnlimModel implements Serializable, IsSerializable {
 
   public void setCostForHours(long costForHours) {
     this.costForHours = costForHours;
+  }
+
+  public User getUser() {
+    return user;
+  }
+
+  public void setUser(User user) {
+    this.user = user;
   }
 }

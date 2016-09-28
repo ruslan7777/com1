@@ -130,7 +130,7 @@ public class SettingsPanel extends SplitLayoutPanel {
                     Window.alert("Такое имя уже есть в базе");
                     return;
                 }
-                clientSessionService.addName(new SessionPseudoName(namesTextBoxValue, UserUtils.INSTANCE.getCurrentUser().getUserId()),
+                clientSessionService.addName(new SessionPseudoName(namesTextBoxValue, UserUtils.INSTANCE.getCurrentUser()),
                         new AsyncCallback<Void>() {
                     @Override
                     public void onFailure(Throwable caught) {

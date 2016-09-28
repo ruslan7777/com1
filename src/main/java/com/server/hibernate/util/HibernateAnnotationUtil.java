@@ -1,6 +1,10 @@
 package com.server.hibernate.util;
 
 import com.shared.model.ClientSession;
+import com.shared.model.MoreLessUnlimModel;
+import com.shared.model.SessionPseudoName;
+import com.shared.model.SettingsHolder;
+import com.shared.model.User;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
@@ -16,14 +20,17 @@ import org.hibernate.service.ServiceRegistry;
 public class HibernateAnnotationUtil {
 
     private static SessionFactory sessionFactory;
-    private static ServiceRegistry serviceRegistry;
 
 	static {
 		try {
             Configuration configuration = new Configuration();
             configuration.configure("hibernate/hibernate.cfg.xml");
             configuration.addAnnotatedClass(ClientSession.class);
-            serviceRegistry = new StandardServiceRegistryBuilder().applySettings(configuration.getProperties()).build();
+            configuration.addAnnotatedClass(MoreLessUnlimModel.class);
+            configuration.addAnnotatedClass(SessionPseudoName.class);
+            configuration.addAnnotatedClass(SettingsHolder.class);
+            configuration.addAnnotatedClass(User.class);
+			ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder().applySettings(configuration.getProperties()).build();
             sessionFactory = configuration.buildSessionFactory(serviceRegistry);
 		} catch (Throwable ex) {
 			throw new ExceptionInInitializerError(ex);

@@ -55,6 +55,7 @@ public class UserUtils {
     settings.setFirstPartSumAmount(3500l);
     settings.setSettingsId(0l);
     settings.setUserId(testUser.getUserId());
+    settings.setUser(testUser);
 //    settingsHolderMap.put(testSettingsHolder.getSettingsId(), testSettingsHolder);
     SettingsHolder settingsHolder = new SettingsHolder();
     settingsHolder.setSettingsId(1l);

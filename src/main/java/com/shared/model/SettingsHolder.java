@@ -1,16 +1,13 @@
 package com.shared.model;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
-import com.googlecode.objectify.annotation.Entity;
-import com.googlecode.objectify.annotation.Id;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToOne;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Created by dmitry on 14.08.16.
@@ -18,6 +15,7 @@ import java.util.Map;
 @Entity
 public class SettingsHolder implements Serializable, IsSerializable {
     @Id
+    @GeneratedValue(strategy= GenerationType.AUTO)
     private Long settingsId;
   private Long firstPartSumAmount;
   private Long firstPartLength;
@@ -29,6 +27,8 @@ public class SettingsHolder implements Serializable, IsSerializable {
   private countStrategy currentCountStrategy = countStrategy.MULTI_HOURS;
   private Long hourLength = 60000l;
   private Long userId;
+
+  private User user;
 
   public SettingsHolder() {
   }
@@ -129,4 +129,14 @@ public class SettingsHolder implements Serializable, IsSerializable {
   public void setUserId(Long userId) {
     this.userId = userId;
   }
+
+  public User getUser() {
+    return user;
+  }
+
+  @OneToOne
+  public void setUser(User user) {
+    this.user = user;
+  }
+
 }

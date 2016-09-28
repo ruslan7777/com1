@@ -3,8 +3,8 @@ package com.server;
 import com.client.service.ClientSessionService;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import com.server.dao.ClientSessionDao;
+import com.server.dao.ClientSessionHibernateDaoImpl;
 import com.server.dao.ClientSessionMemoryDaoImpl;
-import com.server.dao.ClientSessionNoSqlDaoImpl;
 import com.shared.model.ClientSession;
 import com.shared.model.DatePoint;
 import com.shared.model.SessionPseudoName;
@@ -20,7 +20,7 @@ import java.util.List;
  * To change this template use File | Settings | File Templates.
  */
 public class ClientSessionServiceImpl extends RemoteServiceServlet implements ClientSessionService {
-    private ClientSessionDao clientSessionDao = new ClientSessionMemoryDaoImpl();
+    private ClientSessionDao clientSessionDao = new ClientSessionHibernateDaoImpl();
 //    private ClientSessionDao clientSessionDao = new ClientSessionNoSqlDaoImpl();
     @Override
     public List<SessionPseudoName> getFreePseudoNames() {

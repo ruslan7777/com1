@@ -1,9 +1,11 @@
 package com.shared.model;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
-import com.googlecode.objectify.annotation.Entity;
-import com.googlecode.objectify.annotation.Id;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import java.io.Serializable;
 
 /**
@@ -12,6 +14,7 @@ import java.io.Serializable;
 @Entity
 public class User implements Serializable, IsSerializable {
   @Id
+  @GeneratedValue(strategy= GenerationType.AUTO)
   private Long userId;
   private String userName;
   private String password;

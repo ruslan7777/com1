@@ -1,5 +1,7 @@
 package com.client;
 
+import com.client.service.ClientSessionService;
+import com.client.service.ClientSessionServiceAsync;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.shared.SimpleEventBus;
@@ -19,11 +21,6 @@ public class anticafe implements EntryPoint {
   private static final String SERVER_ERROR = "An error occurred while "
       + "attempting to contact the server. Please check your network "
       + "connection and try again.";
-
-  /**
-   * Create a remote service proxy to talk to the server-side Greeting service.
-   */
-  private final GreetingServiceAsync greetingService = GWT.create(GreetingService.class);
 
   /**
    * This is the entry point method.

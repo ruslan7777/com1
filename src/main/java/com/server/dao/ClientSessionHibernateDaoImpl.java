@@ -2,9 +2,7 @@ package com.server.dao;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
-import com.googlecode.objectify.Key;
-import com.googlecode.objectify.ObjectifyService;
-import com.googlecode.objectify.Result;
+import com.server.hibernate.util.HibernateAnnotationUtil;
 import com.shared.model.ClientSession;
 import com.shared.model.DatePoint;
 import com.shared.model.HourCostModel;
@@ -13,6 +11,10 @@ import com.shared.model.SessionPseudoName;
 import com.shared.model.SettingsHolder;
 import com.shared.model.User;
 import com.shared.utils.UserUtils;
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -31,56 +33,20 @@ import java.util.Map;
  * To change this template use File | Settings | File Templates.
  */
 public class ClientSessionHibernateDaoImpl implements ClientSessionDao{
-    Map<String,SessionPseudoName> pseudoNamesMap = new HashMap<>();
-    Map<Long, ClientSession> clientSessionMap = new HashMap<>();
-    Map<Long, User> usersMap = new HashMap<>();
-    Map<Long, SettingsHolder> settingsHolderMap = new HashMap<>();
-    Map<Long, HourCostModel> hourCostModelMap = new HashMap<>();
-    Map<Long, MoreLessUnlimModel> moreLessUnlimModelMap = new HashMap<>();
+//    Map<String,SessionPseudoName> pseudoNamesMap = new HashMap<>();
+//    Map<Long, ClientSession> clientSessionMap = new HashMap<>();
+//    Map<Long, User> usersMap = new HashMap<>();
+//    Map<Long, SettingsHolder> settingsHolderMap = new HashMap<>();
+//    Map<Long, HourCostModel> hourCostModelMap = new HashMap<>();
+//    Map<Long, MoreLessUnlimModel> moreLessUnlimModelMap = new HashMap<>();
 
     public ClientSessionHibernateDaoImpl() {
-        User testUser = new User();
-        testUser.setUserId(0l);
-        testUser.setUserName("a");
-        testUser.setPassword("");
-        usersMap.put(testUser.getUserId(), testUser);
 
-        SettingsHolder testSettingsHolder = new SettingsHolder();
-        testSettingsHolder.setFirstPartLength(20000l);
-        testSettingsHolder.setFirstPartSumAmount(3500l);
-        testSettingsHolder.setSettingsId(0l);
-        testSettingsHolder.setUserId(testUser.getUserId());
-        settingsHolderMap.put(testSettingsHolder.getSettingsId(), testSettingsHolder);
-
-//        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED);
-        addTestClientSession(testUser, System.currentTimeMillis() - 50000, 0, ClientSession.SESSION_STATUS.CREATED, 0l);
-        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED, Long.valueOf("3508"));
-//        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED);
-//        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED);
-        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.PAYED, Long.valueOf("3637"));
-        Date yesterday = new Date();
-        Calendar c = Calendar.getInstance();
-        c.setTime(yesterday);
-        c.add(Calendar.DATE, -1);
-//        CalendarUtil.addDaysToDate(yesterday, -1);
-        addTestClientSession(testUser, yesterday.getTime(), System.currentTimeMillis(), ClientSession.SESSION_STATUS.PAYED, Long.valueOf("5555"));
-//        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED);
-//        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED);
-//        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED);
-//        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED);
-//        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED);
-//        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED);
-//        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED);
-        addTestClientSession(testUser, System.currentTimeMillis(), System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED, 0l);
-//        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED);
-//        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED);
-//        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED);
-//        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED);
     }
 
-    private void addTestClientSession(User testUser, long startTime, long stopTime, ClientSession.SESSION_STATUS sessionStatus, Long finalSum) {
+    private void addTestClientSession(User testUser, long startTime, long stopTime, ClientSession.SESSION_STATUS sessionStatus, Long finalSum, Session session) {
         ClientSession testClientSession = new ClientSession(startTime, stopTime, testUser.getUserId());
-        testClientSession.setId(getMaxId() + 1);
+//        testClientSession.setId(getMaxId() + 1);
         testClientSession.setCreationTime(startTime - 70000);
         testClientSession.setFinalSum(finalSum);
         SessionPseudoName removedTestSessionPseudoName12 = new SessionPseudoName("testName" + testClientSession.getId());
@@ -88,46 +54,110 @@ public class ClientSessionHibernateDaoImpl implements ClientSessionDao{
         removedTestSessionPseudoName12.setIsUsed(true);
         testClientSession.setSessionPseudoName(removedTestSessionPseudoName12.getName());
         testClientSession.setStatus(sessionStatus);
-        clientSessionMap.put(testClientSession.getId(), testClientSession);
+        session.save(testClientSession);
     }
 
     @Override
     public List<SessionPseudoName> getFreePseudoNames() {
-        List<SessionPseudoName> freeNames = new ArrayList<>();
-        for (String key : pseudoNamesMap.keySet()) {
-            if (!pseudoNamesMap.get(key).isUsed()) {
-                freeNames.add(pseudoNamesMap.get(key));
+        Session session = HibernateAnnotationUtil.getSessionFactory().openSession();
+        Transaction transaction = null;
+        try {
+            transaction = session.beginTransaction();
+            Query query = session.createQuery("from com.shared.model.SessionPseudoName");
+            List<SessionPseudoName> sessionPseudoNames = query.list();
+            transaction.commit();
+            return sessionPseudoNames;
+        } catch (HibernateException e) {
+            if (transaction != null) {
+                transaction.rollback();
             }
+            e.printStackTrace();
+        } finally {
+            session.close();
         }
-        return freeNames;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;
     }
 
     @Override
     public void markNameAsFree(SessionPseudoName name) {
-        this.pseudoNamesMap.get(name.getName()).setIsUsed(false);
+        Session session = HibernateAnnotationUtil.getSessionFactory().openSession();
+        Transaction transaction = null;
+        try {
+            transaction = session.beginTransaction();
+            SessionPseudoName sessionPseudoName = (SessionPseudoName) session.get(SessionPseudoName.class, name.getId());
+            sessionPseudoName.setIsUsed(false);
+            transaction.commit();
+        } catch (HibernateException e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
+        } finally {
+            session.close();
+        }
     }
 
     @Override
     public void markNameAsUsed(SessionPseudoName name) {
-        this.pseudoNamesMap.get(name.getName()).setIsUsed(true);
+        Session session = HibernateAnnotationUtil.getSessionFactory().openSession();
+        Transaction transaction = null;
+        try {
+            transaction = session.beginTransaction();
+            SessionPseudoName sessionPseudoName = (SessionPseudoName) session.get(SessionPseudoName.class, name.getId());
+            sessionPseudoName.setIsUsed(true);
+            transaction.commit();
+        } catch (HibernateException e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
+        } finally {
+            session.close();
+        }
     }
 
     @Override
     public void addNames(List<SessionPseudoName> pseudoNamesList) {
-        for (SessionPseudoName name : pseudoNamesList) {
-            this.pseudoNamesMap.put(name.getName(), name);
+        Session session = HibernateAnnotationUtil.getSessionFactory().openSession();
+        Transaction transaction = null;
+        try {
+            transaction = session.beginTransaction();
+            for (SessionPseudoName name : pseudoNamesList) {
+                session.save(name);
+            }
+            transaction.commit();
+        } catch (HibernateException e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
+        } finally {
+            session.close();
         }
     }
 
     @Override
     public List<ClientSession> saveClientSession(DatePoint datePoint, ClientSession clientSession, boolean isShowRemoved,
                                                  boolean isShowPayed) {
-        clientSession.setId(getMaxId() + 1);
-        clientSession.setUserId(UserUtils.INSTANCE.getCurrentUser().getUserId());
-        clientSession.setStartTime(System.currentTimeMillis());
-        markNameAsUsed(new SessionPseudoName(clientSession.getSessionPseudoName()));
-        this.clientSessionMap.put(clientSession.getId(), clientSession);
-        return getClientSessionsList(datePoint, UserUtils.INSTANCE.getCurrentUser(), isShowRemoved, isShowPayed);
+        Session session = HibernateAnnotationUtil.getSessionFactory().openSession();
+        Transaction transaction = null;
+        try {
+            transaction = session.beginTransaction();
+            clientSession.setUserId(UserUtils.INSTANCE.getCurrentUser().getUserId());
+            clientSession.setStartTime(System.currentTimeMillis());
+            markNameAsUsed(new SessionPseudoName(clientSession.getSessionPseudoName()));
+            session.save(clientSession);
+            transaction.commit();
+            return getClientSessionsList(datePoint, UserUtils.INSTANCE.getCurrentUser(), isShowRemoved, isShowPayed);
+        } catch (HibernateException e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
+        } finally {
+            session.close();
+        }
+        return null;
     }
 
     @Override
@@ -137,173 +167,339 @@ public class ClientSessionHibernateDaoImpl implements ClientSessionDao{
 
     @Override
     public List<ClientSession> removeClientSession(DatePoint datePoint, ClientSession clientSession, boolean isShowRemoved, boolean showPayedOn) {
-        ClientSession sessionToRemove = this.clientSessionMap.get(clientSession.getId());
-        if (sessionToRemove != null) {
-            sessionToRemove.setStatus(ClientSession.SESSION_STATUS.REMOVED);
-            sessionToRemove.setFinalSum(0l);
+        Session session = HibernateAnnotationUtil.getSessionFactory().openSession();
+        Transaction transaction = null;
+        try {
+            transaction = session.beginTransaction();
+            ClientSession clientSessionFromDb = (ClientSession) session.get(clientSession.getClass(), clientSession.getId());
+            clientSessionFromDb.setStatus(ClientSession.SESSION_STATUS.REMOVED);
+            clientSessionFromDb.setFinalSum(0l);
             markNameAsFree(new SessionPseudoName(clientSession.getSessionPseudoName()));
+            transaction.commit();
+            return getClientSessionsList(datePoint, UserUtils.INSTANCE.getCurrentUser(), isShowRemoved, showPayedOn);
+        } catch (HibernateException e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
+        } finally {
+            session.close();
         }
-        return getClientSessionsList(datePoint, UserUtils.INSTANCE.getCurrentUser(), isShowRemoved, showPayedOn);
+        return null;
     }
 
     @Override
     public List<ClientSession> getClientSessionsList(final DatePoint datePoint, User currentUser, final boolean isShowRemoved, final boolean showPayedOn) {
-        List<ClientSession> clientSessions = new ArrayList<>();
-        for (ClientSession clientSession : clientSessionMap.values()) {
-            if (clientSession.getUserId() == currentUser.getUserId()) {
-//                if (isShowRemoved || (clientSession.getSessionStatus() != ClientSession.SESSION_STATUS.REMOVED)) {
-                clientSessions.add(clientSession);
-//                }
+        Session session = HibernateAnnotationUtil.getSessionFactory().openSession();
+        Transaction transaction = null;
+        try {
+            transaction = session.beginTransaction();
+            Query query = session.createQuery("from com.shared.model.ClientSession");
+            List<ClientSession> clientSessions = query.list();
+            Predicate<ClientSession> removedPredicate = new Predicate<ClientSession>() {
+                @Override
+                public boolean apply(ClientSession clientSession) {
+                    return isShowRemoved || ClientSession.SESSION_STATUS.REMOVED != clientSession.getSessionStatus();
+                }
+            };
+            Predicate<ClientSession> payedPredicate = new Predicate<ClientSession>() {
+                @Override
+                public boolean apply(ClientSession clientSession) {
+                    return showPayedOn || ClientSession.SESSION_STATUS.PAYED != clientSession.getSessionStatus();
+                }
+            };
+            Predicate<ClientSession> datePointPredicate = new Predicate<ClientSession>() {
+                @Override
+                public boolean apply(ClientSession clientSession) {
+                    Date comparedDate = new Date();
+                    long comparedTime;
+                    Calendar c = Calendar.getInstance();
+                    c.setTime(comparedDate);
+                    c.add(Calendar.DATE, datePoint.getShiftValue());
+                    c.set(Calendar.HOUR, 0);
+                    c.set(Calendar.MINUTE, 0);
+                    c.set(Calendar.SECOND, 0);
+                    comparedTime = c.getTime().getTime();
+                    return clientSession.getStartTime() > comparedTime;
+                }
+            };
+            Collection<ClientSession> filteredByRemoveList = Collections2.filter(clientSessions, removedPredicate);
+            Collection<ClientSession> clientSessionCollections = Collections2.filter(filteredByRemoveList, payedPredicate);
+            Collection<ClientSession> filteredByDateCollections = Collections2.filter(clientSessionCollections, datePointPredicate);
+            ArrayList<ClientSession> filteredCollections = new ArrayList<>(filteredByDateCollections);
+            Collections.sort(filteredCollections);
+            transaction.commit();
+            return filteredCollections;
+        } catch (HibernateException e) {
+            if (transaction != null) {
+                transaction.rollback();
             }
+            e.printStackTrace();
+        } finally {
+            session.close();
         }
-        Predicate<ClientSession> removedPredicate = new Predicate<ClientSession>() {
-            @Override
-            public boolean apply(ClientSession clientSession) {
-                return isShowRemoved || ClientSession.SESSION_STATUS.REMOVED != clientSession.getSessionStatus();
-            }
-        };
-        Predicate<ClientSession> payedPredicate = new Predicate<ClientSession>() {
-            @Override
-            public boolean apply(ClientSession clientSession) {
-                return showPayedOn || ClientSession.SESSION_STATUS.PAYED != clientSession.getSessionStatus();
-            }
-        };
-        Predicate<ClientSession> datePointPredicate = new Predicate<ClientSession>() {
-            @Override
-            public boolean apply(ClientSession clientSession) {
-                Date comparedDate = new Date();
-                long comparedTime;
-                Calendar c = Calendar.getInstance();
-                c.setTime(comparedDate);
-                c.add(Calendar.DATE, datePoint.getShiftValue());
-                c.set(Calendar.HOUR, 0);
-                c.set(Calendar.MINUTE, 0);
-                c.set(Calendar.SECOND, 0);
-//                CalendarUtil.addDaysToDate(comparedDate, datePoint.getShiftValue());
-//                CalendarUtil.resetTime(comparedDate);
-                comparedTime = c.getTime().getTime();
-                return clientSession.getStartTime() > comparedTime;
-            }
-        };
-        Collection<ClientSession> filteredByRemoveList = Collections2.filter(clientSessions, removedPredicate);
-        Collection<ClientSession> clientSessionCollections = Collections2.filter(filteredByRemoveList, payedPredicate);
-        Collection<ClientSession> filteredByDateCollections = Collections2.filter(clientSessionCollections, datePointPredicate);
-        ArrayList<ClientSession> filteredCollections = new ArrayList<>(filteredByDateCollections);
-        Collections.sort(filteredCollections);
-        return filteredCollections;
+        return null;
     }
 
     @Override
     public List<ClientSession> stopClientSession(DatePoint datePoint, ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed) {
-        ClientSession session = this.clientSessionMap.get(clientSession.getId());
-        session.setStatus(ClientSession.SESSION_STATUS.STOPPED);
-        session.setStopTime(clientSession.getStopTime());
-        session.setFinalSum(clientSession.getFinalSum());
-        return getClientSessionsList(datePoint, UserUtils.INSTANCE.getCurrentUser(), toShowRemoved, toShowPayed);
+        Session session = HibernateAnnotationUtil.getSessionFactory().openSession();
+        Transaction transaction = null;
+        try {
+            transaction = session.beginTransaction();
+            ClientSession clientSessionFromDb = (ClientSession) session.get(clientSession.getClass(), clientSession.getId());
+            clientSessionFromDb.setStatus(ClientSession.SESSION_STATUS.STOPPED);
+            clientSessionFromDb.setStopTime(clientSession.getStopTime());
+            clientSessionFromDb.setFinalSum(clientSession.getFinalSum());
+            transaction.commit();
+            return getClientSessionsList(datePoint, UserUtils.INSTANCE.getCurrentUser(), toShowRemoved, toShowPayed);
+        } catch (HibernateException e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
+        } finally {
+            session.close();
+        }
+        return null;
     }
 
     @Override
     public List<ClientSession> payClientSession(DatePoint datePoint, ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed) {
-        ClientSession session = this.clientSessionMap.get(clientSession.getId());
-        session.setStatus(ClientSession.SESSION_STATUS.PAYED);
-        markNameAsFree(new SessionPseudoName(session.getSessionPseudoName()));
-        return getClientSessionsList(datePoint, UserUtils.INSTANCE.getCurrentUser(), toShowRemoved, toShowPayed);
+        Session session = HibernateAnnotationUtil.getSessionFactory().openSession();
+        Transaction transaction = null;
+        try {
+            transaction = session.beginTransaction();
+            ClientSession clientSessionFromDb = (ClientSession) session.get(clientSession.getClass(), clientSession.getId());
+            clientSessionFromDb.setStatus(ClientSession.SESSION_STATUS.PAYED);
+            markNameAsFree(new SessionPseudoName(clientSessionFromDb.getSessionPseudoName()));
+            transaction.commit();
+            return getClientSessionsList(datePoint, UserUtils.INSTANCE.getCurrentUser(), toShowRemoved, toShowPayed);
+        } catch (HibernateException e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
+        } finally {
+            session.close();
+        }
+        return null;
     }
 
     @Override
     public List<SessionPseudoName> getAllPseudoNames() {
-        List<SessionPseudoName> allNames = new ArrayList<>();
-        for (String key : pseudoNamesMap.keySet()) {
-            allNames.add(pseudoNamesMap.get(key));
+        Session session = HibernateAnnotationUtil.getSessionFactory().openSession();
+
+        Transaction transaction = null;
+        try {
+            transaction = session.beginTransaction();
+            Query query = session.createQuery("from com.shared.model.SessionPseudoName");
+            List<SessionPseudoName> sessionPseudoNames = query.list();
+            transaction.commit();
+            return sessionPseudoNames;
+        } catch (HibernateException e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
+        } finally {
+            session.close();
         }
-        return allNames;
+        return null;
     }
 
     @Override
     public void addName(SessionPseudoName namesTextBoxValue) {
-        this.pseudoNamesMap.put(namesTextBoxValue.getName(), namesTextBoxValue);
+        Session session = HibernateAnnotationUtil.getSessionFactory().openSession();
+
+        Transaction transaction = null;
+        try {
+            transaction = session.beginTransaction();
+            session.save(namesTextBoxValue);
+            transaction.commit();
+        } catch (HibernateException e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
+        } finally {
+            session.close();
+        }
     }
 
     @Override
     public void removeName(SessionPseudoName sessionPseudoName) {
-        this.pseudoNamesMap.remove(sessionPseudoName.getName());
+        Session session = HibernateAnnotationUtil.getSessionFactory().openSession();
+
+        Transaction transaction = null;
+        try {
+            transaction = session.beginTransaction();
+            session.delete(sessionPseudoName);
+            transaction.commit();
+        } catch (HibernateException e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
+        } finally {
+            session.close();
+        }
     }
 
     @Override
     public User getCurrentUser(String userName, String userPassword) {
-        for (Long key : usersMap.keySet()) {
-            User userFromMap = usersMap.get(key);
-            if (userFromMap != null && userFromMap.getUserName().equals(userName) &&
-                    userFromMap.getPassword().equals(userPassword)) {
-                for (Long settingsKey : settingsHolderMap.keySet()) {
-                    SettingsHolder settingsHolder = settingsHolderMap.get(settingsKey);
-                    if (settingsHolder.getUserId().equals(userFromMap.getUserId())) {
-                        UserUtils.setSettings(settingsHolder);
-                        return userFromMap;
-                    }
-                }
+        Session session = HibernateAnnotationUtil.getSessionFactory().openSession();
+
+        Transaction transaction = null;
+        try {
+            transaction = session.beginTransaction();
+
+            Query query = session.createQuery("from com.shared.model.User u");
+            User loggedUser = (User) query.uniqueResult();
+            if (loggedUser != null) {
+                Query settingsHolderQuery = session.createQuery("from com.shared.model.SettingsHolder");
+//                settingsHolderQuery.setParameter("loggedUserId", loggedUser.getUserId());
+                SettingsHolder settingsHolder = (SettingsHolder) settingsHolderQuery.uniqueResult();
+                UserUtils.init();
+                UserUtils.setSettings(settingsHolder);
+                UserUtils.INSTANCE.setCurrentUser(loggedUser);
             }
+            transaction.commit();
+            return loggedUser;
+        } catch (HibernateException e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
+        } finally {
+            session.close();
         }
         return null;
     }
 
     @Override
     public User saveUser(User user) {
-        User savedUser = usersMap.get(user.getUserId());
+//        User savedUser = usersMap.get(user.getUserId());
         SettingsHolder settingsHolder = UserUtils.getSettings();
 //        settingsHolder.setFirstPartLength(user.getSettings().getFirstPartLength());
 //        settingsHolder.setFirstPartSumAmount(user.getSettings().getFirstPartSumAmount());
 //        UserUtils.INSTANCE.setHourCostModelMap(user.getSettings().getHourCostModelMap());
 //        settingsHolder.setMoreLessUnlimModelMap(user.getSettings().getMoreLessUnlimModelMap());
-        return savedUser;
+        return null;
     }
 
     @Override
     public User login(String userName, String userPassword) {
-        for (Long key : usersMap.keySet()) {
-            User userFromMap = usersMap.get(key);
-            if (userFromMap != null && userFromMap.getUserName().equals(userName) &&
-                    userFromMap.getPassword().equals(userPassword)) {
-                for (Long settingsKey : settingsHolderMap.keySet()) {
-                    SettingsHolder settingsHolder = settingsHolderMap.get(settingsKey);
-                    if (settingsHolder.getUserId().equals(userFromMap.getUserId())) {
-                        UserUtils.init();
-                        UserUtils.setSettings(settingsHolder);
-                        UserUtils.INSTANCE.setCurrentUser(userFromMap);
-                        return userFromMap;
-                    }
-                }
+        Session session = HibernateAnnotationUtil.getSessionFactory().openSession();
+
+        Transaction transaction = null;
+        try {
+            transaction = session.beginTransaction();
+            populateDB(session);
+
+            Query query = session.createQuery("from com.shared.model.User u");
+            User loggedUser = (User) query.uniqueResult();
+            if (loggedUser != null) {
+                Query settingsHolderQuery = session.createQuery("from com.shared.model.SettingsHolder");
+//                settingsHolderQuery.setParameter("loggedUserId", loggedUser.getUserId());
+                SettingsHolder settingsHolder = (SettingsHolder) settingsHolderQuery.uniqueResult();
+                UserUtils.init();
+                UserUtils.setSettings(settingsHolder);
+                UserUtils.INSTANCE.setCurrentUser(loggedUser);
             }
+            transaction.commit();
+            return loggedUser;
+        } catch (HibernateException e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
+        } finally {
+            session.close();
+        }
+        return null;
+    }
+
+    private void populateDB(Session session) {
+        User testUser = new User();
+//        testUser.setUserId(0l);
+        testUser.setUserName("a");
+        testUser.setPassword("");
+        session.save(testUser);
+
+        SettingsHolder testSettingsHolder = new SettingsHolder();
+        testSettingsHolder.setFirstPartLength(20000l);
+        testSettingsHolder.setFirstPartSumAmount(3500l);
+        testSettingsHolder.setSettingsId(0l);
+        testSettingsHolder.setUserId(testUser.getUserId());
+        testSettingsHolder.setUser(testUser);
+        session.save(testSettingsHolder);
+
+        addTestClientSession(testUser, System.currentTimeMillis() - 50000, 0, ClientSession.SESSION_STATUS.CREATED, 0l, session);
+        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED, Long.valueOf("3508"), session);
+        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.PAYED, Long.valueOf("3637"), session);
+        Date yesterday = new Date();
+        Calendar c = Calendar.getInstance();
+        c.setTime(yesterday);
+        c.add(Calendar.DATE, -1);
+        addTestClientSession(testUser, yesterday.getTime(), System.currentTimeMillis(), ClientSession.SESSION_STATUS.PAYED, Long.valueOf("5555"), session);
+        addTestClientSession(testUser, System.currentTimeMillis(), System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED, 0l, session);
+    }
+
+    @Override
+    public List<ClientSession> startClientSession(DatePoint datePoint, ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed) {
+        Session session = HibernateAnnotationUtil.getSessionFactory().openSession();
+        Transaction transaction = null;
+        try {
+            transaction = session.beginTransaction();
+            ClientSession clientSessionFromDb = (ClientSession) session.get(clientSession.getClass(), clientSession.getId());
+            clientSessionFromDb.setStatus(ClientSession.SESSION_STATUS.STARTED);
+            clientSessionFromDb.setStartTime(clientSession.getStartTime());
+            transaction.commit();
+            return getClientSessionsList(datePoint, UserUtils.INSTANCE.getCurrentUser(), toShowRemoved, toShowPayed);
+        } catch (HibernateException e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
+        } finally {
+            session.close();
         }
         return null;
     }
 
     @Override
-    public List<ClientSession> startClientSession(DatePoint datePoint, ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed) {
-        ClientSession session = this.clientSessionMap.get(clientSession.getId());
-        session.setStatus(ClientSession.SESSION_STATUS.STARTED);
-        session.setStartTime(clientSession.getStartTime());
-        return getClientSessionsList(datePoint, UserUtils.INSTANCE.getCurrentUser(), toShowRemoved, toShowPayed);
-    }
-
-    @Override
     public List<ClientSession> unlimClientSession(DatePoint currentDatePointValue, ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed) {
-        ClientSession session = this.clientSessionMap.get(clientSession.getId());
-        session.setStatus(ClientSession.SESSION_STATUS.STOPPED_UNLIMITED);
-        session.setStopTime(clientSession.getStopTime());
-        session.setFinalSum(clientSession.getFinalSum());
-        return getClientSessionsList(currentDatePointValue, UserUtils.INSTANCE.getCurrentUser(), toShowRemoved, toShowPayed);
+        Session session = HibernateAnnotationUtil.getSessionFactory().openSession();
+        Transaction transaction = null;
+        try {
+            transaction = session.beginTransaction();
+            ClientSession clientSessionFromDb = (ClientSession) session.get(clientSession.getClass(), clientSession.getId());
+            clientSessionFromDb.setStatus(ClientSession.SESSION_STATUS.STOPPED_UNLIMITED);
+            clientSessionFromDb.setStopTime(clientSession.getStopTime());
+            clientSessionFromDb.setFinalSum(clientSession.getFinalSum());
+            transaction.commit();
+            return getClientSessionsList(currentDatePointValue, UserUtils.INSTANCE.getCurrentUser(), toShowRemoved, toShowPayed);
+        } catch (HibernateException e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
+        } finally {
+            session.close();
+        }
+        return null;
     }
 
-    private long getMaxId() {
-        long maxId = 0;
-        for (Long key : clientSessionMap.keySet()) {
-            if (key > maxId) {
-                maxId = key;
-            }
-        }
-        return maxId;
-    }
+//    private long getMaxId() {
+//        long maxId = 0;
+//        for (Long key : clientSessionMap.keySet()) {
+//            if (key > maxId) {
+//                maxId = key;
+//            }
+//        }
+//        return maxId;
+//    }
 //    @Override
 //    public void saveClientSession(ClientSession clientSession) {
 //        ObjectifyService.ofy().save().entity(clientSession);//To change body of implemented methods use File | Settings | File Templates.
