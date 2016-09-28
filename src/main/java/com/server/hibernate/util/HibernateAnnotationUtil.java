@@ -25,11 +25,11 @@ public class HibernateAnnotationUtil {
 		try {
             Configuration configuration = new Configuration();
             configuration.configure("hibernate/hibernate.cfg.xml");
-            configuration.addAnnotatedClass(ClientSession.class);
+            configuration.addAnnotatedClass(User.class);
             configuration.addAnnotatedClass(MoreLessUnlimModel.class);
+            configuration.addAnnotatedClass(ClientSession.class);
             configuration.addAnnotatedClass(SessionPseudoName.class);
             configuration.addAnnotatedClass(SettingsHolder.class);
-            configuration.addAnnotatedClass(User.class);
 			ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder().applySettings(configuration.getProperties()).build();
             sessionFactory = configuration.buildSessionFactory(serviceRegistry);
 		} catch (Throwable ex) {

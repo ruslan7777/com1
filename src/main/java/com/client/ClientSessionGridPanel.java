@@ -214,7 +214,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
       public void addClientSession(AddSessionEvent addSessionEvent) {
         final ClientSession clientSession = new ClientSession();
         final SessionPseudoName sessionPseudoName = new SessionPseudoName(addSessionEvent.getClientPseudoName());
-        clientSession.setSessionPseudoName(sessionPseudoName.getName());
+        clientSession.setSessionPseudoName(sessionPseudoName);
         clientSession.setCreationTime(System.currentTimeMillis());
         clientSessionService.saveClientSession(currentDatePointValue, clientSession, UserUtils.getSettings().isToShowRemoved(),
                 UserUtils.getSettings().isToShowPayed(), new AsyncCallback<List<ClientSession>>() {
@@ -241,7 +241,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
     Column<ClientSession, String> pseudoNameColumn = new Column<ClientSession, String>(new TextCell()) {
       @Override
       public String getValue(ClientSession object) {
-        return object.getSessionPseudoName();
+        return object.getSessionPseudoName().getName();
       }
     };
     clientSessionDataGrid.setColumnWidth(pseudoNameColumn, 200, Style.Unit.PX);
@@ -353,7 +353,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
               DecoratedPopupPanel decoratedPopupPanel = new DecoratedPopupPanel();
               decoratedPopupPanel.center();
               decoratedPopupPanel.setAutoHideEnabled(true);
-              decoratedPopupPanel.setWidget(new HTML(clientSession.getSessionPseudoName() + " стартовал"));
+              decoratedPopupPanel.setWidget(new HTML(clientSession.getSessionPseudoName().getName() + " стартовал"));
               decoratedPopupPanel.show();
             }
           });
@@ -407,7 +407,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
               DecoratedPopupPanel decoratedPopupPanel = new DecoratedPopupPanel();
               decoratedPopupPanel.center();
               decoratedPopupPanel.setAutoHideEnabled(true);
-              decoratedPopupPanel.setWidget(new HTML(clientSession.getSessionPseudoName() + "Оплачена"));
+              decoratedPopupPanel.setWidget(new HTML(clientSession.getSessionPseudoName().getName() + "Оплачена"));
               decoratedPopupPanel.show();
             }
           });
@@ -804,8 +804,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
   }
 
   private void setNameFree(ClientSession clientSession) {
-    clientSessionService.markNameAsFree(new SessionPseudoName(clientSession.getSessionPseudoName(),
-            UserUtils.INSTANCE.getCurrentUser()), new AsyncCallback<Void>() {
+    clientSessionService.markNameAsFree(clientSession.getSessionPseudoName(), new AsyncCallback<Void>() {
       @Override
       public void onFailure(Throwable caught) {
 

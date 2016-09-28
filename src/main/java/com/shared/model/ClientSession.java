@@ -7,6 +7,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToOne;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
@@ -24,9 +25,15 @@ public class ClientSession implements Serializable, IsSerializable, Comparable<C
   private long startTime;
   private long stopTime;
   private long finalSum;
-  private String sessionPseudoName;
+//  private String sessionPseudoName;
   private SESSION_STATUS status = SESSION_STATUS.CREATED;
     private long userId;
+  @OneToOne
+  private User user;
+
+  @OneToOne
+  private SessionPseudoName sessionPseudoName;
+
 
   public ClientSession(long startTime, long stopTime, long userId) {
     this.startTime = startTime;
@@ -119,19 +126,27 @@ public class ClientSession implements Serializable, IsSerializable, Comparable<C
     this.finalSum = finalSum;
   }
 
-  public String getSessionPseudoName() {
-    return sessionPseudoName;
-  }
-
-  public void setSessionPseudoName(String sessionPseudoName) {
-    this.sessionPseudoName = sessionPseudoName;
-  }
-
   public long getUserId() {
     return userId;
   }
 
   public void setUserId(long userId) {
     this.userId = userId;
+  }
+
+  public User getUser() {
+    return user;
+  }
+
+  public void setUser(User user) {
+    this.user = user;
+  }
+
+  public SessionPseudoName getSessionPseudoName() {
+    return sessionPseudoName;
+  }
+
+  public void setSessionPseudoName(SessionPseudoName sessionPseudoName) {
+    this.sessionPseudoName = sessionPseudoName;
   }
 }

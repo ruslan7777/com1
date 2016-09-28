@@ -3,12 +3,9 @@ package com.shared.model;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import java.io.Serializable;
 
@@ -20,21 +17,17 @@ public class MoreLessUnlimModel implements Serializable, IsSerializable {
   @Id
   @GeneratedValue(strategy= GenerationType.AUTO)
   private Long id;
-  private long order;
-  private long settingsHolderId;
+  private long modelOrder;
+  private SettingsHolder settingsHolder;
   private long unlimCost;
   private long costPerMinute;
   private long numberOfHours;
   private long costForHours;
 
-  @OneToOne()
-  @JoinColumn(name="userId", nullable = true)
-  private User user;
-
-  public MoreLessUnlimModel(long settingsHolderId, long hourOrder, long costPerMinute,
+  public MoreLessUnlimModel(SettingsHolder settingsHolder, long hourOrder, long costPerMinute,
                             long numberOfHours, long costForHours, long unlimCost) {
-    this.order = hourOrder;
-    this.settingsHolderId = settingsHolderId;
+    this.settingsHolder = settingsHolder;
+    this.modelOrder = hourOrder;
     this.unlimCost = hourOrder;
     this.costPerMinute = costPerMinute;
     this.numberOfHours = numberOfHours;
@@ -53,20 +46,20 @@ public class MoreLessUnlimModel implements Serializable, IsSerializable {
     this.id = id;
   }
 
-  public long getOrder() {
-    return order;
+  public long getModelOrder() {
+    return modelOrder;
   }
 
-  public void setOrder(long order) {
-    this.order = order;
+  public void setModelOrder(long modelOrder) {
+    this.modelOrder = modelOrder;
   }
 
-  public long getSettingsHolderId() {
-    return settingsHolderId;
+  public SettingsHolder getSettingsHolder() {
+    return settingsHolder;
   }
 
-  public void setSettingsHolderId(long settingsHolderId) {
-    this.settingsHolderId = settingsHolderId;
+  public void setSettingsHolder(SettingsHolder settingsHolder) {
+    this.settingsHolder = settingsHolder;
   }
 
   public long getUnlimCost() {
@@ -101,11 +94,4 @@ public class MoreLessUnlimModel implements Serializable, IsSerializable {
     this.costForHours = costForHours;
   }
 
-  public User getUser() {
-    return user;
-  }
-
-  public void setUser(User user) {
-    this.user = user;
-  }
 }

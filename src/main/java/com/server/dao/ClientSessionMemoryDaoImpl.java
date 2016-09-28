@@ -88,7 +88,7 @@ public class ClientSessionMemoryDaoImpl implements ClientSessionDao{
         SessionPseudoName removedTestSessionPseudoName12 = new SessionPseudoName("testName" + testClientSession.getId());
         addName(removedTestSessionPseudoName12);
         removedTestSessionPseudoName12.setIsUsed(true);
-        testClientSession.setSessionPseudoName(removedTestSessionPseudoName12.getName());
+        testClientSession.setSessionPseudoName(removedTestSessionPseudoName12);
         testClientSession.setStatus(sessionStatus);
         clientSessionMap.put(testClientSession.getId(), testClientSession);
     }
@@ -175,7 +175,7 @@ public class ClientSessionMemoryDaoImpl implements ClientSessionDao{
         if (sessionToRemove != null) {
             sessionToRemove.setStatus(ClientSession.SESSION_STATUS.REMOVED);
             sessionToRemove.setFinalSum(0l);
-            markNameAsFree(new SessionPseudoName(clientSession.getSessionPseudoName()));
+            markNameAsFree(clientSession.getSessionPseudoName());
         }
         return getClientSessionsList(datePoint, UserUtils.INSTANCE.getCurrentUser(), isShowRemoved, showPayedOn);
     }
@@ -240,7 +240,7 @@ public class ClientSessionMemoryDaoImpl implements ClientSessionDao{
     public List<ClientSession> payClientSession(DatePoint datePoint, ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed) {
         ClientSession session = this.clientSessionMap.get(clientSession.getId());
         session.setStatus(ClientSession.SESSION_STATUS.PAYED);
-        markNameAsFree(new SessionPseudoName(session.getSessionPseudoName()));
+        markNameAsFree(session.getSessionPseudoName());
         return getClientSessionsList(datePoint, UserUtils.INSTANCE.getCurrentUser(), toShowRemoved, toShowPayed);
     }
 

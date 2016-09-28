@@ -1,26 +1,16 @@
 package com.client.widgets;
 
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.KeyUpEvent;
-import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.TextBox;
-import com.google.gwt.user.client.ui.ValueBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.shared.model.ClientSession;
-import com.shared.model.HourCostModel;
 import com.shared.model.MoreLessUnlimModel;
-import com.shared.model.SettingsHolder;
 
-import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -200,8 +190,8 @@ public class MoreLessUnlimWidget extends ScrollPanel {
       moreLessUnlimModel.setCostPerMinute(Long.valueOf(costPerMinuteTextBox.getValue()));
       moreLessUnlimModel.setUnlimCost(Long.valueOf(unlimCostTextBox.getValue()));
       order += 1;
-      moreLessUnlimModel.setOrder(order);
-      moreLessUnlimModelMap.put(moreLessUnlimModel.getOrder(), moreLessUnlimModel);
+      moreLessUnlimModel.setModelOrder(order);
+      moreLessUnlimModelMap.put(moreLessUnlimModel.getModelOrder(), moreLessUnlimModel);
     }
     return moreLessUnlimModelMap;
   }
