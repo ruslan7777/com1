@@ -134,9 +134,5 @@ public class SettingsHolder implements Serializable, IsSerializable {
     return user;
   }
 
-  @OneToOne
-  public void setUser(User user) {
-    this.user = user;
-  }
 
 }

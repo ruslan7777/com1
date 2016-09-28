@@ -74,8 +74,14 @@ public class ClientSessionGridPanel extends VerticalPanel {
   public ClientSessionGridPanel(final SimpleEventBus eventBus) {
     this.simpleEventBus = eventBus;
     clientSessionDataGrid.setFooterBuilder(new CustomFooterBuilder());
-    firstPartTimeLength = UserUtils.getSettings().getFirstPartLength();
-    firstPartSumAmount = UserUtils.getSettings().getFirstPartSumAmount();
+    Long firstPartLength = UserUtils.getSettings().getFirstPartLength();
+    if (firstPartLength != null) {
+      firstPartTimeLength = firstPartLength;
+    }
+    Long firstPartSumAmount = UserUtils.getSettings().getFirstPartSumAmount();
+    if (firstPartSumAmount != null) {
+      this.firstPartSumAmount = firstPartSumAmount;
+    }
     simpleEventBus.addHandler(ChangeDatePointEvent.TYPE, new ChangeDatePointEventHandler() {
       @Override
       public void changeDatePoint(ChangeDatePointEvent changeDatePointEvent) {
@@ -159,9 +165,9 @@ public class ClientSessionGridPanel extends VerticalPanel {
                         sum += 0;
                       } else {
                         if (timeDifferenceLengthInSeconds <= getSeconds(firstPartTimeLength)) {
-                          sum += firstPartSumAmount;
+                          sum += ClientSessionGridPanel.this.firstPartSumAmount;
                         } else {
-                          long totalSum = firstPartSumAmount + 50 * (timeDifferenceLength - firstPartTimeLength) / 1000 / 60;
+                          long totalSum = ClientSessionGridPanel.this.firstPartSumAmount + 50 * (timeDifferenceLength - firstPartTimeLength) / 1000 / 60;
                           sum += totalSum;
                         }
                       }
@@ -336,7 +342,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
         if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.CREATED) {
           clientSession.setStartTime(System.currentTimeMillis());
           clientSession.setStatus(ClientSession.SESSION_STATUS.STARTED);
-          clientSession.setFinalSum(firstPartSumAmount);
+          clientSession.setFinalSum(ClientSessionGridPanel.this.firstPartSumAmount);
           clientSessionService.startClientSession(currentDatePointValue, clientSession, UserUtils.getSettings().isToShowRemoved(),
                   UserUtils.getSettings().isToShowPayed(), new AsyncCallback<List<ClientSession>>() {
             @Override

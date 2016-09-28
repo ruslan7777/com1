@@ -18,7 +18,7 @@ public class User implements Serializable, IsSerializable {
   private Long userId;
   private String userName;
   private String password;
-  private long settingsHolderId;
+  private SettingsHolder settingsHolder;
 
   public Long getUserId() {
     return userId;
@@ -44,12 +44,12 @@ public class User implements Serializable, IsSerializable {
     this.password = password;
   }
 
-  public long getSettingsHolderId() {
-    return settingsHolderId;
+  public SettingsHolder getSettingsHolder() {
+    return settingsHolder;
   }
 
-  public void setSettingsHolderId(long settingsHolderId) {
-    this.settingsHolderId = settingsHolderId;
+  public void setSettingsHolder(SettingsHolder settingsHolder) {
+    this.settingsHolder = settingsHolder;
   }
 
   @Override
