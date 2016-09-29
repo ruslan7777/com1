@@ -356,9 +356,9 @@ public class SettingsPanel extends SplitLayoutPanel {
 //                                firstPartLengthTextBox.setValue(String.valueOf(UserUtils.INSTANCE.getCurrentUser().getSgetFirstPartLength()));
 //                                firstPartSumAmountTextBox.setValue(String.valueOf(result.getSettings().getFirstPartSumAmount()));
 //                                maxSessionLengthTextBox.setValue(result.getSettings().getMaxSessionLength() == null ? "0" : String.valueOf(result.getSettings().getMaxSessionLength()));
-                                SettingsHolder settings = UserUtils.INSTANCE.getSettings();
+                                SettingsHolder settings = UserUtils.getSettings();
                                 if (settings.getCurrentCountStrategy() == SettingsHolder.countStrategy.MULTI_HOURS) {
-                                    moreLessUnlimWidget.showSettings(UserUtils.INSTANCE.getOrderedMoreLessUnlimModels());
+                                    moreLessUnlimWidget.showSettings(settings.getMoreLessUnlimModelList());
                                 }
 // Map<Long, HourCostModel> longHourCostModelMap = result.getSettings().getHourCostModelMap();
 //                                if (longHourCostModelMap != null) {

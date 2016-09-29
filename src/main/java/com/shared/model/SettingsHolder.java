@@ -6,8 +6,11 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.Transient;
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * Created by dmitry on 14.08.16.
@@ -29,8 +32,20 @@ public class SettingsHolder implements Serializable, IsSerializable {
   private Long userId;
 
   private User user;
+  @Transient
+  private List<MoreLessUnlimModel> moreLessUnlimModelList;
+//  @OneToMany
+//  private List<MoreLessUnlimModel> moreLessUnlimModelList;
 
   public SettingsHolder() {
+  }
+
+  public List<MoreLessUnlimModel> getMoreLessUnlimModelList() {
+    return moreLessUnlimModelList;
+  }
+
+  public void setMoreLessUnlimModelList(List<MoreLessUnlimModel> moreLessUnlimModelList) {
+    this.moreLessUnlimModelList = moreLessUnlimModelList;
   }
 
   public enum countStrategy{
@@ -134,5 +149,11 @@ public class SettingsHolder implements Serializable, IsSerializable {
     return user;
   }
 
-
+//  public List<MoreLessUnlimModel> getMoreLessUnlimModelList() {
+//    return moreLessUnlimModelList;
+//  }
+//
+//  public void setMoreLessUnlimModelList(List<MoreLessUnlimModel> moreLessUnlimModelList) {
+//    this.moreLessUnlimModelList = moreLessUnlimModelList;
+//  }
 }

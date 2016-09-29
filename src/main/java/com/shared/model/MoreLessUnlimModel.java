@@ -6,6 +6,9 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import java.io.Serializable;
 
@@ -18,6 +21,8 @@ public class MoreLessUnlimModel implements Serializable, IsSerializable {
   @GeneratedValue(strategy= GenerationType.AUTO)
   private Long id;
   private long modelOrder;
+  @ManyToOne
+  @JoinTable(name="settingsId",joinColumns=@JoinColumn(name="settingsId"))
   private SettingsHolder settingsHolder;
   private long unlimCost;
   private long costPerMinute;
@@ -26,7 +31,7 @@ public class MoreLessUnlimModel implements Serializable, IsSerializable {
 
   public MoreLessUnlimModel(SettingsHolder settingsHolder, long hourOrder, long costPerMinute,
                             long numberOfHours, long costForHours, long unlimCost) {
-    this.settingsHolder = settingsHolder;
+//    this.settingsHolder = settingsHolder;
     this.modelOrder = hourOrder;
     this.unlimCost = hourOrder;
     this.costPerMinute = costPerMinute;

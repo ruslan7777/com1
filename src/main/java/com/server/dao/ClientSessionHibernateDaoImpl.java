@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -353,12 +354,29 @@ public class ClientSessionHibernateDaoImpl implements ClientSessionDao{
             transaction = session.beginTransaction();
 
             Query query = session.createQuery("from com.shared.model.User u");
-            User loggedUser = (User) query.uniqueResult();
+            List<User> users = query.list();
+            User loggedUser = null;
+            if (users != null && !users.isEmpty()) {
+                loggedUser = users.get(0);
+            }
             if (loggedUser != null) {
                 Query settingsHolderQuery = session.createQuery("from com.shared.model.SettingsHolder");
 //                settingsHolderQuery.setParameter("loggedUserId", loggedUser.getUserId());
-                SettingsHolder settingsHolder = (SettingsHolder) settingsHolderQuery.uniqueResult();
+                List<SettingsHolder> settingsHolders = settingsHolderQuery.list();
+                SettingsHolder settingsHolder = null;
+                if (settingsHolders != null && !settingsHolders.isEmpty()) {
+                    settingsHolder = settingsHolders.get(0);
+                }
                 UserUtils.init();
+                Query moreLessModel = session.createQuery("from com.shared.model.MoreLessUnlimModel");
+                List<MoreLessUnlimModel>  moreLessUnlimModels = moreLessModel.list();
+                Collections.sort(moreLessUnlimModels, new Comparator<MoreLessUnlimModel>() {
+                    @Override
+                    public int compare(MoreLessUnlimModel o1, MoreLessUnlimModel o2) {
+                        return o1.getModelOrder() > o2.getModelOrder() ? 1 : -1;
+                    }
+                });
+                settingsHolder.setMoreLessUnlimModelList(moreLessUnlimModels);
                 UserUtils.setSettings(settingsHolder);
                 UserUtils.INSTANCE.setCurrentUser(loggedUser);
             }
@@ -430,7 +448,7 @@ public class ClientSessionHibernateDaoImpl implements ClientSessionDao{
         testSettingsHolder.setFirstPartSumAmount(3500l);
         testSettingsHolder.setSettingsId(0l);
         testSettingsHolder.setUserId(testUser.getUserId());
-        testSettingsHolder.setUser(testUser);
+//        testSettingsHolder.setUser(testUser);
         session.save(testSettingsHolder);
 
         MoreLessUnlimModel moreLessUnlimModel = new MoreLessUnlimModel();
@@ -440,6 +458,7 @@ public class ClientSessionHibernateDaoImpl implements ClientSessionDao{
         moreLessUnlimModel.setModelOrder(1);
         moreLessUnlimModel.setSettingsHolder(testSettingsHolder);
         moreLessUnlimModel.setUnlimCost(500);
+        session.save(moreLessUnlimModel);
 
         addTestClientSession(testUser, System.currentTimeMillis() - 50000, 0, ClientSession.SESSION_STATUS.CREATED, 0l, session);
         addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED, Long.valueOf("3508"), session);
