@@ -41,7 +41,7 @@ public class SettingsHolder implements Serializable, IsSerializable {
     this.user = user;
   }
 
-  @OneToMany(cascade= CascadeType.ALL, mappedBy="settingsId")
+  @OneToMany
   private List<MoreLessUnlimModel> moreLessUnlimModelList;
 //  @OneToMany
 //  private List<MoreLessUnlimModel> moreLessUnlimModelList;
