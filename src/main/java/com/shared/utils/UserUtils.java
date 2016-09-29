@@ -20,17 +20,17 @@ public class UserUtils {
 //    INSTANCE = new UserUtils();
 //  }
   public static UserUtils INSTANCE;
-  private User currentUser;
+  public static User currentUser;
   private static SettingsHolder settings;
   private static Map<Long, HourCostModel> hourCostModelMap;
   private static Map<Long, MoreLessUnlimModel> moreLessUnlimModelMap;
 
-  public User getCurrentUser() {
+  public static User getCurrentUser() {
     return currentUser;
   }
 
-  public void setCurrentUser(User currentUser) {
-    this.currentUser = currentUser;
+  public static void setCurrentUser(User currentUser) {
+    currentUser = currentUser;
   }
 
   public static SettingsHolder getSettings() {

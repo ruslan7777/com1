@@ -343,35 +343,10 @@ public class SettingsPanel extends SplitLayoutPanel {
         simpleEventBus.addHandler(UserLoggedInEvent.TYPE, new UserLoggedInHandler() {
             @Override
             public void userIsLoggedIn(UserLoggedInEvent userLoggedInEvent) {
-                clientSessionService.getCurrentUser(userLoggedInEvent.getUserName(), userLoggedInEvent.getUserPassword(),
-                        new AsyncCallback<User>() {
-                            @Override
-                            public void onFailure(Throwable caught) {
-
-                            }
-
-                            @Override
-                            public void onSuccess(User result) {
-                                UserUtils.INSTANCE.setCurrentUser(result);
-//                                firstPartLengthTextBox.setValue(String.valueOf(UserUtils.INSTANCE.getCurrentUser().getSgetFirstPartLength()));
-//                                firstPartSumAmountTextBox.setValue(String.valueOf(result.getSettings().getFirstPartSumAmount()));
-//                                maxSessionLengthTextBox.setValue(result.getSettings().getMaxSessionLength() == null ? "0" : String.valueOf(result.getSettings().getMaxSessionLength()));
-                                SettingsHolder settings = UserUtils.getSettings();
-                                if (settings.getCurrentCountStrategy() == SettingsHolder.countStrategy.MULTI_HOURS) {
-                                    moreLessUnlimWidget.showSettings(settings.getMoreLessUnlimModelList());
-                                }
-// Map<Long, HourCostModel> longHourCostModelMap = result.getSettings().getHourCostModelMap();
-//                                if (longHourCostModelMap != null) {
-//                                    for (Long key : longHourCostModelMap.keySet()) {
-//                                        hourCostModelMap.put(key, longHourCostModelMap.get(key));
-//                                    }
-//                                }
-//                                hourSettingsWidget = new HourSettingsWidget(hourCostModelMap);
-//                                hourSettingsWidget.getUnlimCostTextBox().setValue(result.getSettings().getUnlimitedCost() == null ? "0" : String.valueOf(result.getSettings().getUnlimitedCost()));
-//                                    deckLayoutPanel.insert(hourSettingsWidget, 0);
-//                                deckLayoutPanel.forceLayout();
-                            }
-                        });
+                SettingsHolder settings = UserUtils.currentUser.getSettingsHolder();
+                if (settings.getCurrentCountStrategy() == SettingsHolder.countStrategy.MULTI_HOURS) {
+                    moreLessUnlimWidget.showSettings(settings.getMoreLessUnlimModelList());
+                }
             }
         });
 

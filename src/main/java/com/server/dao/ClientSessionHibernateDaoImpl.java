@@ -378,7 +378,9 @@ public class ClientSessionHibernateDaoImpl implements ClientSessionDao{
                 });
                 settingsHolder.setMoreLessUnlimModelList(moreLessUnlimModels);
                 UserUtils.setSettings(settingsHolder);
-                UserUtils.INSTANCE.setCurrentUser(loggedUser);
+                loggedUser.setSettingsHolder(settingsHolder);
+                UserUtils.currentUser = loggedUser;
+                loggedUser.setSettingsHolder(settingsHolder);
             }
             transaction.commit();
             return loggedUser;
@@ -413,18 +415,20 @@ public class ClientSessionHibernateDaoImpl implements ClientSessionDao{
             transaction = session.beginTransaction();
             populateDB(session);
 
-            Query query = session.createQuery("from com.shared.model.User u");
-            List<User> users = query.list();
-            if (users != null && !users.isEmpty()) {
+            Query query = session.createQuery("from com.shared.model.User as u where u.userName=:userName");
+            query.setParameter("userName", userName);
+            User user = (User) query.uniqueResult();
+            if (user != null) {
                 Query settingsHolderQuery = session.createQuery("from com.shared.model.SettingsHolder");
 //                settingsHolderQuery.setParameter("loggedUserId", loggedUser.getUserId());
                 List<SettingsHolder> settingsHolders = settingsHolderQuery.list();
                 UserUtils.init();
                 UserUtils.setSettings(settingsHolders.get(0));
-                UserUtils.INSTANCE.setCurrentUser(users.get(0));
+                user.setSettingsHolder(settingsHolders.get(0));
+                UserUtils.currentUser = user;
             }
             transaction.commit();
-            return users.get(0);
+            return user;
         } catch (HibernateException e) {
             if (transaction != null) {
                 transaction.rollback();

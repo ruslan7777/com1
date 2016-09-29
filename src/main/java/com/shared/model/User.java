@@ -6,6 +6,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToOne;
 import java.io.Serializable;
 
 /**
@@ -18,6 +19,7 @@ public class User implements Serializable, IsSerializable {
   private Long userId;
   private String userName;
   private String password;
+  @OneToOne
   private SettingsHolder settingsHolder;
 
   public Long getUserId() {

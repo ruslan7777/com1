@@ -75,7 +75,7 @@ public class LoginPanel extends VerticalPanel {
                                     userLoggedInEvent.setUserName(result.getUserName());
                                     userLoggedInEvent.setUserPassword(result.getPassword());
                                     UserUtils.init();
-                                    UserUtils.INSTANCE.setCurrentUser(result);
+                                    UserUtils.currentUser = result;
 //                                    UserUtils.INSTANCE.getCurrentUser().setSettings(result.getSettings());
                                     RootLayoutPanel.get().clear();
                                     RootLayoutPanel.get().add(new MainTabPanel(2.5, Style.Unit.EM, simpleEventBus));
