@@ -9,6 +9,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -35,7 +36,7 @@ public class ClientSession implements Serializable, IsSerializable, Comparable<C
     private long userId;
 
   @Column(name = "user_id")
-  private User user;
+  private long user;
 
   @OneToOne
   private SessionPseudoName sessionPseudoName;
@@ -141,12 +142,13 @@ public class ClientSession implements Serializable, IsSerializable, Comparable<C
   }
 
   @ManyToOne
+  @JoinTable(name = "users")
   @JoinColumn(name = "user_id")
-  public User getUser() {
+  public long getUser() {
     return user;
   }
 
-  public void setUser(User user) {
+  public void setUser(long user) {
     this.user = user;
   }
 

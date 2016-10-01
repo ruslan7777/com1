@@ -718,7 +718,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
   }
 
   private long getMultiHoursSum(long sum, ClientSession clientSession) {
-    List<MoreLessUnlimModel> moreLessUnlimModels = UserUtils.INSTANCE.getCurrentUser().getSettingsHolder().getMoreLessUnlimModelList();
+    List<MoreLessUnlimModel> moreLessUnlimModels = UserUtils.getSettings().getMoreLessUnlimModelList();
 //    Long hourLength = 1000 * 60l + 1000 * 13;
     Long hourLength = 1000 * 60l * 60;
 
@@ -825,7 +825,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
 
   private String getPrettyMoney(long minPayment) {
     if (minPayment == -1) {
-      List<MoreLessUnlimModel> moreLessUnlimModels = UserUtils.INSTANCE.getCurrentUser().getSettingsHolder().getMoreLessUnlimModelList();
+      List<MoreLessUnlimModel> moreLessUnlimModels = UserUtils.getSettings().getMoreLessUnlimModelList();
       long unlimSum = moreLessUnlimModels.get(0).getUnlimCost();
       if (!moreLessUnlimModels.isEmpty()) {
         return "Безлимит - " + getPrettyMoney(unlimSum);
@@ -899,7 +899,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
       public void onClick(ClickEvent clickEvent) {
         final AddSessionEvent event = new AddSessionEvent();
         event.setClientPseudoName(namesListBox.getSelectedValue());
-        clientSessionService.markNameAsUsed(new SessionPseudoName(namesListBox.getSelectedValue(), UserUtils.INSTANCE.getCurrentUser()), new AsyncCallback<Void>() {
+        clientSessionService.markNameAsUsed(new SessionPseudoName(namesListBox.getSelectedValue(), UserUtils.currentUser), new AsyncCallback<Void>() {
           @Override
           public void onFailure(Throwable caught) {
 

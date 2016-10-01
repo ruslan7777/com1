@@ -25,7 +25,7 @@ public class MoreLessUnlimModel implements Serializable, IsSerializable {
   private Long id;
   private long modelOrder;
   @Column(name = "setting_id")
-  private SettingsHolder setting;
+  private long setting;
   private long unlimCost;
   private long costPerMinute;
   private long numberOfHours;
@@ -62,12 +62,13 @@ public class MoreLessUnlimModel implements Serializable, IsSerializable {
   }
 
   @ManyToOne
+  @JoinTable(name = "settings")
   @JoinColumn(name = "setting_id")
-  public SettingsHolder getSettingsHolder() {
+  public long getSettingsHolder() {
     return setting;
   }
 
-  public void setSettingsHolder(SettingsHolder settingsHolder) {
+  public void setSettingsHolder(long settingsHolder) {
     this.setting = settingsHolder;
   }
 

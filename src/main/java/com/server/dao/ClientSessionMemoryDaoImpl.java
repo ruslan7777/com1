@@ -51,7 +51,7 @@ public class ClientSessionMemoryDaoImpl implements ClientSessionDao{
         testSettingsHolder.setFirstPartSumAmount(3500l);
         testSettingsHolder.setSettingsId(0l);
 //        testSettingsHolder.setUserId(testUser.getUserId());
-        testSettingsHolder.setUser(testUser);
+        testSettingsHolder.setUser(testUser.getUserId());
         settingsHolderMap.put(testSettingsHolder.getSettingsId(), testSettingsHolder);
 
 //        addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED);
@@ -271,7 +271,7 @@ public class ClientSessionMemoryDaoImpl implements ClientSessionDao{
                     userFromMap.getPassword().equals(userPassword)) {
                 for (Long settingsKey : settingsHolderMap.keySet()) {
                     SettingsHolder settingsHolder = settingsHolderMap.get(settingsKey);
-                    if (settingsHolder.getUser().getUserId().equals(userFromMap.getUserId())) {
+                    if (settingsHolder.getUser() == (userFromMap.getUserId())) {
                         UserUtils.setSettings(settingsHolder);
                         return userFromMap;
                     }
@@ -300,7 +300,7 @@ public class ClientSessionMemoryDaoImpl implements ClientSessionDao{
                     userFromMap.getPassword().equals(userPassword)) {
                 for (Long settingsKey : settingsHolderMap.keySet()) {
                     SettingsHolder settingsHolder = settingsHolderMap.get(settingsKey);
-                    if (settingsHolder.getUser().getUserId().equals(userFromMap.getUserId())) {
+                    if (settingsHolder.getUser() == userFromMap.getUserId()) {
                         UserUtils.init();
                         UserUtils.setSettings(settingsHolder);
                         UserUtils.INSTANCE.setCurrentUser(userFromMap);

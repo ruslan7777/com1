@@ -8,6 +8,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
@@ -40,14 +41,15 @@ public class SettingsHolder implements Serializable, IsSerializable {
 
 //  @PrimaryKeyJoinColumn
   @Column(name = "fk_user_id")
-  private User user;
+  private long user;
 
   @OneToOne(cascade = CascadeType.ALL, mappedBy = "settings")
-  public User getUser() {
+  @JoinTable(name = "users")
+  public long getUser() {
     return user;
   }
 
-  public void setUser(User user) {
+  public void setUser(long user) {
     this.user = user;
   }
 

@@ -9,6 +9,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.io.Serializable;
@@ -28,7 +29,7 @@ public class SessionPseudoName implements Serializable, IsSerializable {
   private boolean isUsed;
 
   @Column(name = "user_id")
-  private User user;
+  private long user;
 //  private long userId;
 
   public SessionPseudoName(String name) {
@@ -37,7 +38,7 @@ public class SessionPseudoName implements Serializable, IsSerializable {
 
   public SessionPseudoName(String name, User user) {
     this.name = name;
-    this.user = user;
+//    this.user = user;
   }
 
   public SessionPseudoName() {
@@ -68,12 +69,13 @@ public class SessionPseudoName implements Serializable, IsSerializable {
 //  }
 
   @ManyToOne
+  @JoinTable(name = "users")
   @JoinColumn(name = "user_id")
-  public User getUser() {
+  public long getUser() {
     return user;
   }
 
-  public void setUser(User user) {
+  public void setUser(long user) {
     this.user = user;
   }
 

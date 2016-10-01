@@ -9,6 +9,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -28,7 +29,7 @@ public class User implements Serializable, IsSerializable {
   private String userName;
   private String password;
   @Column(name = "settings_holder_id")
-  private SettingsHolder settingsHolder;
+  private long settingsHolder;
 
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<ClientSession> clientSessions;
@@ -78,12 +79,13 @@ public class User implements Serializable, IsSerializable {
   }
 
   @OneToOne
+  @JoinTable(name = "settins")
   @JoinColumn(name = "settings_holder_id", referencedColumnName = "setting_id")
-  public SettingsHolder getSettingsHolder() {
+  public long getSettingsHolder() {
     return settingsHolder;
   }
 
-  public void setSettingsHolder(SettingsHolder settingsHolder) {
+  public void setSettingsHolder(long settingsHolder) {
     this.settingsHolder = settingsHolder;
   }
 
