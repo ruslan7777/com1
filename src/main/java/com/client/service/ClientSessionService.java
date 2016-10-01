@@ -19,8 +19,8 @@ import java.util.List;
 @RemoteServiceRelativePath("clientSession")
 public interface ClientSessionService extends RemoteService {
     public List<SessionPseudoName> getFreePseudoNames();
-    public void markNameAsFree(SessionPseudoName name);
-    public void markNameAsUsed(SessionPseudoName name);
+    public void markNameAsFree(String name, Long userId);
+    public void markNameAsUsed(String name, Long userId);
 
     void addNames(List<SessionPseudoName> pseudoNamesList);
 

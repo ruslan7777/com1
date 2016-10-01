@@ -235,18 +235,19 @@ public class MainTabPanel extends TabLayoutPanel {
       public void onClick(ClickEvent clickEvent) {
         final AddSessionEvent event = new AddSessionEvent();
         event.setClientPseudoName(namesListBox.getSelectedValue());
-        clientSessionService.markNameAsUsed(new SessionPseudoName(namesListBox.getSelectedValue(),
-                UserUtils.INSTANCE.getCurrentUser()), new AsyncCallback<Void>() {
-          @Override
-          public void onFailure(Throwable caught) {
-
-          }
-
-          @Override
-          public void onSuccess(Void result) {
-            simpleEventBus.fireEvent(event);
-          }
-        });
+//        clientSessionService.markNameAsUsed(namesListBox.getSelectedValue(),
+//                UserUtils.currentUser.getUserId(), new AsyncCallback<Void>() {
+//          @Override
+//          public void onFailure(Throwable caught) {
+//
+//          }
+//
+//          @Override
+//          public void onSuccess(Void result) {
+//            simpleEventBus.fireEvent(event);
+//          }
+//        });
+        simpleEventBus.fireEvent(event);
         //To change body of implemented methods use File | Settings | File Templates.
         dialogBox.hide();
       }

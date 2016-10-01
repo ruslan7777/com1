@@ -21,9 +21,9 @@ public interface ClientSessionDao {
 
     List<SessionPseudoName> getFreePseudoNames();
 
-    void markNameAsFree(SessionPseudoName name);
+    void markNameAsFree(String name, Long userId);
 
-    void markNameAsUsed(SessionPseudoName name);
+    void markNameAsUsed(String name, Long userId);
 
     void addNames(List<SessionPseudoName> pseudoNamesList);
 

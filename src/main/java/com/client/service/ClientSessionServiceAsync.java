@@ -15,9 +15,9 @@ import java.util.List;
 public interface ClientSessionServiceAsync {
     void getFreePseudoNames(AsyncCallback<List<SessionPseudoName>> async);
 
-    void markNameAsFree(SessionPseudoName name, AsyncCallback<Void> async);
+    void markNameAsFree(String name, Long userId, AsyncCallback<Void> async);
 
-    void markNameAsUsed(SessionPseudoName name, AsyncCallback<Void> async);
+    void markNameAsUsed(String name, Long userId, AsyncCallback<Void> async);
 
     void addNames(List<SessionPseudoName> pseudoNamesList, AsyncCallback<Void> asyncCallback);
 

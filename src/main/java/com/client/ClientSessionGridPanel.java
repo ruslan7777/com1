@@ -810,7 +810,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
   }
 
   private void setNameFree(ClientSession clientSession) {
-    clientSessionService.markNameAsFree(clientSession.getSessionPseudoName(), new AsyncCallback<Void>() {
+    clientSessionService.markNameAsFree(clientSession.getSessionPseudoName().getName(), UserUtils.currentUser.getUserId(),  new AsyncCallback<Void>() {
       @Override
       public void onFailure(Throwable caught) {
 
@@ -899,7 +899,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
       public void onClick(ClickEvent clickEvent) {
         final AddSessionEvent event = new AddSessionEvent();
         event.setClientPseudoName(namesListBox.getSelectedValue());
-        clientSessionService.markNameAsUsed(new SessionPseudoName(namesListBox.getSelectedValue(), UserUtils.currentUser), new AsyncCallback<Void>() {
+        clientSessionService.markNameAsUsed(namesListBox.getSelectedValue(), UserUtils.currentUser.getUserId(), new AsyncCallback<Void>() {
           @Override
           public void onFailure(Throwable caught) {
 

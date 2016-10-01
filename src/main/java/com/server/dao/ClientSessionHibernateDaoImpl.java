@@ -49,14 +49,15 @@ public class ClientSessionHibernateDaoImpl implements ClientSessionDao{
 //        testClientSession.setId(getMaxId() + 1);
         testClientSession.setCreationTime(startTime - 70000);
         testClientSession.setFinalSum(finalSum);
-        SessionPseudoName removedTestSessionPseudoName12 = new SessionPseudoName("testName" + testClientSession.getId());
+        SessionPseudoName removedTestSessionPseudoName12 = new SessionPseudoName();
         removedTestSessionPseudoName12.setIsUsed(true);
         removedTestSessionPseudoName12.setUser(testUser.getUserId());
         session.save(removedTestSessionPseudoName12);
-        testClientSession.setSessionPseudoName(removedTestSessionPseudoName12);
         testClientSession.setStatus(sessionStatus);
         testClientSession.setUser(testUser.getUserId());
         session.save(testClientSession);
+        removedTestSessionPseudoName12.setName("testName" + testClientSession.getId());
+        testClientSession.setSessionPseudoName(removedTestSessionPseudoName12);
     }
 
     @Override
@@ -81,13 +82,19 @@ public class ClientSessionHibernateDaoImpl implements ClientSessionDao{
     }
 
     @Override
-    public void markNameAsFree(SessionPseudoName name) {
+    public void markNameAsFree(String name, Long userId) {
         Session session = HibernateAnnotationUtil.getSessionFactory().openSession();
         Transaction transaction = null;
         try {
             transaction = session.beginTransaction();
-            SessionPseudoName sessionPseudoName = (SessionPseudoName) session.get(SessionPseudoName.class, name.getId());
-            sessionPseudoName.setIsUsed(false);
+            Query nameQuery = session.createQuery("from SessionPseudoName spn where name =:name and user =:userId");
+            nameQuery.setParameter("name", name);
+            nameQuery.setParameter("userId", userId);
+            SessionPseudoName sessionPseudoName = (SessionPseudoName) nameQuery.uniqueResult();
+            if (sessionPseudoName != null) {
+                sessionPseudoName.setIsUsed(false);
+            }
+            session.saveOrUpdate(sessionPseudoName);
             transaction.commit();
         } catch (HibernateException e) {
             if (transaction != null) {
@@ -100,13 +107,19 @@ public class ClientSessionHibernateDaoImpl implements ClientSessionDao{
     }
 
     @Override
-    public void markNameAsUsed(SessionPseudoName name) {
+    public void markNameAsUsed(String name, Long userId) {
         Session session = HibernateAnnotationUtil.getSessionFactory().openSession();
         Transaction transaction = null;
         try {
             transaction = session.beginTransaction();
-            SessionPseudoName sessionPseudoName = (SessionPseudoName) session.get(SessionPseudoName.class, name.getId());
-            sessionPseudoName.setIsUsed(true);
+            Query nameQuery = session.createQuery("from SessionPseudoName spn where name =:name and user =:userId");
+            nameQuery.setParameter("name", name);
+            nameQuery.setParameter("userId", userId);
+            SessionPseudoName sessionPseudoName = (SessionPseudoName) nameQuery.uniqueResult();
+            if (sessionPseudoName != null) {
+                sessionPseudoName.setIsUsed(true);
+            }
+            session.saveOrUpdate(sessionPseudoName);
             transaction.commit();
         } catch (HibernateException e) {
             if (transaction != null) {
@@ -145,13 +158,24 @@ public class ClientSessionHibernateDaoImpl implements ClientSessionDao{
         Transaction transaction = null;
         try {
             transaction = session.beginTransaction();
+                    User user = (User) session.get(User.class, UserUtils.currentUser.getUserId());
+            user.getClientSessions().add(clientSession);
             clientSession.setUser(UserUtils.currentUser.getUserId());
             clientSession.setStartTime(System.currentTimeMillis());
 
-            markNameAsUsed(clientSession.getSessionPseudoName());
+            Query nameQuery = session.createQuery("from SessionPseudoName spn where name =:name and user =:userId");
+            nameQuery.setParameter("name", clientSession.getSessionPseudoName().getName());
+            nameQuery.setParameter("userId", clientSession.getUser());
+            SessionPseudoName sessionPseudoName = (SessionPseudoName) nameQuery.uniqueResult();
+            if (sessionPseudoName != null) {
+                sessionPseudoName.setIsUsed(true);
+            }
+            session.merge(sessionPseudoName);
+//            markNameAsUsed(clientSession.getSessionPseudoName().getName(), UserUtils.currentUser.getUserId());
+//            clientSession.getSessionPseudoName().setIsUsed(true);
             session.save(clientSession);
             transaction.commit();
-            return getClientSessionsList(datePoint, UserUtils.INSTANCE.getCurrentUser(), isShowRemoved, isShowPayed);
+            return getClientSessionsList(datePoint, UserUtils.currentUser, isShowRemoved, isShowPayed);
         } catch (HibernateException e) {
             if (transaction != null) {
                 transaction.rollback();
@@ -177,9 +201,9 @@ public class ClientSessionHibernateDaoImpl implements ClientSessionDao{
             ClientSession clientSessionFromDb = (ClientSession) session.get(clientSession.getClass(), clientSession.getId());
             clientSessionFromDb.setStatus(ClientSession.SESSION_STATUS.REMOVED);
             clientSessionFromDb.setFinalSum(0l);
-            markNameAsFree(clientSession.getSessionPseudoName());
+            markNameAsFree(clientSession.getSessionPseudoName().getName(), UserUtils.currentUser.getUserId());
             transaction.commit();
-            return getClientSessionsList(datePoint, UserUtils.INSTANCE.getCurrentUser(), isShowRemoved, showPayedOn);
+            return getClientSessionsList(datePoint, UserUtils.currentUser, isShowRemoved, showPayedOn);
         } catch (HibernateException e) {
             if (transaction != null) {
                 transaction.rollback();
@@ -275,9 +299,9 @@ public class ClientSessionHibernateDaoImpl implements ClientSessionDao{
             transaction = session.beginTransaction();
             ClientSession clientSessionFromDb = (ClientSession) session.get(clientSession.getClass(), clientSession.getId());
             clientSessionFromDb.setStatus(ClientSession.SESSION_STATUS.PAYED);
-            markNameAsFree(clientSessionFromDb.getSessionPseudoName());
+            markNameAsFree(clientSessionFromDb.getSessionPseudoName().getName(), UserUtils.currentUser.getUserId());
             transaction.commit();
-            return getClientSessionsList(datePoint, UserUtils.INSTANCE.getCurrentUser(), toShowRemoved, toShowPayed);
+            return getClientSessionsList(datePoint, UserUtils.currentUser, toShowRemoved, toShowPayed);
         } catch (HibernateException e) {
             if (transaction != null) {
                 transaction.rollback();
@@ -417,7 +441,7 @@ public class ClientSessionHibernateDaoImpl implements ClientSessionDao{
         Transaction transaction = null;
         try {
             transaction = session.beginTransaction();
-//            populateDB(session);
+            populateDB(session);
 //            session.flush();
 
             Query query = session.createQuery("from com.shared.model.User as u where u.userName=:userName");
@@ -447,7 +471,7 @@ public class ClientSessionHibernateDaoImpl implements ClientSessionDao{
             User destObject =
                     mapper.map(user, User.class);
 //            User destObject = new User();
-            mapper.map(user, destObject);
+//            mapper.map(user, destObject);
             return destObject;
         } catch (HibernateException e) {
             if (transaction != null) {

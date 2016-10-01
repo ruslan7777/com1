@@ -28,13 +28,13 @@ public class ClientSessionServiceImpl extends RemoteServiceServlet implements Cl
     }
 
     @Override
-    public void markNameAsFree(SessionPseudoName name) {
-        clientSessionDao.markNameAsFree(name);
+    public void markNameAsFree(String name, Long userId) {
+        clientSessionDao.markNameAsFree(name, userId);
     }
 
     @Override
-    public void markNameAsUsed(SessionPseudoName name) {
-        clientSessionDao.markNameAsUsed(name);
+    public void markNameAsUsed(String name, Long userId) {
+        clientSessionDao.markNameAsUsed(name, userId);
     }
 
     @Override

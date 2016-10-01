@@ -55,6 +55,9 @@ public class User implements Serializable, IsSerializable {
 
 
   public List<ClientSession> getClientSessions() {
+    if (clientSessions == null) {
+      clientSessions = new ArrayList<>();
+    }
     return this.clientSessions;
   }
 

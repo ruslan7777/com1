@@ -31,15 +31,15 @@ public class ClientSessionNoSqlDaoImpl implements ClientSessionDao{
     }
 
     @Override
-    public void markNameAsFree(SessionPseudoName name) {
-        name.setIsUsed(false);
-        ObjectifyService.ofy().save().entity(name);
+    public void markNameAsFree(String name, Long userId) {
+//        name.setIsUsed(false);
+//        ObjectifyService.ofy().save().entity(name);
     }
 
     @Override
-    public void markNameAsUsed(SessionPseudoName name) {
-        name.setIsUsed(true);
-        ObjectifyService.ofy().save().entity(name);
+    public void markNameAsUsed(String name, Long userId) {
+//        name.setIsUsed(true);
+//        ObjectifyService.ofy().save().entity(name);
     }
 
     @Override
