@@ -2,6 +2,7 @@ package com.shared.model;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -10,20 +11,21 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
+import javax.persistence.Table;
 import java.io.Serializable;
 
 /**
  * Created by dmitry on 22.08.16.
  */
 @Entity
+@Table(name = "morelessmodels")
 public class MoreLessUnlimModel implements Serializable, IsSerializable {
   @Id
-  @GeneratedValue(strategy= GenerationType.AUTO)
+  @GeneratedValue(strategy= GenerationType.IDENTITY)
   private Long id;
   private long modelOrder;
-  @ManyToOne
-  @JoinTable(name="settingsId",joinColumns=@JoinColumn(name="settingsId"))
-  private SettingsHolder settingsHolder;
+  @Column(name = "setting_id")
+  private SettingsHolder setting;
   private long unlimCost;
   private long costPerMinute;
   private long numberOfHours;
@@ -59,12 +61,14 @@ public class MoreLessUnlimModel implements Serializable, IsSerializable {
     this.modelOrder = modelOrder;
   }
 
+  @ManyToOne
+  @JoinColumn(name = "setting_id")
   public SettingsHolder getSettingsHolder() {
-    return settingsHolder;
+    return setting;
   }
 
   public void setSettingsHolder(SettingsHolder settingsHolder) {
-    this.settingsHolder = settingsHolder;
+    this.setting = settingsHolder;
   }
 
   public long getUnlimCost() {

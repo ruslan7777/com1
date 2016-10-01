@@ -2,6 +2,7 @@ package com.shared.model;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -9,6 +10,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import java.io.Serializable;
 
 /**
@@ -16,16 +18,16 @@ import java.io.Serializable;
  */
 //@Entity
 @Entity
+@Table(name = "pseudonames")
 public class SessionPseudoName implements Serializable, IsSerializable {
   @Id
-  @GeneratedValue(strategy= GenerationType.AUTO)
+  @GeneratedValue(strategy= GenerationType.IDENTITY)
   private Long id;
 
   private String name;
   private boolean isUsed;
 
-  @ManyToOne(fetch = FetchType.EAGER)
-  @JoinColumn(name="userId", nullable = true)
+  @Column(name = "user_id")
   private User user;
 //  private long userId;
 
@@ -65,6 +67,8 @@ public class SessionPseudoName implements Serializable, IsSerializable {
 //    this.userId = userId;
 //  }
 
+  @ManyToOne
+  @JoinColumn(name = "user_id")
   public User getUser() {
     return user;
   }

@@ -4,10 +4,14 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 //import com.googlecode.objectify.annotation.Entity;
 //import com.googlecode.objectify.annotation.Id;
 
+import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
@@ -16,10 +20,11 @@ import java.io.Serializable;
  */
 //@Entity
 @javax.persistence.Entity
+@Table(name = "clientsessions")
 public class ClientSession implements Serializable, IsSerializable, Comparable<ClientSession> {
 //    @Id
     @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
+    @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Long id;
   private long creationTime;
   private long startTime;
@@ -28,7 +33,8 @@ public class ClientSession implements Serializable, IsSerializable, Comparable<C
 //  private String sessionPseudoName;
   private SESSION_STATUS status = SESSION_STATUS.CREATED;
     private long userId;
-  @OneToOne
+
+  @Column(name = "user_id")
   private User user;
 
   @OneToOne
@@ -134,6 +140,8 @@ public class ClientSession implements Serializable, IsSerializable, Comparable<C
     this.userId = userId;
   }
 
+  @ManyToOne
+  @JoinColumn(name = "user_id")
   public User getUser() {
     return user;
   }

@@ -2,25 +2,56 @@ package com.shared.model;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.Table;
 import java.io.Serializable;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Created by dmitry on 14.08.16.
  */
 @Entity
+@Table(name = "users")
 public class User implements Serializable, IsSerializable {
   @Id
-  @GeneratedValue(strategy= GenerationType.AUTO)
+  @GeneratedValue(strategy= GenerationType.IDENTITY)
   private Long userId;
   private String userName;
   private String password;
-  @OneToOne
+  @Column(name = "settings_holder_id")
   private SettingsHolder settingsHolder;
+
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<ClientSession> clientSessions;
+
+
+  public List<ClientSession> getClientSessions() {
+    return this.clientSessions;
+  }
+
+  public void setClientSessions(List<ClientSession> clientSessions) {
+    this.clientSessions = clientSessions;
+  }
+
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<SessionPseudoName> sessionPseudoNames;
+
+  public List<SessionPseudoName> getSessionPseudoNames() {
+    return sessionPseudoNames;
+  }
+
+  public void setSessionPseudoNames(List<SessionPseudoName> sessionPseudoNames) {
+    this.sessionPseudoNames = sessionPseudoNames;
+  }
 
   public Long getUserId() {
     return userId;
@@ -46,6 +77,8 @@ public class User implements Serializable, IsSerializable {
     this.password = password;
   }
 
+  @OneToOne
+  @JoinColumn(name = "settings_holder_id", referencedColumnName = "setting_id")
   public SettingsHolder getSettingsHolder() {
     return settingsHolder;
   }

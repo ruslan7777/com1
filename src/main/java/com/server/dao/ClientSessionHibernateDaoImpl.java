@@ -419,12 +419,21 @@ public class ClientSessionHibernateDaoImpl implements ClientSessionDao{
             query.setParameter("userName", userName);
             User user = (User) query.uniqueResult();
             if (user != null) {
-                Query settingsHolderQuery = session.createQuery("from com.shared.model.SettingsHolder");
+                Query settingsHolderQuery = session.createQuery("from com.shared.model.SettingsHolder sh " +
+                        "where sh.user.id = :userId");
+                settingsHolderQuery.setParameter("userId", user.getUserId());
 //                settingsHolderQuery.setParameter("loggedUserId", loggedUser.getUserId());
-                List<SettingsHolder> settingsHolders = settingsHolderQuery.list();
+                SettingsHolder settingsHolder = (SettingsHolder) settingsHolderQuery.uniqueResult();
+                Query moreLessModelQuery = session.createQuery("from com.shared.model.MoreLessUnlimModel ml " +
+                        "where ml.settingsHolder.settingsId = :settingId");
+                moreLessModelQuery.setParameter("settingId", settingsHolder.getSettingsId());
+
+                if (moreLessModelQuery != null) {
+                    settingsHolder.setMoreLessUnlimModelList(moreLessModelQuery.list());
+                }
                 UserUtils.init();
-                UserUtils.setSettings(settingsHolders.get(0));
-                user.setSettingsHolder(settingsHolders.get(0));
+                UserUtils.setSettings(settingsHolder);
+                user.setSettingsHolder(settingsHolder);
                 UserUtils.currentUser = user;
             }
             transaction.commit();
@@ -445,14 +454,14 @@ public class ClientSessionHibernateDaoImpl implements ClientSessionDao{
 //        testUser.setUserId(0l);
         testUser.setUserName("a");
         testUser.setPassword("");
-        session.save(testUser);
+
 
         SettingsHolder testSettingsHolder = new SettingsHolder();
         testSettingsHolder.setFirstPartLength(20000l);
         testSettingsHolder.setFirstPartSumAmount(3500l);
-        testSettingsHolder.setSettingsId(0l);
-        testSettingsHolder.setUserId(testUser.getUserId());
-//        testSettingsHolder.setUser(testUser);
+        testSettingsHolder.setUser(testUser);
+        testUser.setSettingsHolder(testSettingsHolder);
+        session.save(testUser);
         session.save(testSettingsHolder);
 
         MoreLessUnlimModel moreLessUnlimModel = new MoreLessUnlimModel();
@@ -464,6 +473,24 @@ public class ClientSessionHibernateDaoImpl implements ClientSessionDao{
         moreLessUnlimModel.setUnlimCost(500);
         session.save(moreLessUnlimModel);
 
+        MoreLessUnlimModel moreLessUnlimModel2 = new MoreLessUnlimModel();
+        moreLessUnlimModel2.setNumberOfHours(2);
+        moreLessUnlimModel2.setCostForHours(250);
+        moreLessUnlimModel2.setCostPerMinute(5);
+        moreLessUnlimModel2.setModelOrder(2);
+        moreLessUnlimModel2.setSettingsHolder(testSettingsHolder);
+        moreLessUnlimModel2.setUnlimCost(500);
+        session.save(moreLessUnlimModel2);
+
+        MoreLessUnlimModel moreLessUnlimModel3 = new MoreLessUnlimModel();
+        moreLessUnlimModel3.setNumberOfHours(3);
+        moreLessUnlimModel3.setCostForHours(300);
+        moreLessUnlimModel3.setCostPerMinute(5);
+        moreLessUnlimModel3.setModelOrder(3);
+        moreLessUnlimModel3.setSettingsHolder(testSettingsHolder);
+        moreLessUnlimModel3.setUnlimCost(500);
+        session.save(moreLessUnlimModel3);
+        
         addTestClientSession(testUser, System.currentTimeMillis() - 50000, 0, ClientSession.SESSION_STATUS.CREATED, 0l, session);
         addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED, Long.valueOf("3508"), session);
         addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.PAYED, Long.valueOf("3637"), session);
