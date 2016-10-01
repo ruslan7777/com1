@@ -10,6 +10,8 @@ import com.shared.model.SessionPseudoName;
 import com.shared.model.SettingsHolder;
 import com.shared.model.User;
 import com.shared.utils.UserUtils;
+import org.dozer.DozerBeanMapper;
+import org.dozer.Mapper;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -50,7 +52,7 @@ public class ClientSessionHibernateDaoImpl implements ClientSessionDao{
         SessionPseudoName removedTestSessionPseudoName12 = new SessionPseudoName("testName" + testClientSession.getId());
         removedTestSessionPseudoName12.setIsUsed(true);
         removedTestSessionPseudoName12.setUser(testUser.getUserId());
-        addName(removedTestSessionPseudoName12);
+        session.save(removedTestSessionPseudoName12);
         testClientSession.setSessionPseudoName(removedTestSessionPseudoName12);
         testClientSession.setStatus(sessionStatus);
         testClientSession.setUser(testUser.getUserId());
@@ -143,7 +145,7 @@ public class ClientSessionHibernateDaoImpl implements ClientSessionDao{
         Transaction transaction = null;
         try {
             transaction = session.beginTransaction();
-            clientSession.setUserId(UserUtils.INSTANCE.getCurrentUser().getUserId());
+            clientSession.setUser(UserUtils.currentUser.getUserId());
             clientSession.setStartTime(System.currentTimeMillis());
 
             markNameAsUsed(clientSession.getSessionPseudoName());
@@ -378,11 +380,11 @@ public class ClientSessionHibernateDaoImpl implements ClientSessionDao{
                         return o1.getModelOrder() > o2.getModelOrder() ? 1 : -1;
                     }
                 });
-                settingsHolder.setMoreLessUnlimModelList(moreLessUnlimModels);
+//                .setMoreLessUnlimModelList(moreLessUnlimModels);
                 UserUtils.setSettings(settingsHolder);
-                loggedUser.setSettingsHolder(settingsHolder.getSettingsId());
+//                loggedUser.setSettingsHolder(settingsHolder.getSettingsId());
                 UserUtils.currentUser = loggedUser;
-                loggedUser.setSettingsHolder(settingsHolder.getSettingsId());
+//                loggedUser.setSettingsHolder(settingsHolder.getSettingsId());
             }
             transaction.commit();
             return loggedUser;
@@ -415,7 +417,7 @@ public class ClientSessionHibernateDaoImpl implements ClientSessionDao{
         Transaction transaction = null;
         try {
             transaction = session.beginTransaction();
-            populateDB(session);
+//            populateDB(session);
 //            session.flush();
 
             Query query = session.createQuery("from com.shared.model.User as u where u.userName=:userName");
@@ -427,20 +429,26 @@ public class ClientSessionHibernateDaoImpl implements ClientSessionDao{
                 settingsHolderQuery.setParameter("userId", user.getUserId());
 //                settingsHolderQuery.setParameter("loggedUserId", loggedUser.getUserId());
                 SettingsHolder settingsHolder = (SettingsHolder) settingsHolderQuery.uniqueResult();
-                Query moreLessModelQuery = session.createQuery("from com.shared.model.MoreLessUnlimModel ml " +
-                        "where ml.settingsHolder.settingsId = :settingId");
-                moreLessModelQuery.setParameter("settingId", settingsHolder.getSettingsId());
-
-                if (moreLessModelQuery != null) {
-                    settingsHolder.setMoreLessUnlimModelList(moreLessModelQuery.list());
-                }
+//                Query moreLessModelQuery = session.createQuery("from com.shared.model.MoreLessUnlimModel ml " +
+//                        "where ml.setting = :settingId");
+//                moreLessModelQuery.setParameter("settingId", settingsHolder.getSettingsId());
+//
+//                if (moreLessModelQuery != null) {
+//                    settingsHolder.setMoreLessUnlimModelList(moreLessModelQuery.list());
+//                }
                 UserUtils.init();
                 UserUtils.setSettings(settingsHolder);
-                user.setSettingsHolder(settingsHolder.getSettingsId());
+//                user.setSettingsHolder(settingsHolder.getSettingsId());
                 UserUtils.currentUser = user;
             }
             transaction.commit();
-            return user;
+            Mapper mapper = new DozerBeanMapper();
+
+            User destObject =
+                    mapper.map(user, User.class);
+//            User destObject = new User();
+            mapper.map(user, destObject);
+            return destObject;
         } catch (HibernateException e) {
             if (transaction != null) {
                 transaction.rollback();
@@ -472,7 +480,7 @@ public class ClientSessionHibernateDaoImpl implements ClientSessionDao{
         moreLessUnlimModel.setCostForHours(150);
         moreLessUnlimModel.setCostPerMinute(5);
         moreLessUnlimModel.setModelOrder(1);
-        moreLessUnlimModel.setSettingsHolder(testSettingsHolder.getSettingsId());
+        moreLessUnlimModel.setUser(testUser.getUserId());
         moreLessUnlimModel.setUnlimCost(500);
         session.save(moreLessUnlimModel);
 
@@ -481,7 +489,7 @@ public class ClientSessionHibernateDaoImpl implements ClientSessionDao{
         moreLessUnlimModel2.setCostForHours(250);
         moreLessUnlimModel2.setCostPerMinute(5);
         moreLessUnlimModel2.setModelOrder(2);
-        moreLessUnlimModel2.setSettingsHolder(testSettingsHolder.getSettingsId());
+        moreLessUnlimModel2.setUser(testUser.getUserId());
         moreLessUnlimModel2.setUnlimCost(500);
         session.save(moreLessUnlimModel2);
 
@@ -490,10 +498,14 @@ public class ClientSessionHibernateDaoImpl implements ClientSessionDao{
         moreLessUnlimModel3.setCostForHours(300);
         moreLessUnlimModel3.setCostPerMinute(5);
         moreLessUnlimModel3.setModelOrder(3);
-        moreLessUnlimModel3.setSettingsHolder(testSettingsHolder.getSettingsId());
+        moreLessUnlimModel3.setUser(testUser.getUserId());
         moreLessUnlimModel3.setUnlimCost(500);
         session.save(moreLessUnlimModel3);
-        
+
+        testUser.getMoreLessUnlimModelList().add(moreLessUnlimModel);
+        testUser.getMoreLessUnlimModelList().add(moreLessUnlimModel2);
+        testUser.getMoreLessUnlimModelList().add(moreLessUnlimModel3);
+
         addTestClientSession(testUser, System.currentTimeMillis() - 50000, 0, ClientSession.SESSION_STATUS.CREATED, 0l, session);
         addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED, Long.valueOf("3508"), session);
         addTestClientSession(testUser, System.currentTimeMillis() - 150000, System.currentTimeMillis(), ClientSession.SESSION_STATUS.PAYED, Long.valueOf("3637"), session);

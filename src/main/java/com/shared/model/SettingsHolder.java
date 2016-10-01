@@ -15,6 +15,7 @@ import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -53,20 +54,10 @@ public class SettingsHolder implements Serializable, IsSerializable {
     this.user = user;
   }
 
-  @OneToMany(mappedBy = "setting", cascade = CascadeType.ALL, orphanRemoval = true)
-  private List<MoreLessUnlimModel> moreLessUnlimModelList;
 //  @OneToMany
 //  private List<MoreLessUnlimModel> moreLessUnlimModelList;
 
   public SettingsHolder() {
-  }
-
-  public List<MoreLessUnlimModel> getMoreLessUnlimModelList() {
-    return moreLessUnlimModelList;
-  }
-
-  public void setMoreLessUnlimModelList(List<MoreLessUnlimModel> moreLessUnlimModelList) {
-    this.moreLessUnlimModelList = moreLessUnlimModelList;
   }
 
   public enum countStrategy{

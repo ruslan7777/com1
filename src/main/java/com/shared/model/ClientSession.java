@@ -1,10 +1,7 @@
 package com.shared.model;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
-//import com.googlecode.objectify.annotation.Entity;
-//import com.googlecode.objectify.annotation.Id;
 
-import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -13,13 +10,11 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 /**
  * Created by dmitry on 26.07.16.
  */
-//@Entity
 @javax.persistence.Entity
 @Table(name = "clientsessions")
 public class ClientSession implements Serializable, IsSerializable, Comparable<ClientSession> {
@@ -33,19 +28,18 @@ public class ClientSession implements Serializable, IsSerializable, Comparable<C
   private long finalSum;
 //  private String sessionPseudoName;
   private SESSION_STATUS status = SESSION_STATUS.CREATED;
-    private long userId;
+//    private long userId;
 
-  @Column(name = "user_id")
   private long user;
 
   @OneToOne
   private SessionPseudoName sessionPseudoName;
 
 
-  public ClientSession(long startTime, long stopTime, long userId) {
+  public ClientSession(long startTime, long stopTime, long user) {
     this.startTime = startTime;
     this.stopTime = stopTime;
-      this.userId = userId;
+      this.user = user;
   }
 
   public ClientSession() {
@@ -133,17 +127,17 @@ public class ClientSession implements Serializable, IsSerializable, Comparable<C
     this.finalSum = finalSum;
   }
 
-  public long getUserId() {
-    return userId;
-  }
-
-  public void setUserId(long userId) {
-    this.userId = userId;
-  }
+//  public long getUserId() {
+//    return userId;
+//  }
+//
+//  public void setUserId(long userId) {
+//    this.userId = userId;
+//  }
 
   @ManyToOne
   @JoinTable(name = "users")
-  @JoinColumn(name = "user_id")
+  @JoinColumn(name = "userId")
   public long getUser() {
     return user;
   }

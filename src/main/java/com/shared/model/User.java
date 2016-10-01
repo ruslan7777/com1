@@ -5,6 +5,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -14,6 +15,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -31,8 +33,25 @@ public class User implements Serializable, IsSerializable {
   @Column(name = "settings_holder_id")
   private long settingsHolder;
 
-  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  public User() {
+  }
+
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
   private List<ClientSession> clientSessions;
+
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<MoreLessUnlimModel> moreLessUnlimModelList;
+
+  public List<MoreLessUnlimModel> getMoreLessUnlimModelList() {
+    if (moreLessUnlimModelList == null) {
+      moreLessUnlimModelList = new ArrayList<>();
+    }
+    return moreLessUnlimModelList;
+  }
+
+  public void setMoreLessUnlimModelList(List<MoreLessUnlimModel> moreLessUnlimModelList) {
+    this.moreLessUnlimModelList = moreLessUnlimModelList;
+  }
 
 
   public List<ClientSession> getClientSessions() {

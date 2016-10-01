@@ -80,6 +80,13 @@
           <artifactId>gwt-visualization</artifactId>
           <version>1.0.2</version>
       </dependency>
+       <!--https://mvnrepository.com/artifact/net.sf.dozer/dozer-->
+      <dependency>
+          <groupId>net.sf.dozer</groupId>
+          <artifactId>dozer</artifactId>
+          <version>5.5.1</version>
+      </dependency>
+
       <!--<dependency>-->
           <!--<groupId>com.google.appengine</groupId>-->
           <!--<artifactId>appengine-remote-api</artifactId>-->

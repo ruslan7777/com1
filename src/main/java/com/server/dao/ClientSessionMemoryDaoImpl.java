@@ -184,7 +184,7 @@ public class ClientSessionMemoryDaoImpl implements ClientSessionDao{
     public List<ClientSession> getClientSessionsList(final DatePoint datePoint, User currentUser, final boolean isShowRemoved, final boolean showPayedOn) {
         List<ClientSession> clientSessions = new ArrayList<>();
         for (ClientSession clientSession : clientSessionMap.values()) {
-            if (clientSession.getUserId() == currentUser.getUserId()) {
+            if (clientSession.getUser() == currentUser.getUserId()) {
 //                if (isShowRemoved || (clientSession.getSessionStatus() != ClientSession.SESSION_STATUS.REMOVED)) {
                     clientSessions.add(clientSession);
 //                }

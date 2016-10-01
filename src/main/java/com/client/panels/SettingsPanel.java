@@ -343,9 +343,9 @@ public class SettingsPanel extends SplitLayoutPanel {
         simpleEventBus.addHandler(UserLoggedInEvent.TYPE, new UserLoggedInHandler() {
             @Override
             public void userIsLoggedIn(UserLoggedInEvent userLoggedInEvent) {
-                SettingsHolder settings = UserUtils.getSettings();
-                if (settings.getCurrentCountStrategy() == SettingsHolder.countStrategy.MULTI_HOURS) {
-                    moreLessUnlimWidget.showSettings(settings.getMoreLessUnlimModelList());
+                User currentUser = UserUtils.currentUser;
+                if (UserUtils.getSettings().getCurrentCountStrategy() == SettingsHolder.countStrategy.MULTI_HOURS) {
+                    moreLessUnlimWidget.showSettings(currentUser.getMoreLessUnlimModelList());
                 }
             }
         });

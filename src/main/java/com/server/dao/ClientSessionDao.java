@@ -5,6 +5,7 @@ import com.shared.model.DatePoint;
 import com.shared.model.SessionPseudoName;
 import com.shared.model.SettingsHolder;
 import com.shared.model.User;
+import org.hibernate.Session;
 
 import java.util.Collection;
 import java.util.List;
