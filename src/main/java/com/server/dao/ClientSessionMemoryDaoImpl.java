@@ -106,13 +106,18 @@ public class ClientSessionMemoryDaoImpl implements ClientSessionDao{
 
     @Override
     public void markNameAsFree(String name, Long userId) {
-        this.pseudoNamesMap.get(name).setIsUsed(false);
+
     }
 
     @Override
     public SessionPseudoName markNameAsUsed(String name, Long userId) {
         this.pseudoNamesMap.get(name).setIsUsed(true);
         return pseudoNamesMap.get(name);
+    }
+
+    @Override
+    public SessionPseudoName markNameAsFreeById(Long nameId) {
+        return null;
     }
 
     @Override
@@ -229,6 +234,11 @@ public class ClientSessionMemoryDaoImpl implements ClientSessionDao{
     }
 
     @Override
+    public void saveMoreLessModels(List<MoreLessUnlimModel> moreLessUnlimModels, Long userId) {
+
+    }
+
+    @Override
     public List<ClientSession> stopClientSession(DatePoint datePoint, ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed) {
         ClientSession session = this.clientSessionMap.get(clientSession.getId());
         session.setStatus(ClientSession.SESSION_STATUS.STOPPED);
@@ -260,8 +270,8 @@ public class ClientSessionMemoryDaoImpl implements ClientSessionDao{
     }
 
     @Override
-    public void removeName(SessionPseudoName sessionPseudoName) {
-        this.pseudoNamesMap.remove(sessionPseudoName.getName());
+    public void removeName(String sessionPseudoName, Long userId) {
+        this.pseudoNamesMap.remove(sessionPseudoName);
     }
 
     @Override

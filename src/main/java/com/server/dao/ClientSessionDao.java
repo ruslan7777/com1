@@ -2,6 +2,7 @@ package com.server.dao;
 
 import com.shared.model.ClientSession;
 import com.shared.model.DatePoint;
+import com.shared.model.MoreLessUnlimModel;
 import com.shared.model.SessionPseudoName;
 import com.shared.model.SettingsHolder;
 import com.shared.model.User;
@@ -24,6 +25,7 @@ public interface ClientSessionDao {
     void markNameAsFree(String name, Long userId);
 
     SessionPseudoName markNameAsUsed(String name, Long userId);
+    SessionPseudoName markNameAsFreeById(Long nameId);
 
     void addNames(List<SessionPseudoName> pseudoNamesList);
 
@@ -34,6 +36,8 @@ public interface ClientSessionDao {
 
     List<ClientSession> getClientSessionsList(DatePoint datePoint, User currentUser, boolean isShowRemoved, boolean showPayedOn);
 
+    void saveMoreLessModels(List<MoreLessUnlimModel> moreLessUnlimModels, Long userId);
+
     List<ClientSession> stopClientSession(DatePoint datePoint, ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed);
 
     List<ClientSession> payClientSession(DatePoint datePoint, ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed);
@@ -42,7 +46,7 @@ public interface ClientSessionDao {
 
     void addName(SessionPseudoName namesTextBoxValue);
 
-    void removeName(SessionPseudoName sessionPseudoName);
+    void removeName(String sessionPseudoName, Long userId);
 
     User getCurrentUser(String userName, String userPassword);
 

@@ -3,6 +3,7 @@ package com.shared.model;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -11,6 +12,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import java.io.Serializable;
 
 /**
@@ -33,8 +35,10 @@ public class ClientSession implements Serializable, IsSerializable, Comparable<C
 
   private long user;
 
-  @OneToOne(cascade = CascadeType.ALL)
+  @Column(unique = false)
   private SessionPseudoName sessionPseudoName;
+//  @Transient
+//  private String pseudoName;
 
 
   public ClientSession(long startTime, long stopTime, long user) {
@@ -50,6 +54,14 @@ public class ClientSession implements Serializable, IsSerializable, Comparable<C
   public int compareTo(ClientSession o) {
     return o.getCreationTime() >= this.getCreationTime() ? 1 : -1;
   }
+
+//  public String getPseudoName() {
+//    return pseudoName;
+//  }
+//
+//  public void setPseudoName(String pseudoName) {
+//    this.pseudoName = pseudoName;
+//  }
 
   public enum SESSION_STATUS implements Serializable, IsSerializable {
     CREATED("Создана", "Старт"), STARTED("В процессе", "Стоп"), PAUSED("Приостановлена", "Возобновить"),
@@ -147,6 +159,7 @@ public class ClientSession implements Serializable, IsSerializable, Comparable<C
     this.user = user;
   }
 
+  @OneToOne(cascade = CascadeType.ALL)
   public SessionPseudoName getSessionPseudoName() {
     return sessionPseudoName;
   }

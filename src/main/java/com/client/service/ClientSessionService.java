@@ -4,6 +4,7 @@ import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 import com.shared.model.ClientSession;
 import com.shared.model.DatePoint;
+import com.shared.model.MoreLessUnlimModel;
 import com.shared.model.SessionPseudoName;
 import com.shared.model.User;
 
@@ -31,6 +32,8 @@ public interface ClientSessionService extends RemoteService {
 
     List<ClientSession> getClientSessions(DatePoint datePoint, User currentUser, boolean isShowRemoved, boolean showPayedOn);
 
+    void saveMoreLessModels(List<MoreLessUnlimModel> moreLessUnlimModels, Long userId);
+
     List<ClientSession> stopClientSession(DatePoint datePoint, ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed);
 
     List<ClientSession> payClientSession(DatePoint datePoint, ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed);
@@ -39,7 +42,7 @@ public interface ClientSessionService extends RemoteService {
 
     void addName(SessionPseudoName namesTextBoxValue);
 
-    void removeName(SessionPseudoName sessionPseudoName);
+    void removeName(String sessionPseudoName, Long userId);
 
     User getCurrentUser(String userName, String userPassword);
 

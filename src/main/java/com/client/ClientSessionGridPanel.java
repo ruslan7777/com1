@@ -365,11 +365,11 @@ public class ClientSessionGridPanel extends VerticalPanel {
               listDataProvider.getList().addAll(result);
               listDataProvider.refresh();
               clientSessionDataGrid.setVisibleRange(0, listDataProvider.getList().size());
-              DecoratedPopupPanel decoratedPopupPanel = new DecoratedPopupPanel();
-              decoratedPopupPanel.center();
-              decoratedPopupPanel.setAutoHideEnabled(true);
-              decoratedPopupPanel.setWidget(new HTML(clientSession.getSessionPseudoName().getName() + " стартовал"));
-              decoratedPopupPanel.show();
+//              DecoratedPopupPanel decoratedPopupPanel = new DecoratedPopupPanel();
+//              decoratedPopupPanel.center();
+//              decoratedPopupPanel.setAutoHideEnabled(true);
+//              decoratedPopupPanel.setWidget(new HTML(clientSession.getSessionPseudoName() + " стартовал"));
+//              decoratedPopupPanel.show();
             }
           });
         } else if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.STARTED) {
@@ -419,11 +419,11 @@ public class ClientSessionGridPanel extends VerticalPanel {
               listDataProvider.getList().addAll(result);
               listDataProvider.refresh();
               clientSessionDataGrid.setVisibleRange(0, listDataProvider.getList().size());
-              DecoratedPopupPanel decoratedPopupPanel = new DecoratedPopupPanel();
-              decoratedPopupPanel.center();
-              decoratedPopupPanel.setAutoHideEnabled(true);
-              decoratedPopupPanel.setWidget(new HTML(clientSession.getSessionPseudoName().getName() + "Оплачена"));
-              decoratedPopupPanel.show();
+//              DecoratedPopupPanel decoratedPopupPanel = new DecoratedPopupPanel();
+//              decoratedPopupPanel.center();
+//              decoratedPopupPanel.setAutoHideEnabled(true);
+//              decoratedPopupPanel.setWidget(new HTML(clientSession.getSessionPseudoName().getName() + "Оплачена"));
+//              decoratedPopupPanel.show();
             }
           });
         } else if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.REMOVED ||

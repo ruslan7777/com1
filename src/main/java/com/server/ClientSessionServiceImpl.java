@@ -7,6 +7,7 @@ import com.server.dao.ClientSessionHibernateDaoImpl;
 import com.server.dao.ClientSessionMemoryDaoImpl;
 import com.shared.model.ClientSession;
 import com.shared.model.DatePoint;
+import com.shared.model.MoreLessUnlimModel;
 import com.shared.model.SessionPseudoName;
 import com.shared.model.User;
 import com.shared.utils.UserUtils;
@@ -66,6 +67,11 @@ public class ClientSessionServiceImpl extends RemoteServiceServlet implements Cl
     }
 
     @Override
+    public void saveMoreLessModels(List<MoreLessUnlimModel> moreLessUnlimModels, Long userId) {
+        clientSessionDao.saveMoreLessModels(moreLessUnlimModels, userId);
+    }
+
+    @Override
     public List<ClientSession> stopClientSession(DatePoint datePoint, ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed) {
         return clientSessionDao.stopClientSession(datePoint, clientSession, toShowRemoved, toShowPayed);
     }
@@ -86,8 +92,8 @@ public class ClientSessionServiceImpl extends RemoteServiceServlet implements Cl
     }
 
     @Override
-    public void removeName(SessionPseudoName sessionPseudoName) {
-        clientSessionDao.removeName(sessionPseudoName);
+    public void removeName(String sessionPseudoName, Long userId) {
+        clientSessionDao.removeName(sessionPseudoName, userId);
     }
 
     @Override

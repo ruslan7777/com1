@@ -28,6 +28,7 @@ import com.google.appengine.api.datastore.Entity;
 //import com.google.appengine.tools.remoteapi.RemoteApiInstaller;
 //import com.google.appengine.tools.remoteapi.RemoteApiOptions;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -171,7 +172,7 @@ public class SettingsPanel extends SplitLayoutPanel {
                         if (!result.contains(new SessionPseudoName(selectedName))) {
                             Window.alert("Это имя используется");
                         } else {
-                            clientSessionService.removeName(new SessionPseudoName(selectedName), new AsyncCallback<Void>() {
+                            clientSessionService.removeName(selectedName, UserUtils.currentUser.getUserId(), new AsyncCallback<Void>() {
                                 @Override
                                 public void onFailure(Throwable caught) {
 
@@ -287,17 +288,17 @@ public class SettingsPanel extends SplitLayoutPanel {
                     event.stopPropagation();
                     return;
                 }
-                UserUtils.INSTANCE.setMoreLessUnlimModelMap(moreLessUnlimWidget.getSettings());
-
-                clientSessionService.saveUser(UserUtils.INSTANCE.getCurrentUser(), new AsyncCallback<User>() {
+                Map<Long, MoreLessUnlimModel> moreLessUnlimWidgetSettings = moreLessUnlimWidget.getSettings();
+                UserUtils.INSTANCE.setMoreLessUnlimModelMap(moreLessUnlimWidgetSettings);
+                UserUtils.currentUser.setMoreLessUnlimModelList(new ArrayList<MoreLessUnlimModel>(moreLessUnlimWidgetSettings.values()));
+                clientSessionService.saveMoreLessModels(new ArrayList<MoreLessUnlimModel>(moreLessUnlimWidgetSettings.values()), UserUtils.currentUser.getUserId(), new AsyncCallback<Void>() {
                     @Override
                     public void onFailure(Throwable caught) {
 
                     }
 
                     @Override
-                    public void onSuccess(User result) {
-                        UserUtils.INSTANCE.setCurrentUser(result);
+                    public void onSuccess(Void result) {
                         DecoratedPopupPanel decoratedPopupPanel = new DecoratedPopupPanel();
                         decoratedPopupPanel.center();
                         decoratedPopupPanel.setAutoHideEnabled(true);

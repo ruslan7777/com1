@@ -24,7 +24,7 @@ public class MoreLessUnlimModel implements Serializable, IsSerializable {
   @GeneratedValue(strategy= GenerationType.IDENTITY)
   private Long id;
   private long modelOrder;
-  @Column(name = "setting_id")
+  @Column(name = "user_id")
   private long user;
   private long unlimCost;
   private long costPerMinute;

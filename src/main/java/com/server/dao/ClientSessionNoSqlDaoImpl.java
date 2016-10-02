@@ -5,6 +5,7 @@ import com.googlecode.objectify.ObjectifyService;
 import com.googlecode.objectify.Result;
 import com.shared.model.ClientSession;
 import com.shared.model.DatePoint;
+import com.shared.model.MoreLessUnlimModel;
 import com.shared.model.SessionPseudoName;
 import com.shared.model.User;
 import com.shared.utils.UserUtils;
@@ -43,7 +44,12 @@ public class ClientSessionNoSqlDaoImpl implements ClientSessionDao{
         return null;
     }
 
-    @Override
+  @Override
+  public SessionPseudoName markNameAsFreeById(Long nameId) {
+    return null;
+  }
+
+  @Override
     public void addNames(List<SessionPseudoName> pseudoNamesList) {
         for (SessionPseudoName name : pseudoNamesList) {
             ObjectifyService.ofy().save().entity(name);
@@ -82,7 +88,12 @@ public class ClientSessionNoSqlDaoImpl implements ClientSessionDao{
                 .filter("startTime > ", comparedTime).list();
     }
 
-    @Override
+  @Override
+  public void saveMoreLessModels(List<MoreLessUnlimModel> moreLessUnlimModels, Long userId) {
+
+  }
+
+  @Override
     public List<ClientSession> stopClientSession(DatePoint datePoint, ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed) {
         ObjectifyService.ofy().save().entity(clientSession);
         return getClientSessionsList(datePoint, UserUtils.INSTANCE.getCurrentUser(), toShowRemoved,
@@ -108,7 +119,7 @@ public class ClientSessionNoSqlDaoImpl implements ClientSessionDao{
     }
 
     @Override
-    public void removeName(SessionPseudoName sessionPseudoName) {
+    public void removeName(String sessionPseudoName, Long userId) {
         ObjectifyService.ofy().delete().entity(sessionPseudoName);
     }
 
