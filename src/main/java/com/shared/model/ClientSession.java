@@ -2,6 +2,7 @@ package com.shared.model;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import javax.persistence.CascadeType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -32,7 +33,7 @@ public class ClientSession implements Serializable, IsSerializable, Comparable<C
 
   private long user;
 
-  @OneToOne
+  @OneToOne(cascade = CascadeType.ALL)
   private SessionPseudoName sessionPseudoName;
 
 

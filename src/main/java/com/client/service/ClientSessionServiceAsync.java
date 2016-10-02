@@ -17,7 +17,7 @@ public interface ClientSessionServiceAsync {
 
     void markNameAsFree(String name, Long userId, AsyncCallback<Void> async);
 
-    void markNameAsUsed(String name, Long userId, AsyncCallback<Void> async);
+    void markNameAsUsed(String name, Long userId, AsyncCallback<SessionPseudoName> async);
 
     void addNames(List<SessionPseudoName> pseudoNamesList, AsyncCallback<Void> asyncCallback);
 

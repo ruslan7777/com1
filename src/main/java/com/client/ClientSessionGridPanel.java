@@ -219,23 +219,32 @@ public class ClientSessionGridPanel extends VerticalPanel {
       @Override
       public void addClientSession(AddSessionEvent addSessionEvent) {
         final ClientSession clientSession = new ClientSession();
-        final SessionPseudoName sessionPseudoName = new SessionPseudoName(addSessionEvent.getClientPseudoName());
-        clientSession.setSessionPseudoName(sessionPseudoName);
-        clientSession.setCreationTime(System.currentTimeMillis());
-        clientSessionService.saveClientSession(currentDatePointValue, clientSession, UserUtils.getSettings().isToShowRemoved(),
-                UserUtils.getSettings().isToShowPayed(), new AsyncCallback<List<ClientSession>>() {
+        clientSessionService.markNameAsUsed(addSessionEvent.getClientPseudoName(), UserUtils.currentUser.getUserId(), new AsyncCallback<SessionPseudoName>() {
           @Override
           public void onFailure(Throwable caught) {
 
           }
 
           @Override
-          public void onSuccess(List<ClientSession> result) {
+          public void onSuccess(SessionPseudoName result) {
+            clientSession.setSessionPseudoName(result);
+            clientSession.setCreationTime(System.currentTimeMillis());
+            clientSessionService.saveClientSession(currentDatePointValue, clientSession, UserUtils.getSettings().isToShowRemoved(),
+                    UserUtils.getSettings().isToShowPayed(), new AsyncCallback<List<ClientSession>>() {
+                      @Override
+                      public void onFailure(Throwable caught) {
+
+                      }
+
+                      @Override
+                      public void onSuccess(List<ClientSession> result) {
 //            clientSession.setId(result);
-            listDataProvider.getList().clear();
-            listDataProvider.getList().addAll(result);
-            listDataProvider.refresh();
-            clientSessionDataGrid.setVisibleRange(0, listDataProvider.getList().size());
+                        listDataProvider.getList().clear();
+                        listDataProvider.getList().addAll(result);
+                        listDataProvider.refresh();
+                        clientSessionDataGrid.setVisibleRange(0, listDataProvider.getList().size());
+                      }
+                    });
           }
         });
       }
@@ -899,17 +908,18 @@ public class ClientSessionGridPanel extends VerticalPanel {
       public void onClick(ClickEvent clickEvent) {
         final AddSessionEvent event = new AddSessionEvent();
         event.setClientPseudoName(namesListBox.getSelectedValue());
-        clientSessionService.markNameAsUsed(namesListBox.getSelectedValue(), UserUtils.currentUser.getUserId(), new AsyncCallback<Void>() {
-          @Override
-          public void onFailure(Throwable caught) {
-
-          }
-
-          @Override
-          public void onSuccess(Void result) {
-            simpleEventBus.fireEvent(event);
-          }
-        });
+//        clientSessionService.markNameAsUsed(namesListBox.getSelectedValue(), UserUtils.currentUser.getUserId(), new AsyncCallback<Void>() {
+//          @Override
+//          public void onFailure(Throwable caught) {
+//
+//          }
+//
+//          @Override
+//          public void onSuccess(Void result) {
+//            simpleEventBus.fireEvent(event);
+//          }
+//        });
+        simpleEventBus.fireEvent(event);
         //To change body of implemented methods use File | Settings | File Templates.
         dialogBox.hide();
       }

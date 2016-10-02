@@ -23,7 +23,7 @@ public interface ClientSessionDao {
 
     void markNameAsFree(String name, Long userId);
 
-    void markNameAsUsed(String name, Long userId);
+    SessionPseudoName markNameAsUsed(String name, Long userId);
 
     void addNames(List<SessionPseudoName> pseudoNamesList);
 

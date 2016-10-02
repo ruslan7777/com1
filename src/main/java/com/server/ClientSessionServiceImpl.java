@@ -9,6 +9,7 @@ import com.shared.model.ClientSession;
 import com.shared.model.DatePoint;
 import com.shared.model.SessionPseudoName;
 import com.shared.model.User;
+import com.shared.utils.UserUtils;
 
 import java.util.List;
 
@@ -33,8 +34,8 @@ public class ClientSessionServiceImpl extends RemoteServiceServlet implements Cl
     }
 
     @Override
-    public void markNameAsUsed(String name, Long userId) {
-        clientSessionDao.markNameAsUsed(name, userId);
+    public SessionPseudoName markNameAsUsed(String name, Long userId) {
+        return clientSessionDao.markNameAsUsed(name, userId);
     }
 
     @Override
@@ -44,7 +45,9 @@ public class ClientSessionServiceImpl extends RemoteServiceServlet implements Cl
 
     @Override
     public List<ClientSession> saveClientSession(DatePoint datePoint, ClientSession clientSession, boolean isShowRemoved, boolean showPayedOn) {
-        return clientSessionDao.saveClientSession(datePoint, clientSession, isShowRemoved, showPayedOn);//To change body of implemented methods use File | Settings | File Templates.
+        List<ClientSession> clientSessions =  clientSessionDao.saveClientSession(datePoint, clientSession, isShowRemoved, showPayedOn);//To change body of implemented methods use File | Settings | File Templates.
+//        clientSessionDao.markNameAsUsed(clientSession.getSessionPseudoName().getName(), UserUtils.currentUser.getUserId());
+        return clientSessions;
     }
 
     @Override

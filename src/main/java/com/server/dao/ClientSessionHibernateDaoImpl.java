@@ -107,7 +107,7 @@ public class ClientSessionHibernateDaoImpl implements ClientSessionDao{
     }
 
     @Override
-    public void markNameAsUsed(String name, Long userId) {
+    public SessionPseudoName markNameAsUsed(String name, Long userId) {
         Session session = HibernateAnnotationUtil.getSessionFactory().openSession();
         Transaction transaction = null;
         try {
@@ -121,6 +121,7 @@ public class ClientSessionHibernateDaoImpl implements ClientSessionDao{
             }
             session.saveOrUpdate(sessionPseudoName);
             transaction.commit();
+            return sessionPseudoName;
         } catch (HibernateException e) {
             if (transaction != null) {
                 transaction.rollback();
@@ -129,6 +130,7 @@ public class ClientSessionHibernateDaoImpl implements ClientSessionDao{
         } finally {
             session.close();
         }
+        return null;
     }
 
     @Override
@@ -162,15 +164,16 @@ public class ClientSessionHibernateDaoImpl implements ClientSessionDao{
             user.getClientSessions().add(clientSession);
             clientSession.setUser(UserUtils.currentUser.getUserId());
             clientSession.setStartTime(System.currentTimeMillis());
-
-            Query nameQuery = session.createQuery("from SessionPseudoName spn where name =:name and user =:userId");
-            nameQuery.setParameter("name", clientSession.getSessionPseudoName().getName());
-            nameQuery.setParameter("userId", clientSession.getUser());
-            SessionPseudoName sessionPseudoName = (SessionPseudoName) nameQuery.uniqueResult();
-            if (sessionPseudoName != null) {
-                sessionPseudoName.setIsUsed(true);
-            }
-            session.merge(sessionPseudoName);
+//
+//            Query nameQuery = session.createQuery("from SessionPseudoName spn where name =:name and user =:userId");
+//            nameQuery.setParameter("name", clientSession.getSessionPseudoName().getName());
+//            nameQuery.setParameter("userId", clientSession.getUser());
+//            SessionPseudoName sessionPseudoName = (SessionPseudoName) nameQuery.uniqueResult();
+//            if (sessionPseudoName != null) {
+//                sessionPseudoName.setIsUsed(true);
+//            }
+//            clientSession.setSessionPseudoName(se);
+//            session.merge(sessionPseudoName);
 //            markNameAsUsed(clientSession.getSessionPseudoName().getName(), UserUtils.currentUser.getUserId());
 //            clientSession.getSessionPseudoName().setIsUsed(true);
             session.save(clientSession);

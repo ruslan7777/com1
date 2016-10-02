@@ -37,9 +37,10 @@ public class ClientSessionNoSqlDaoImpl implements ClientSessionDao{
     }
 
     @Override
-    public void markNameAsUsed(String name, Long userId) {
+    public SessionPseudoName markNameAsUsed(String name, Long userId) {
 //        name.setIsUsed(true);
 //        ObjectifyService.ofy().save().entity(name);
+        return null;
     }
 
     @Override

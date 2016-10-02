@@ -110,8 +110,9 @@ public class ClientSessionMemoryDaoImpl implements ClientSessionDao{
     }
 
     @Override
-    public void markNameAsUsed(String name, Long userId) {
+    public SessionPseudoName markNameAsUsed(String name, Long userId) {
         this.pseudoNamesMap.get(name).setIsUsed(true);
+        return pseudoNamesMap.get(name);
     }
 
     @Override
