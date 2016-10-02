@@ -1,0 +1,26 @@
+calculation checks
+long timeShift = 1000 * 60 * 60 * 4;
+
+difference = System.currentTimeMillis() + timeShift - clientSession.getStartTime();
+
+        hoursGone = (System.currentTimeMillis()+ timeShift  - clientSession.getStartTime())/hourLength;
+
+        for (MoreLessUnlimModel model : moreLessUnlimModels) {
+        if (hoursGone >= model.getNumberOfHours()) {
+        hoursSet = model.getNumberOfHours();
+        hoursSum = model.getCostForHours();
+        }
+        }
+        long leftMilliSeconds = 0;
+        if (hoursSet != 0) {
+        leftMilliSeconds = difference % (hourLength * hoursSet);
+        } else {
+        leftMilliSeconds = difference;
+        }
+      leftMilliSeconds = difference % (hoursGone * 1000 * 60 * 60) *  20000 / (hoursGone * 1000 * 60 * 60) ;
+        String prettyTime = getMinutesString(System.currentTimeMillis() + timeShift - clientSession.getStartTime());
+        long totalSum = hoursSum + (leftMilliSeconds * costPerMinute) / 1000 / 60;
+
+        if (totalSum > unlimCost) {
+        String prettyMoney = getPrettyMoney(moreLessUnlimModel.getUnlimCost());
+        }
