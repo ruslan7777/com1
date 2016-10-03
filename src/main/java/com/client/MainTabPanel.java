@@ -49,7 +49,7 @@ public class MainTabPanel extends TabLayoutPanel {
     private SimpleEventBus simpleEventBus;
   ToggleButton showRemovedButton;
   ToggleButton showPayedButton;
-  Label sumLabel;
+//  Label sumLabel;
   ListBox datePointListBox;
   private final ClientSessionServiceAsync clientSessionService = GWT.create(ClientSessionService.class);
   /**
@@ -83,12 +83,12 @@ public class MainTabPanel extends TabLayoutPanel {
 //    getElement().getStyle().setMarginLeft(300.0, Style.Unit.PX);
     setHeight("100%");
     setWidth("100%");
-    eventBus.addHandler(UpdateSumEvent.TYPE, new UpdateSumEventHandler() {
-      @Override
-      public void updateSum(UpdateSumEvent updateSumEvent) {
-       sumLabel.setText(getPrettyMoney(updateSumEvent.getSum()));
-      }
-    });
+//    eventBus.addHandler(UpdateSumEvent.TYPE, new UpdateSumEventHandler() {
+//      @Override
+//      public void updateSum(UpdateSumEvent updateSumEvent) {
+//       sumLabel.setText(getPrettyMoney(updateSumEvent.getSum()));
+//      }
+//    });
 //    setHeight("100%");
 //    setWidth("100%");
     // Add a home tab
@@ -153,16 +153,16 @@ public class MainTabPanel extends TabLayoutPanel {
     eastButtonsPanel.add(html);
     eastButtonsPanel.add(showPayedButton);
 
-    Label sumLabelLabel = new Label("Сумма:");
-    sumLabelLabel.getElement().getStyle().setLeft(20, Style.Unit.PX);
-    sumLabelLabel.getElement().getStyle().setTop(20, Style.Unit.PX);
-    eastButtonsPanel.add(sumLabelLabel);
-    sumLabel = new Label();
-    sumLabel.getElement().getStyle().setFontSize(20, Style.Unit.PX);
-    sumLabel.getElement().getStyle().setLeft(20, Style.Unit.PX);
-    sumLabel.getElement().getStyle().setTop(20, Style.Unit.PX);
-    eastButtonsPanel.add(html);
-    eastButtonsPanel.add(sumLabel);
+//    Label sumLabelLabel = new Label("Сумма:");
+//    sumLabelLabel.getElement().getStyle().setLeft(20, Style.Unit.PX);
+//    sumLabelLabel.getElement().getStyle().setTop(20, Style.Unit.PX);
+//    eastButtonsPanel.add(sumLabelLabel);
+//    sumLabel = new Label();
+//    sumLabel.getElement().getStyle().setFontSize(20, Style.Unit.PX);
+//    sumLabel.getElement().getStyle().setLeft(20, Style.Unit.PX);
+//    sumLabel.getElement().getStyle().setTop(20, Style.Unit.PX);
+//    eastButtonsPanel.add(html);
+//    eastButtonsPanel.add(sumLabel);
     eastButtonsPanel.add(datePointListBox);
 
     splitLayoutPanel.addEast(eastButtonsPanel, 250);
@@ -317,13 +317,13 @@ public class MainTabPanel extends TabLayoutPanel {
     return dialogBox;
   }
 
-  public Label getSumLabel() {
-    return sumLabel;
-  }
-
-  public void setSumLabel(Label sumLabel) {
-    this.sumLabel = sumLabel;
-  }
+//  public Label getSumLabel() {
+//    return sumLabel;
+//  }
+//
+//  public void setSumLabel(Label sumLabel) {
+//    this.sumLabel = sumLabel;
+//  }
 
   private String getPrettyMoney(long minPayment) {
     return new BigDecimal(minPayment).divide(new BigDecimal("100")).setScale(2, BigDecimal.ROUND_HALF_UP).toString();

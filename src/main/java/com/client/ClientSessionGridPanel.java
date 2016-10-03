@@ -182,7 +182,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
     simpleEventBus.addHandler(ToggleShowPayedEvent.TYPE, new ToggleShowPayedEventHandler() {
       @Override
       public void toggleShowPayed(ToggleShowPayedEvent toggleShowPayedEvent) {
-        clientSessionService.getClientSessions(DatePoint.TODAY, UserUtils.INSTANCE.getCurrentUser(), toggleShowPayedEvent.isShowRemovedCurrentState(),
+        clientSessionService.getClientSessions(currentDatePointValue, UserUtils.INSTANCE.getCurrentUser(), toggleShowPayedEvent.isShowRemovedCurrentState(),
                 toggleShowPayedEvent.isShowPayedOn(),
                 new AsyncCallback<List<ClientSession>>() {
                   @Override
@@ -755,7 +755,6 @@ public class ClientSessionGridPanel extends VerticalPanel {
     } else {
       leftMilliSeconds = difference;
     }
-//      leftMilliSeconds = difference % (hoursGone * 1000 * 60 * 60) *  20000 / (hoursGone * 1000 * 60 * 60) ;
     long totalSum = hoursSum + (leftMilliSeconds * costPerMinute) / 1000 / 60;
     if (totalSum > unlimCost) {
       clientSession.setStopTime(System.currentTimeMillis());

@@ -5,6 +5,7 @@ import com.shared.model.MoreLessUnlimModel;
 import com.shared.model.SessionPseudoName;
 import com.shared.model.SettingsHolder;
 import com.shared.model.User;
+import org.hibernate.HibernateException;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
@@ -23,13 +24,13 @@ public class HibernateAnnotationUtil {
 
 	static {
 		try {
-            Configuration configuration = new Configuration();
-            configuration.configure("hibernate/hibernate.cfg.xml");
-            configuration.addAnnotatedClass(User.class);
-            configuration.addAnnotatedClass(MoreLessUnlimModel.class);
-            configuration.addAnnotatedClass(ClientSession.class);
-            configuration.addAnnotatedClass(SessionPseudoName.class);
-            configuration.addAnnotatedClass(SettingsHolder.class);
+			Configuration configuration = new Configuration();
+			configuration.configure("hibernate/hibernate.cfg.xml");
+			configuration.addAnnotatedClass(User.class);
+			configuration.addAnnotatedClass(MoreLessUnlimModel.class);
+			configuration.addAnnotatedClass(ClientSession.class);
+			configuration.addAnnotatedClass(SessionPseudoName.class);
+			configuration.addAnnotatedClass(SettingsHolder.class);
 			ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder().applySettings(configuration.getProperties()).build();
             sessionFactory = configuration.buildSessionFactory(serviceRegistry);
 		} catch (Throwable ex) {

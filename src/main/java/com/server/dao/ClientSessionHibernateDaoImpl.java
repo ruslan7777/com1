@@ -523,7 +523,7 @@ public class ClientSessionHibernateDaoImpl implements ClientSessionDao{
         Transaction transaction = null;
         try {
             transaction = session.beginTransaction();
-            populateDB(session);
+//            populateDB(session);
 //            session.flush();
 
             Query query = session.createQuery("from com.shared.model.User as u where u.userName=:userName");
