@@ -31,6 +31,7 @@ import com.google.gwt.user.cellview.client.AbstractHeaderOrFooterBuilder;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.DataGrid;
+import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.cellview.client.TextHeader;
 import com.google.gwt.user.client.Timer;
@@ -99,7 +100,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
                     listDataProvider.getList().clear();
                     listDataProvider.getList().addAll(result);
                     listDataProvider.refresh();
-                    clientSessionDataGrid.setVisibleRange(0, listDataProvider.getList().size());
+//                    clientSessionDataGrid.setVisibleRange(0, listDataProvider.getList().size());
 
                     UpdateSumEvent updateSumEvent = new UpdateSumEvent();
                     updateSumEvent.setSum(getSum(result));
@@ -142,7 +143,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
                     listDataProvider.getList().clear();
                     listDataProvider.getList().addAll(result);
                     listDataProvider.refresh();
-                    clientSessionDataGrid.setVisibleRange(0, listDataProvider.getList().size());
+//                    clientSessionDataGrid.setVisibleRange(0, listDataProvider.getList().size());
                     long sum = 0l;
                     for (ClientSession clientSession : result) {
                       if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.REMOVED) {
@@ -195,7 +196,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
                     listDataProvider.getList().clear();
                     listDataProvider.getList().addAll(result);
                     listDataProvider.refresh();
-                    clientSessionDataGrid.setVisibleRange(0, listDataProvider.getList().size());
+//                    clientSessionDataGrid.setVisibleRange(0, listDataProvider.getList().size());
                   }
                 });
       }
@@ -242,7 +243,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
                         listDataProvider.getList().clear();
                         listDataProvider.getList().addAll(result);
                         listDataProvider.refresh();
-                        clientSessionDataGrid.setVisibleRange(0, listDataProvider.getList().size());
+//                        clientSessionDataGrid.setVisibleRange(0, listDataProvider.getList().size());
                       }
                     });
           }
@@ -280,10 +281,14 @@ public class ClientSessionGridPanel extends VerticalPanel {
 //      }
 //    });
 
-//    SimplePager pager = new SimplePager(SimplePager.TextLocation.CENTER, true, true);
-//    pager.setPageSize(10);
-//    pager.setDisplay(clientSessionDataGrid);
+    SimplePager pager = new SimplePager(SimplePager.TextLocation.RIGHT, true, false);
+    pager.setPageSize(10);
+    pager.setRangeLimited(true);
+    pager.setDisplay(clientSessionDataGrid);
     add(clientSessionDataGrid);
+    pager.getElement().getStyle().setMarginBottom(40, Style.Unit.PX);
+    pager.getElement().getStyle().setMarginLeft(40, Style.Unit.PX);
+    add(pager);
     setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 
     ButtonCellBase<String> stringButtonCellBase = new ButtonCellBase<>(new ButtonCellBase.DefaultAppearance<String>(new AbstractSafeHtmlRenderer<String>() {
@@ -364,7 +369,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
               listDataProvider.getList().clear();
               listDataProvider.getList().addAll(result);
               listDataProvider.refresh();
-              clientSessionDataGrid.setVisibleRange(0, listDataProvider.getList().size());
+//              clientSessionDataGrid.setVisibleRange(0, listDataProvider.getList().size());
 //              DecoratedPopupPanel decoratedPopupPanel = new DecoratedPopupPanel();
 //              decoratedPopupPanel.center();
 //              decoratedPopupPanel.setAutoHideEnabled(true);
@@ -394,7 +399,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
               listDataProvider.getList().clear();
               listDataProvider.getList().addAll(result);
               listDataProvider.refresh();
-              clientSessionDataGrid.setVisibleRange(0, listDataProvider.getList().size());
+//              clientSessionDataGrid.setVisibleRange(0, listDataProvider.getList().size());
               DecoratedPopupPanel decoratedPopupPanel = new DecoratedPopupPanel();
               decoratedPopupPanel.center();
               decoratedPopupPanel.setAutoHideEnabled(true);
@@ -418,7 +423,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
               listDataProvider.getList().clear();
               listDataProvider.getList().addAll(result);
               listDataProvider.refresh();
-              clientSessionDataGrid.setVisibleRange(0, listDataProvider.getList().size());
+//              clientSessionDataGrid.setVisibleRange(0, listDataProvider.getList().size());
 //              DecoratedPopupPanel decoratedPopupPanel = new DecoratedPopupPanel();
 //              decoratedPopupPanel.center();
 //              decoratedPopupPanel.setAutoHideEnabled(true);
@@ -562,7 +567,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
             listDataProvider.getList().clear();
             listDataProvider.getList().addAll(result);
             listDataProvider.refresh();
-            clientSessionDataGrid.setVisibleRange(0, listDataProvider.getList().size());
+//            clientSessionDataGrid.setVisibleRange(0, listDataProvider.getList().size());
             Audio audio = Audio.createIfSupported();
             audio.setSrc(GWT.getHostPageBaseURL() + "sounds/7.wav");
             audio.play();
@@ -620,28 +625,28 @@ public class ClientSessionGridPanel extends VerticalPanel {
 
     Timer t = new Timer() {
       public void run() {
-        for (int i = 0; i < ClientSessionGridPanel.this.clientSessionDataGrid.getVisibleItemCount(); i++) {
-          if (ClientSessionGridPanel.this.clientSessionDataGrid.getVisibleItem(i).getSessionStatus() == ClientSession.SESSION_STATUS.STARTED) {
-            ClientSessionGridPanel.this.clientSessionDataGrid.redrawRow(i);
-          }
-        }
-        long sum = 0;
-        for (int i = 0; i < ClientSessionGridPanel.this.clientSessionDataGrid.getVisibleItemCount(); i++) {
-          ClientSession clientSession = ClientSessionGridPanel.this.clientSessionDataGrid.getVisibleItem(i);
-            if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.REMOVED) {
-              continue;
-            }
-          if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.STOPPED ||
-                  clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.PAYED ||
-                  clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.STOPPED_UNLIMITED) {
-            sum += clientSession.getFinalSum();
-            continue;
-          }
-          sum = getSum(sum, clientSession);
-        }
-        UpdateSumEvent updateSumEvent = new UpdateSumEvent();
-        updateSumEvent.setSum(sum);
-        eventBus.fireEvent(updateSumEvent);
+//        for (int i = 0; i < ClientSessionGridPanel.this.clientSessionDataGrid.getRowCount(); i++) {
+//          if (ClientSessionGridPanel.this.clientSessionDataGrid.getVisibleItem(i).getSessionStatus() == ClientSession.SESSION_STATUS.STARTED) {
+            ClientSessionGridPanel.this.clientSessionDataGrid.redraw();
+//          }
+//        }
+//        long sum = 0;
+//        for (int i = 0; i < ClientSessionGridPanel.this.clientSessionDataGrid.getRowCount(); i++) {
+//          ClientSession clientSession = ClientSessionGridPanel.this.clientSessionDataGrid.getVisibleItem(i);
+//            if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.REMOVED) {
+//              continue;
+//            }
+//          if (clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.STOPPED ||
+//                  clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.PAYED ||
+//                  clientSession.getSessionStatus() == ClientSession.SESSION_STATUS.STOPPED_UNLIMITED) {
+//            sum += clientSession.getFinalSum();
+//            continue;
+//          }
+//          sum = getSum(sum, clientSession);
+//        }
+//        UpdateSumEvent updateSumEvent = new UpdateSumEvent();
+//        updateSumEvent.setSum(sum);
+//        eventBus.fireEvent(updateSumEvent);
       }
     };
 
@@ -718,7 +723,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
                     listDataProvider.getList().clear();
                     listDataProvider.getList().addAll(result);
                     listDataProvider.refresh();
-                    clientSessionDataGrid.setVisibleRange(0, listDataProvider.getList().size());
+//                    clientSessionDataGrid.setVisibleRange(0, listDataProvider.getList().size());
                   }
                 });
       }
@@ -773,7 +778,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
                   listDataProvider.getList().clear();
                   listDataProvider.getList().addAll(result);
                   listDataProvider.refresh();
-                  clientSessionDataGrid.setVisibleRange(0, listDataProvider.getList().size());
+//                  clientSessionDataGrid.setVisibleRange(0, listDataProvider.getList().size());
                   DecoratedPopupPanel decoratedPopupPanel = new DecoratedPopupPanel();
                   decoratedPopupPanel.center();
                   decoratedPopupPanel.setAutoHideEnabled(true);

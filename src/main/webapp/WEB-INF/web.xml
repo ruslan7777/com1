@@ -44,9 +44,9 @@
         <filter-name>ObjectifyFilter</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
-    <listener>
-        <listener-class>com.shared.utils.OfyHelper</listener-class>
-    </listener>
+    <!--<listener>-->
+        <!--<listener-class>com.shared.utils.OfyHelper</listener-class>-->
+    <!--</listener>-->
   
   <!-- Default page to serve -->
   <welcome-file-list>
