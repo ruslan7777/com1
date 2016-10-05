@@ -10,7 +10,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.io.Serializable;
 
@@ -25,7 +24,7 @@ public class MoreLessUnlimModel implements Serializable, IsSerializable {
   private Long id;
   private long modelOrder;
   @Column(name = "user_id")
-  private long user;
+  private long userEntity;
   private long unlimCost;
   private long costPerMinute;
   private long numberOfHours;
@@ -61,15 +60,26 @@ public class MoreLessUnlimModel implements Serializable, IsSerializable {
     this.modelOrder = modelOrder;
   }
 
+//  @ManyToOne
+//  @JoinTable(name = "users")
+//  @JoinColumn(name = "userId")
+//  public long getUserEntity() {
+//    return userEntity;
+//  }
+//
+//  public void setUserEntity(long user) {
+//    this.userEntity = user;
+//  }
+
   @ManyToOne
   @JoinTable(name = "users")
   @JoinColumn(name = "userId")
-  public long getUser() {
-    return user;
+  public long getUserEntity() {
+    return userEntity;
   }
 
-  public void setUser(long user) {
-    this.user = user;
+  public void setUserEntity(long userEntity) {
+    this.userEntity = userEntity;
   }
 
   public long getUnlimCost() {

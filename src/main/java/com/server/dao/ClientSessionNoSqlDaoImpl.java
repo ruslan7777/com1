@@ -138,7 +138,7 @@ public class ClientSessionNoSqlDaoImpl implements ClientSessionDao{
     public User login(String userName, String userPassword) {
         User user = ObjectifyService.ofy().load().type(User.class).filter("userName =", "userName").first().now();
         if (user != null) {
-//            SettingsHolder settingsHolder = ObjectifyService.ofy().load().type(SettingsHolder.class).filter("userId =", user.getUserId()).first().now();
+//            SettingsHolder settingsHolder = ObjectifyService.ofy().load().type(SettingsHolder.class).filter("userId =", user.getUserEntity()).first().now();
 //            UserUtils.init();
 //            UserUtils.setSettings(settingsHolder);
 //            UserUtils.INSTANCE.setCurrentUser(user);

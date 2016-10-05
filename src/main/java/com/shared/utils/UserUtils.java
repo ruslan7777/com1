@@ -47,14 +47,14 @@ public class UserUtils {
     testUser.setUserId(0l);
     testUser.setUserName("a");
     testUser.setPassword("");
-//    usersMap.put(testUser.getUserId(), testUser);
+//    usersMap.put(testUser.getUserEntity(), testUser);
 
     UserUtils.settings = new SettingsHolder();
 //    settings.setFirstPartLength(20000l);
 //    settings.setFirstPartSumAmount(3500l);
 //    settings.setSettingsId(0l);
-//    settings.setUserId(testUser.getUserId());
-//    settings.setUser(testUser);
+//    settings.setUserEntity(testUser.getUserEntity());
+//    settings.setUserEntity(testUser);
 ////    settingsHolderMap.put(testSettingsHolder.getSettingsId(), testSettingsHolder);
 //    SettingsHolder settingsHolder = new SettingsHolder();
 //    settingsHolder.setSettingsId(1l);

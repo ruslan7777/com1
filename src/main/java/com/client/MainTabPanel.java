@@ -236,7 +236,7 @@ public class MainTabPanel extends TabLayoutPanel {
         final AddSessionEvent event = new AddSessionEvent();
         event.setClientPseudoName(namesListBox.getSelectedValue());
 //        clientSessionService.markNameAsUsed(namesListBox.getSelectedValue(),
-//                UserUtils.currentUser.getUserId(), new AsyncCallback<Void>() {
+//                UserUtils.currentUser.getUserEntity(), new AsyncCallback<Void>() {
 //          @Override
 //          public void onFailure(Throwable caught) {
 //

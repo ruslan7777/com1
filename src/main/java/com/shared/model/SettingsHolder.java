@@ -9,14 +9,9 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinTable;
-import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
-import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by dmitry on 14.08.16.
@@ -37,22 +32,33 @@ public class SettingsHolder implements Serializable, IsSerializable {
 
   private countStrategy currentCountStrategy = countStrategy.MULTI_HOURS;
   private Long hourLength = 60000l;
-//  private Long userId;
+//  private Long userEntity;
 
 
 //  @PrimaryKeyJoinColumn
   @Column(name = "fk_user_id")
-  private long user;
+  private long userEntity;
+
+//  @OneToOne(cascade = CascadeType.ALL, mappedBy = "settings")
+//  @JoinTable(name = "users")
+//  public long getUserEntity() {
+//    return userEntity;
+//  }
+//
+//  public void setUserEntity(long user) {
+//    this.userEntity = user;
+//  }
 
   @OneToOne(cascade = CascadeType.ALL, mappedBy = "settings")
   @JoinTable(name = "users")
-  public long getUser() {
-    return user;
+  public long getUserEntity() {
+    return userEntity;
   }
 
-  public void setUser(long user) {
-    this.user = user;
+  public void setUserEntity(long userEntity) {
+    this.userEntity = userEntity;
   }
+
 
 //  @OneToMany
 //  private List<MoreLessUnlimModel> moreLessUnlimModelList;
@@ -149,12 +155,12 @@ public class SettingsHolder implements Serializable, IsSerializable {
     this.unlimitedCost = unlimitedCost;
   }
 
-//  public Long getUserId() {
-//    return userId;
+//  public Long getUserEntity() {
+//    return userEntity;
 //  }
 //
-//  public void setUserId(Long userId) {
-//    this.userId = userId;
+//  public void setUserEntity(Long userEntity) {
+//    this.userEntity = userEntity;
 //  }
 
 //  public List<MoreLessUnlimModel> getMoreLessUnlimModelList() {

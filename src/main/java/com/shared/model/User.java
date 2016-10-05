@@ -36,10 +36,10 @@ public class User implements Serializable, IsSerializable {
   public User() {
   }
 
-  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+  @OneToMany(mappedBy = "userEntity", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
   private List<ClientSession> clientSessions;
 
-  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  @OneToMany(mappedBy = "userEntity", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<MoreLessUnlimModel> moreLessUnlimModelList;
 
   public List<MoreLessUnlimModel> getMoreLessUnlimModelList() {
@@ -65,7 +65,7 @@ public class User implements Serializable, IsSerializable {
     this.clientSessions = clientSessions;
   }
 
-  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  @OneToMany(mappedBy = "userEntity", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<SessionPseudoName> sessionPseudoNames;
 
   public List<SessionPseudoName> getSessionPseudoNames() {

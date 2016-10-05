@@ -12,7 +12,6 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import java.io.Serializable;
 
 /**
@@ -31,9 +30,9 @@ public class ClientSession implements Serializable, IsSerializable, Comparable<C
   private long finalSum;
 //  private String sessionPseudoName;
   private SESSION_STATUS status = SESSION_STATUS.CREATED;
-//    private long userId;
+//    private long userEntity;
 
-  private long user;
+  private long userEntity;
 
   @Column(unique = false)
   private SessionPseudoName sessionPseudoName;
@@ -44,7 +43,7 @@ public class ClientSession implements Serializable, IsSerializable, Comparable<C
   public ClientSession(long startTime, long stopTime, long user) {
     this.startTime = startTime;
     this.stopTime = stopTime;
-      this.user = user;
+      this.userEntity = user;
   }
 
   public ClientSession() {
@@ -65,7 +64,7 @@ public class ClientSession implements Serializable, IsSerializable, Comparable<C
 
   public enum SESSION_STATUS implements Serializable, IsSerializable {
     CREATED("Создана", "Старт"), STARTED("В процессе", "Стоп"), PAUSED("Приостановлена", "Возобновить"),
-    STOPPED("Остановлена", "Оплатить"), STOPPED_UNLIMITED ("Безлимит", "Оплатить"), PAYED("Оплачена", "Оплачена"), REMOVED("Удалена", "Удалена");
+    STOPPED("Остановлена", "Оплачено"), STOPPED_UNLIMITED ("Безлимит", "Оплачено"), PAYED("Оплачена", "Оплачена"), REMOVED("Удалена", "Удалена");
     private String value;
     private String buttonText;
     private int order;
@@ -140,23 +139,34 @@ public class ClientSession implements Serializable, IsSerializable, Comparable<C
     this.finalSum = finalSum;
   }
 
-//  public long getUserId() {
-//    return userId;
+//  public long getUserEntity() {
+//    return userEntity;
 //  }
 //
-//  public void setUserId(long userId) {
-//    this.userId = userId;
+//  public void setUserEntity(long userEntity) {
+//    this.userEntity = userEntity;
 //  }
 
-  @ManyToOne
+//  @ManyToOne
+//  @JoinTable(name = "users")
+//  @JoinColumn(name = "userEntity")
+//  public long getUserEntity() {
+//    return userEntity;
+//  }
+//
+//  public void setUserEntity(long user) {
+//    this.userEntity = user;
+//  }
+
+    @ManyToOne
   @JoinTable(name = "users")
   @JoinColumn(name = "userId")
-  public long getUser() {
-    return user;
+  public long getUserEntity() {
+    return userEntity;
   }
 
-  public void setUser(long user) {
-    this.user = user;
+  public void setUserEntity(long userEntity) {
+    this.userEntity = userEntity;
   }
 
   @OneToOne(cascade = CascadeType.ALL)

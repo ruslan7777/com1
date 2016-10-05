@@ -195,7 +195,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
     });
 //      pseudoNamesList.addAll(Arrays.asList(new SessionPseudoName("BLACK"), new SessionPseudoName("RED"), new SessionPseudoName("YELLOW"),
 //              new SessionPseudoName("WHITE"), new SessionPseudoName("GREEN")));
-//    Long userId = UserUtils.INSTANCE.getCurrentUser().getUserId();
+//    Long userId = UserUtils.INSTANCE.getCurrentUser().getUserEntity();
 //    clientSessionService.addNames(Arrays.asList(new SessionPseudoName("BLACK", UserUtils.INSTANCE.getCurrentUser()), new SessionPseudoName("RED", UserUtils.INSTANCE.getCurrentUser()),
 //            new SessionPseudoName("YELLOW", UserUtils.INSTANCE.getCurrentUser()), new SessionPseudoName("WHITE", UserUtils.INSTANCE.getCurrentUser()),
 //            new SessionPseudoName("GREEN", UserUtils.INSTANCE.getCurrentUser())), new AsyncCallback<Void>() {
@@ -659,6 +659,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
       public void onSuccess(List<ClientSession> clientSessions) {
         listDataProvider = new ListDataProvider<ClientSession>(clientSessions);
         listDataProvider.addDataDisplay(clientSessionDataGrid);
+        updateListDataProviderOnSuccess(clientSessions);
 //        ColumnSortEvent.ListHandler<ClientSession> sortHandler = new ColumnSortEvent.ListHandler<ClientSession>(clientSessions);
 //        sortHandler.setComparator(manageButtonsColumn,
 //                new Comparator<ClientSession>() {
@@ -667,7 +668,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
 //                  }
 //                });
 //        clientSessionDataGrid.setRowCount(100);
-        clientSessionDataGrid.setRowData(clientSessions);
+//        clientSessionDataGrid.setRowData(clientSessions);
 //              clientSessionDataGrid.setVisibleRange(0, 1000);
       }
     });
@@ -911,7 +912,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
       public void onClick(ClickEvent clickEvent) {
         final AddSessionEvent event = new AddSessionEvent();
         event.setClientPseudoName(namesListBox.getSelectedValue());
-//        clientSessionService.markNameAsUsed(namesListBox.getSelectedValue(), UserUtils.currentUser.getUserId(), new AsyncCallback<Void>() {
+//        clientSessionService.markNameAsUsed(namesListBox.getSelectedValue(), UserUtils.currentUser.getUserEntity(), new AsyncCallback<Void>() {
 //          @Override
 //          public void onFailure(Throwable caught) {
 //

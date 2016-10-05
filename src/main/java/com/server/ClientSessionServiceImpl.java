@@ -47,7 +47,7 @@ public class ClientSessionServiceImpl extends RemoteServiceServlet implements Cl
     @Override
     public List<ClientSession> saveClientSession(DatePoint datePoint, ClientSession clientSession, boolean isShowRemoved, boolean showPayedOn) {
         List<ClientSession> clientSessions =  clientSessionDao.saveClientSession(datePoint, clientSession, isShowRemoved, showPayedOn);//To change body of implemented methods use File | Settings | File Templates.
-//        clientSessionDao.markNameAsUsed(clientSession.getSessionPseudoName().getName(), UserUtils.currentUser.getUserId());
+//        clientSessionDao.markNameAsUsed(clientSession.getSessionPseudoName().getName(), UserUtils.currentUser.getUserEntity());
         return clientSessions;
     }
 

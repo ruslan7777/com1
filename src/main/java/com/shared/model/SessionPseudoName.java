@@ -5,7 +5,6 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -30,8 +29,8 @@ public class SessionPseudoName implements Serializable, IsSerializable {
   private boolean isUsed;
 
   @Column(name = "user_id")
-  private long user;
-//  private long userId;
+  private long userEntity;
+//  private long userEntity;
 
   public SessionPseudoName(String name) {
     this.name = name;
@@ -39,7 +38,7 @@ public class SessionPseudoName implements Serializable, IsSerializable {
 
   public SessionPseudoName(String name, long user) {
     this.name = name;
-    this.user = user;
+    this.userEntity = user;
   }
 
   public SessionPseudoName() {
@@ -61,23 +60,23 @@ public class SessionPseudoName implements Serializable, IsSerializable {
     this.isUsed = isUsed;
   }
 
-//  public long getUserId() {
-//    return userId;
+//  public long getUserEntity() {
+//    return userEntity;
 //  }
 //
-//  public void setUserId(long userId) {
-//    this.userId = userId;
+//  public void setUserEntity(long userEntity) {
+//    this.userEntity = userEntity;
 //  }
 
   @ManyToOne(cascade = CascadeType.ALL)
   @JoinTable(name = "users")
   @JoinColumn(name = "user_id")
-  public long getUser() {
-    return user;
+  public long getUserEntity() {
+    return userEntity;
   }
 
-  public void setUser(long user) {
-    this.user = user;
+  public void setUserEntity(long user) {
+    this.userEntity = user;
   }
 
   public Long getId() {
