@@ -40,7 +40,7 @@ public class ReportsPanel extends VerticalPanel{
         setHeight("400px");
         setWidth("100%");
         options = createOptions();
-        createTable();
+//        createTable();
     }
     private Options createOptions() {
         Options options = Options.create();

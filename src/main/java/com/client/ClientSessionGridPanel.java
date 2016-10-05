@@ -97,14 +97,10 @@ public class ClientSessionGridPanel extends VerticalPanel {
 
                   @Override
                   public void onSuccess(List<ClientSession> result) {
-                    listDataProvider.getList().clear();
-                    listDataProvider.getList().addAll(result);
-                    listDataProvider.refresh();
-//                    clientSessionDataGrid.setVisibleRange(0, listDataProvider.getList().size());
-
-                    UpdateSumEvent updateSumEvent = new UpdateSumEvent();
-                    updateSumEvent.setSum(getSum(result));
-                    eventBus.fireEvent(updateSumEvent);
+                    updateListDataProviderOnSuccess(result);
+//                    UpdateSumEvent updateSumEvent = new UpdateSumEvent();
+//                    updateSumEvent.setSum(getSum(result));
+//                    eventBus.fireEvent(updateSumEvent);
                   }
                 });
       }
@@ -140,9 +136,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
 
                   @Override
                   public void onSuccess(List<ClientSession> result) {
-                    listDataProvider.getList().clear();
-                    listDataProvider.getList().addAll(result);
-                    listDataProvider.refresh();
+                    updateListDataProviderOnSuccess(result);
 //                    clientSessionDataGrid.setVisibleRange(0, listDataProvider.getList().size());
                     long sum = 0l;
                     for (ClientSession clientSession : result) {
@@ -193,9 +187,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
 
                   @Override
                   public void onSuccess(List<ClientSession> result) {
-                    listDataProvider.getList().clear();
-                    listDataProvider.getList().addAll(result);
-                    listDataProvider.refresh();
+                    updateListDataProviderOnSuccess(result);
 //                    clientSessionDataGrid.setVisibleRange(0, listDataProvider.getList().size());
                   }
                 });
@@ -240,9 +232,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
                       @Override
                       public void onSuccess(List<ClientSession> result) {
 //            clientSession.setId(result);
-                        listDataProvider.getList().clear();
-                        listDataProvider.getList().addAll(result);
-                        listDataProvider.refresh();
+                        updateListDataProviderOnSuccess(result);
 //                        clientSessionDataGrid.setVisibleRange(0, listDataProvider.getList().size());
                       }
                     });
@@ -262,6 +252,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
     };
     clientSessionDataGrid.setColumnWidth(pseudoNameColumn, 200, Style.Unit.PX);
     clientSessionDataGrid.addColumn(pseudoNameColumn, new TextHeader("Псевдоним"));
+    clientSessionDataGrid.setVisibleRange(0, 10);
 
 
     clientSessionDataGrid.setHeight("500px");
@@ -281,13 +272,23 @@ public class ClientSessionGridPanel extends VerticalPanel {
 //      }
 //    });
 
-    SimplePager pager = new SimplePager(SimplePager.TextLocation.RIGHT, true, false);
+    SimplePager pager = new SimplePager(SimplePager.TextLocation.RIGHT, true, true) {
+      @Override
+      protected void onRangeOrRowCountChanged() {
+//        for (int i = 0; i < ClientSessionGridPanel.this.clientSessionDataGrid.getVisibleItemCount(); i++) {
+//          if (ClientSessionGridPanel.this.clientSessionDataGrid.getVisibleItem(i).getSessionStatus() == ClientSession.SESSION_STATUS.STARTED) {
+//            ClientSessionGridPanel.this.clientSessionDataGrid.redraw();
+//          }
+//        }
+        super.onRangeOrRowCountChanged();
+      }
+    };
     pager.setPageSize(10);
     pager.setRangeLimited(true);
     pager.setDisplay(clientSessionDataGrid);
     add(clientSessionDataGrid);
-    pager.getElement().getStyle().setMarginBottom(40, Style.Unit.PX);
-    pager.getElement().getStyle().setMarginLeft(40, Style.Unit.PX);
+    pager.getElement().getStyle().setMarginBottom(70, Style.Unit.PX);
+    pager.getElement().getStyle().setMarginLeft(100, Style.Unit.PX);
     add(pager);
     setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 
@@ -366,9 +367,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
 
             @Override
             public void onSuccess(List<ClientSession> result) {
-              listDataProvider.getList().clear();
-              listDataProvider.getList().addAll(result);
-              listDataProvider.refresh();
+              updateListDataProviderOnSuccess(result);
 //              clientSessionDataGrid.setVisibleRange(0, listDataProvider.getList().size());
 //              DecoratedPopupPanel decoratedPopupPanel = new DecoratedPopupPanel();
 //              decoratedPopupPanel.center();
@@ -396,9 +395,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
 
             @Override
             public void onSuccess(List<ClientSession> result) {
-              listDataProvider.getList().clear();
-              listDataProvider.getList().addAll(result);
-              listDataProvider.refresh();
+              updateListDataProviderOnSuccess(result);
 //              clientSessionDataGrid.setVisibleRange(0, listDataProvider.getList().size());
               DecoratedPopupPanel decoratedPopupPanel = new DecoratedPopupPanel();
               decoratedPopupPanel.center();
@@ -420,9 +417,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
             @Override
             public void onSuccess(List<ClientSession> result) {
 //              setNameFree(clientSession);
-              listDataProvider.getList().clear();
-              listDataProvider.getList().addAll(result);
-              listDataProvider.refresh();
+              updateListDataProviderOnSuccess(result);
 //              clientSessionDataGrid.setVisibleRange(0, listDataProvider.getList().size());
 //              DecoratedPopupPanel decoratedPopupPanel = new DecoratedPopupPanel();
 //              decoratedPopupPanel.center();
@@ -564,9 +559,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
           @Override
           public void onSuccess(List<ClientSession> result) {
             setNameFree(clientSession);
-            listDataProvider.getList().clear();
-            listDataProvider.getList().addAll(result);
-            listDataProvider.refresh();
+            updateListDataProviderOnSuccess(result);
 //            clientSessionDataGrid.setVisibleRange(0, listDataProvider.getList().size());
             Audio audio = Audio.createIfSupported();
             audio.setSrc(GWT.getHostPageBaseURL() + "sounds/7.wav");
@@ -625,11 +618,14 @@ public class ClientSessionGridPanel extends VerticalPanel {
 
     Timer t = new Timer() {
       public void run() {
-//        for (int i = 0; i < ClientSessionGridPanel.this.clientSessionDataGrid.getRowCount(); i++) {
-//          if (ClientSessionGridPanel.this.clientSessionDataGrid.getVisibleItem(i).getSessionStatus() == ClientSession.SESSION_STATUS.STARTED) {
-            ClientSessionGridPanel.this.clientSessionDataGrid.redraw();
+//        com.google.gwt.view.client.Range visibleRange = clientSessionDataGrid.getVisibleRange();
+//        for (int i = visibleRange.getStart() + 1; i < clientSessionDataGrid.getVisibleItemCount() +
+//                visibleRange.getLength() - 1; i++) {
+//          if (ClientSessionGridPanel.this.clientSessionDataGrid.getVisibleItem(i - 1).getSessionStatus() == ClientSession.SESSION_STATUS.STARTED) {
+//            ClientSessionGridPanel.this.clientSessionDataGrid.redrawRow(i);
 //          }
 //        }
+        ClientSessionGridPanel.this.clientSessionDataGrid.redraw();
 //        long sum = 0;
 //        for (int i = 0; i < ClientSessionGridPanel.this.clientSessionDataGrid.getRowCount(); i++) {
 //          ClientSession clientSession = ClientSessionGridPanel.this.clientSessionDataGrid.getVisibleItem(i);
@@ -678,6 +674,13 @@ public class ClientSessionGridPanel extends VerticalPanel {
 
   }
 
+  private void updateListDataProviderOnSuccess(List<ClientSession> result) {
+    listDataProvider.getList().clear();
+    listDataProvider.getList().addAll(result);
+    listDataProvider.refresh();
+    clientSessionDataGrid.setVisibleRange(0, 10);
+  }
+
   private long getSum(long sum, ClientSession clientSession) {
     long timeDifferenceLength;
     boolean isSessionOver = false;
@@ -720,9 +723,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
 
                   @Override
                   public void onSuccess(List<ClientSession> result) {
-                    listDataProvider.getList().clear();
-                    listDataProvider.getList().addAll(result);
-                    listDataProvider.refresh();
+                    updateListDataProviderOnSuccess(result);
 //                    clientSessionDataGrid.setVisibleRange(0, listDataProvider.getList().size());
                   }
                 });
@@ -775,9 +776,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
 
                 @Override
                 public void onSuccess(List<ClientSession> result) {
-                  listDataProvider.getList().clear();
-                  listDataProvider.getList().addAll(result);
-                  listDataProvider.refresh();
+                  updateListDataProviderOnSuccess(result);
 //                  clientSessionDataGrid.setVisibleRange(0, listDataProvider.getList().size());
                   DecoratedPopupPanel decoratedPopupPanel = new DecoratedPopupPanel();
                   decoratedPopupPanel.center();
