@@ -23,7 +23,8 @@ public interface ClientSessionServiceAsync {
     void addNames(List<SessionPseudoName> pseudoNamesList, AsyncCallback<Void> asyncCallback);
 
     void saveClientSession(DatePoint datePoint, ClientSession clientSession, boolean isShowRemoved, boolean showPayedOn, AsyncCallback<List<ClientSession>> asyncCallback);
-    void saveHiberClientSession(DatePoint datePoint, ClientSession clientSession, boolean isShowRemoved, boolean showPayedOn, AsyncCallback<List<ClientSession>> asyncCallback);
+
+    void addUser(String userName, AsyncCallback<Void> asyncCallback);
 
     void removeClientSession(DatePoint datePoint, ClientSession clientSession, boolean isShowRemoved, boolean showPayedOn, AsyncCallback<List<ClientSession>> asyncCallback);
 

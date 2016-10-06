@@ -48,7 +48,6 @@ import com.shared.model.SettingsHolder;
 import com.shared.utils.UserUtils;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -754,6 +753,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
       if (hoursGone >= model.getNumberOfHours()) {
         hoursSet = model.getNumberOfHours();
         hoursSum = model.getCostForHours();
+        costPerMinute = model.getCostPerMinute();
       }
     }
     long leftMilliSeconds = 0;
@@ -937,27 +937,7 @@ public class ClientSessionGridPanel extends VerticalPanel {
     });
     HorizontalPanel buttonContainer = new HorizontalPanel();
 
-    Button hiberButton = new Button("Hibernate");
-    hiberButton.addClickHandler(new ClickHandler() {
-      @Override
-      public void onClick(ClickEvent event) {
-       clientSessionService.saveHiberClientSession(currentDatePointValue, new ClientSession(), UserUtils.getSettings().isToShowRemoved(),
-               UserUtils.getSettings().isToShowPayed(), new AsyncCallback<List<ClientSession>>() {
-                 @Override
-                 public void onFailure(Throwable caught) {
-
-                 }
-
-                 @Override
-                 public void onSuccess(List<ClientSession> result) {
-                   System.out.println("test message");
-                 }
-               });
-      }
-    });
-
     buttonContainer.add(createButton);
-    buttonContainer.add(hiberButton);
     buttonContainer.add(cancelButton);
     dialogContents.add(buttonContainer);
 //          Button addEntityButton = new Button("Создать client");

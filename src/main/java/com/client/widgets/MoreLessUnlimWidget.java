@@ -19,7 +19,7 @@ import java.util.Map;
  * Created by dmitry on 22.08.16.
  */
 public class MoreLessUnlimWidget extends ScrollPanel {
-  private final TextBox costPerMinuteTextBox = new AntiTextBox();
+//  private final TextBox costPerMinuteTextBox = new AntiTextBox();
   final TextBox unlimCostTextBox = new AntiMoneyTextBox();
   private VerticalPanel hoursCostsPanel;
   final Button addHourButton = new Button("Добавить стоимость");
@@ -35,8 +35,8 @@ public class MoreLessUnlimWidget extends ScrollPanel {
     hoursCostsPanel.setSize("400px", "150px");
     hoursCostsPanel.setSpacing(5);
     mainPanel.add(hoursCostsPanel);
-    mainPanel.add(new Label("Стоимость минуты, коп.: "));
-    mainPanel.add(costPerMinuteTextBox);
+//    mainPanel.add(new Label("Стоимость минуты, коп.: "));
+//    mainPanel.add(costPerMinuteTextBox);
     mainPanel.add(new Label("Стоимость безлимита, руб.: "));
     mainPanel.add(unlimCostTextBox);
     setAddButtonEnabled(addHourButton);
@@ -60,6 +60,10 @@ public class MoreLessUnlimWidget extends ScrollPanel {
         hoursCostTextBox.setWidth("30px");
         numberHoursCostPanel.add(hoursCostTextBox);
         numberHoursCostPanel.add(new Label("руб."));
+        numberHoursCostPanel.add(new Label("   Стоимость минуты, руб.: "));
+        final TextBox minutesCostTextBox = new AntiMoneyTextBox();
+        minutesCostTextBox.setName("minutesCostTextBox");
+        numberHoursCostPanel.add(minutesCostTextBox);
         Button removeButton = new Button("Удалить");
         removeButton.addClickHandler(new ClickHandler() {
           @Override
@@ -100,6 +104,12 @@ public class MoreLessUnlimWidget extends ScrollPanel {
       hoursCostTextBox.setValue(cost != 0 ? String.valueOf(cost) : "0");
       numberHoursCostPanel.add(hoursCostTextBox);
       numberHoursCostPanel.add(new Label("руб."));
+      numberHoursCostPanel.add(new Label("   Стоимость минуты, руб: "));
+      final TextBox minutesCostTextBox = new AntiMoneyTextBox();
+      minutesCostTextBox.setName("minutesCostTextBox");
+      long minutesCost = moreLessUnlimModel.getCostPerMinute();
+      minutesCostTextBox.setValue(minutesCost != 0 ? String.valueOf(minutesCost) : "0");
+      numberHoursCostPanel.add(minutesCostTextBox);
       Button removeButton = new Button("Удалить");
       removeButton.addClickHandler(new ClickHandler() {
         @Override
@@ -114,7 +124,7 @@ public class MoreLessUnlimWidget extends ScrollPanel {
       }
       setAddButtonEnabled(addHourButton);
       unlimCostTextBox.setValue(moreLessUnlimModel.getUnlimCost() != 0 ? String.valueOf(moreLessUnlimModel.getUnlimCost()) : "0");
-      costPerMinuteTextBox.setValue(moreLessUnlimModel.getCostPerMinute() != 0 ? String.valueOf(moreLessUnlimModel.getCostPerMinute()) : "0");
+//      costPerMinuteTextBox.setValue(moreLessUnlimModel.getCostPerMinute() != 0 ? String.valueOf(moreLessUnlimModel.getCostPerMinute()) : "0");
     }
   }
 
@@ -183,11 +193,14 @@ public class MoreLessUnlimWidget extends ScrollPanel {
             } else if (antiTextBox.getName().equals("hoursCostTextBox")) {
               antiTextBox = (AntiMoneyTextBox) childWidget;
               moreLessUnlimModel.setCostForHours(antiTextBox.getValue() != null ? Long.valueOf(antiTextBox.getValue()) : 0);
+            } else if (antiTextBox.getName().equals("minutesCostTextBox")) {
+              antiTextBox = (AntiMoneyTextBox) childWidget;
+              moreLessUnlimModel.setCostPerMinute(antiTextBox.getValue() != null ? Long.valueOf(antiTextBox.getValue()) : 0);
             }
           }
         }
       }
-      moreLessUnlimModel.setCostPerMinute(Long.valueOf(costPerMinuteTextBox.getValue()));
+//      moreLessUnlimModel.setCostPerMinute(Long.valueOf(costPerMinuteTextBox.getValue()));
       moreLessUnlimModel.setUnlimCost(Long.valueOf(unlimCostTextBox.getValue()));
       order += 1;
       moreLessUnlimModel.setModelOrder(order);

@@ -4,13 +4,11 @@ import com.client.service.ClientSessionService;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import com.server.dao.ClientSessionDao;
 import com.server.dao.ClientSessionHibernateDaoImpl;
-import com.server.dao.ClientSessionMemoryDaoImpl;
 import com.shared.model.ClientSession;
 import com.shared.model.DatePoint;
 import com.shared.model.MoreLessUnlimModel;
 import com.shared.model.SessionPseudoName;
 import com.shared.model.User;
-import com.shared.utils.UserUtils;
 
 import java.util.List;
 
@@ -52,8 +50,8 @@ public class ClientSessionServiceImpl extends RemoteServiceServlet implements Cl
     }
 
     @Override
-    public List<ClientSession> saveHiberClientSession(DatePoint datePoint, ClientSession clientSession, boolean isShowRemoved, boolean showPayedOn) {
-        return clientSessionDao.saveHiberClientSession(datePoint, clientSession, isShowRemoved, showPayedOn);
+    public void addUser(String userName) {
+        clientSessionDao.addUser(userName);
     }
 
     @Override

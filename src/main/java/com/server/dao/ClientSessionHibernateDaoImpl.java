@@ -219,8 +219,8 @@ public class ClientSessionHibernateDaoImpl implements ClientSessionDao{
     }
 
     @Override
-    public List<ClientSession> saveHiberClientSession(DatePoint datePoint, ClientSession clientSession, boolean isShowRemoved, boolean showPayedOn) {
-        return null;
+    public void addUser(String userName) {
+        addUser(HibernateAnnotationUtil.getSessionFactory().openSession(), userName);
     }
 
     @Override
@@ -252,7 +252,8 @@ public class ClientSessionHibernateDaoImpl implements ClientSessionDao{
         Transaction transaction = null;
         try {
             transaction = session.beginTransaction();
-            Query query = session.createQuery("from com.shared.model.ClientSession");
+            Query query = session.createQuery("from com.shared.model.ClientSession where userEntity =:currentUserId");
+            query.setParameter("currentUserId", currentUser.getUserId());
             List<ClientSession> clientSessions = query.list();
             Predicate<ClientSession> removedPredicate = new Predicate<ClientSession>() {
                 @Override
@@ -643,6 +644,66 @@ public class ClientSessionHibernateDaoImpl implements ClientSessionDao{
         addTestClientSession(testUser, c.getTime().getTime(), System.currentTimeMillis(), ClientSession.SESSION_STATUS.PAYED, Long.valueOf("5555"), session);
         addTestClientSession(testUser, System.currentTimeMillis(), System.currentTimeMillis(), ClientSession.SESSION_STATUS.REMOVED, 0l, session);
     }
+
+    private void addUser(Session session, String userName) {
+        Transaction transaction = null;
+        try {
+            transaction = session.beginTransaction();
+            User testUser = new User();
+//        testUser.setUserEntity(0l);
+            testUser.setUserName(userName);
+            testUser.setPassword("");
+
+
+            SettingsHolder testSettingsHolder = new SettingsHolder();
+            testSettingsHolder.setFirstPartLength(20000l);
+            testSettingsHolder.setFirstPartSumAmount(3500l);
+            session.save(testUser);
+            session.save(testSettingsHolder);
+            testUser.setSettingsHolder(testSettingsHolder.getSettingsId());
+            testSettingsHolder.setUserEntity(testUser.getUserId());
+
+            MoreLessUnlimModel moreLessUnlimModel = new MoreLessUnlimModel();
+            moreLessUnlimModel.setNumberOfHours(1);
+            moreLessUnlimModel.setCostForHours(150);
+            moreLessUnlimModel.setCostPerMinute(5);
+            moreLessUnlimModel.setModelOrder(1);
+            moreLessUnlimModel.setUserEntity(testUser.getUserId());
+            moreLessUnlimModel.setUnlimCost(500);
+            session.save(moreLessUnlimModel);
+
+            MoreLessUnlimModel moreLessUnlimModel2 = new MoreLessUnlimModel();
+            moreLessUnlimModel2.setNumberOfHours(2);
+            moreLessUnlimModel2.setCostForHours(250);
+            moreLessUnlimModel2.setCostPerMinute(4);
+            moreLessUnlimModel2.setModelOrder(2);
+            moreLessUnlimModel2.setUserEntity(testUser.getUserId());
+            moreLessUnlimModel2.setUnlimCost(500);
+            session.save(moreLessUnlimModel2);
+
+            MoreLessUnlimModel moreLessUnlimModel3 = new MoreLessUnlimModel();
+            moreLessUnlimModel3.setNumberOfHours(3);
+            moreLessUnlimModel3.setCostForHours(300);
+            moreLessUnlimModel3.setCostPerMinute(3);
+            moreLessUnlimModel3.setModelOrder(3);
+            moreLessUnlimModel3.setUserEntity(testUser.getUserId());
+            moreLessUnlimModel3.setUnlimCost(500);
+            session.save(moreLessUnlimModel3);
+
+            testUser.getMoreLessUnlimModelList().add(moreLessUnlimModel);
+            testUser.getMoreLessUnlimModelList().add(moreLessUnlimModel2);
+            testUser.getMoreLessUnlimModelList().add(moreLessUnlimModel3);
+            transaction.commit();
+        } catch (HibernateException e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
+        } finally {
+            session.close();
+        }
+    }
+
 
     @Override
     public List<ClientSession> startClientSession(DatePoint datePoint, ClientSession clientSession, boolean toShowRemoved, boolean toShowPayed) {

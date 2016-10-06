@@ -14,7 +14,7 @@ import java.util.List;
  */
 public class AntiMoneyTextBox extends AntiTextBox {
   public AntiMoneyTextBox() {
-
+    setWidth("30px");
   }
   @Override
   public void setValue(String value) {

@@ -4,8 +4,6 @@ import com.client.events.AddSessionEvent;
 import com.client.events.ChangeDatePointEvent;
 import com.client.events.ToggleShowPayedEvent;
 import com.client.events.ToggleShowRemovedEvent;
-import com.client.events.UpdateSumEvent;
-import com.client.events.UpdateSumEventHandler;
 import com.client.panels.ReportsPanel;
 import com.client.panels.SettingsPanel;
 import com.client.service.ClientSessionService;
@@ -19,19 +17,18 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.event.shared.SimpleEventBus;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
-import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
-import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.SplitLayoutPanel;
 import com.google.gwt.user.client.ui.TabLayoutPanel;
+import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.ToggleButton;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.shared.model.ClientSession;
@@ -165,6 +162,29 @@ public class MainTabPanel extends TabLayoutPanel {
 //    eastButtonsPanel.add(sumLabel);
     eastButtonsPanel.add(datePointListBox);
 
+
+    final TextBox userNameBox = new TextBox();
+    Button addUserButton = new Button("Добавить пользователя");
+    addUserButton.addClickHandler(new ClickHandler() {
+      @Override
+      public void onClick(ClickEvent event) {
+        clientSessionService.addUser(userNameBox.getValue(), new AsyncCallback<Void>() {
+          @Override
+          public void onFailure(Throwable caught) {
+
+          }
+
+          @Override
+          public void onSuccess(Void result) {
+            Window.alert("User is created" );
+          }
+        });
+      }
+    });
+
+    eastButtonsPanel.add(userNameBox);
+    eastButtonsPanel.add(addUserButton);
+
     splitLayoutPanel.addEast(eastButtonsPanel, 250);
 //    eastButtonsPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
     eastButtonsPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
@@ -260,28 +280,8 @@ public class MainTabPanel extends TabLayoutPanel {
       }
     });
     HorizontalPanel buttonContainer = new HorizontalPanel();
-    Button hiberButton = new Button("Hibernate");
-    hiberButton.addClickHandler(new ClickHandler() {
-      @Override
-      public void onClick(ClickEvent event) {
-        clientSessionService.saveHiberClientSession(DatePoint.ALL, new ClientSession(), UserUtils.getSettings().isToShowRemoved(),
-                UserUtils.getSettings().isToShowPayed(), new AsyncCallback<List<ClientSession>>() {
-                  @Override
-                  public void onFailure(Throwable caught) {
-
-                  }
-
-                  @Override
-                  public void onSuccess(List<ClientSession> result) {
-                    System.out.println("test message");
-                  }
-                });
-      }
-    });
-
     buttonContainer.add(createButton);
     buttonContainer.add(cancelButton);
-    buttonContainer.add(hiberButton);
     dialogContents.add(buttonContainer);
 //          Button addEntityButton = new Button("Создать client");
 //          addEntityButton.addClickHandler(new ClickHandler() {

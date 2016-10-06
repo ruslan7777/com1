@@ -151,28 +151,8 @@ public class ClientSessionMemoryDaoImpl implements ClientSessionDao{
     }
 
     @Override
-    public List<ClientSession> saveHiberClientSession(DatePoint datePoint, ClientSession clientSession, boolean isShowRemoved, boolean showPayedOn) {
-        Session session = HibernateAnnotationUtil.getSessionFactory().openSession();
-        Transaction transaction = null;
-        try {
+    public void addUser(String userName) {
 
-//            saveObjects(session);
-
-            transaction = session.beginTransaction();
-
-            ClientSession clientSessionToSave = new ClientSession();
-            session.save(clientSessionToSave);
-            transaction.commit();
-        } catch (HibernateException e) {
-            if (transaction != null) {
-                transaction.rollback();
-            }
-            e.printStackTrace();
-        } finally {
-            session.close();
-        }
-
-        return new ArrayList<>();
     }
 
     @Override
